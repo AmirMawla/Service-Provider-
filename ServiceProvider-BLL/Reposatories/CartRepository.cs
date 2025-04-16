@@ -24,12 +24,12 @@ namespace ServiceProvider_BLL.Reposatories
             _context = context;
         }
 
-        public async Task<Result<CartResponse>> GetCart(int cartId, CancellationToken cancellationToken = default)
+        public async Task<Result<CartResponse>> GetCart(string userId, CancellationToken cancellationToken = default)
         {
             var cart = await _context.Carts!
               .Include(c => c.CartProducts)
               .ThenInclude(cp => cp.Product)
-              .FirstOrDefaultAsync(c => c.Id == cartId, cancellationToken);
+              .FirstOrDefaultAsync(c => c.ApplicationUserId == userId, cancellationToken);
 
             if (cart == null)
                 return Result.Failure<CartResponse>(CartErrors.CartNotFound);
@@ -78,11 +78,11 @@ namespace ServiceProvider_BLL.Reposatories
         }
 
 
-        public async Task<Result<CartProductResponse>> UpdateCartItemAsync(UpdateCartItemRequest request , CancellationToken cancellationToken)
+        public async Task<Result<CartProductResponse>> UpdateCartItemAsync(string userId,UpdateCartItemRequest request , CancellationToken cancellationToken)
         {
             var cartProduct = await _context.CartProducts!
                             .FirstOrDefaultAsync(cp =>
-                                cp.CartId == request.CartId &&
+                                cp.Cart.ApplicationUserId == userId &&
                                 cp.ProductId == request.ProductId,
                                 cancellationToken: cancellationToken
                             );

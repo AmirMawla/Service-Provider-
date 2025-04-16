@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ServiceProvider_BLL.Authentication;
 using ServiceProvider_BLL.Authentication.Filters;
+using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_BLL.Reposatories;
 using ServiceProvider_DAL.Data;
@@ -54,6 +55,9 @@ namespace SeeviceProvider_PL
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped<IAuthRepositry, AuthRepositry>();
             services.AddScoped<IAnalyticsRepositry, AnalyticsRepositry>();
+
+            services.AddExceptionHandler<GlobalExeptionHandler>();
+            services.AddProblemDetails();
 
 
 
@@ -128,6 +132,7 @@ namespace SeeviceProvider_PL
                         context.User.Identity!.IsAuthenticated &&
                         context.User.HasClaim(c => c.Type == "IsApproved" && c.Value.Equals("true", StringComparison.OrdinalIgnoreCase))));
             });
+
 
             services.AddScoped<IUserClaimsPrincipalFactory<Vendor>, CustomUserClaimsPrincipalFactory>();
 

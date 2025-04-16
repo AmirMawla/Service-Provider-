@@ -25,46 +25,7 @@ namespace SeeviceProvider_PL
             //Inject all services
             builder.Services.AddDependency(builder.Configuration);
 
-
-            // Add Authentication
-            //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //.AddJwtBearer(options =>
-            //    {
-            //        options.RequireHttpsMetadata = false;
-            //        options.SaveToken = true;
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuerSigningKey = true,
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("k")),
-            //            ValidateIssuer = false,
-            //            ValidateAudience = false
-            //        };
-            //    });
-
-
-            //// Identity Register (Using AddIdentityCore to Avoid Conflict)
-            //builder.Services.AddIdentityCore<Vendor>(options =>
-            //{
-            //    options.Password.RequiredLength = 4;
-            //    options.Password.RequireDigit = false;
-            //    options.Password.RequireNonAlphanumeric = false;
-            //    options.Password.RequireUppercase = false;
-            //})
-            //.AddRoles<IdentityRole>() // If roles are used
-            //.AddEntityFrameworkStores<AppDbContext>();
-
-
-            //builder.Services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-            //});
-
-
-
-
             var app = builder.Build();
-
-
 
             // Seed the database with initial data
             using (var scope = app.Services.CreateScope())
@@ -89,11 +50,11 @@ namespace SeeviceProvider_PL
 
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
+            //if (app.Environment.IsDevelopment())
+            //{
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
+            //}
 
             app.UseHttpsRedirection();
 
@@ -104,6 +65,8 @@ namespace SeeviceProvider_PL
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.UseExceptionHandler();
 
             app.Run();
         }

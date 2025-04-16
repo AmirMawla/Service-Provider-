@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.CartProductDto;
@@ -13,10 +14,10 @@ namespace SeeviceProvider_PL.Controllers
     {
         private readonly IUnitOfWork _cartRepositry = CartRepositry;
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCartDetalis([FromRoute] int id , CancellationToken cancellationToken)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetCartDetalis([FromRoute] string userId, CancellationToken cancellationToken)
         {
-            var result = await _cartRepositry.Carts.GetCart(id , cancellationToken);
+            var result = await _cartRepositry.Carts.GetCart(userId, cancellationToken);
 
             return result.IsSuccess
             ? Ok(result.Value)
@@ -33,10 +34,11 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
-        [HttpPut("items")]
-        public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemRequest request , CancellationToken cancellationToken)
+        //[Authorize]
+        [HttpPut("{userId}/items")]
+        public async Task<IActionResult> UpdateCartItem([FromRoute] string userId, [FromBody] UpdateCartItemRequest request , CancellationToken cancellationToken)
         {
-            var result = await _cartRepositry.Carts.UpdateCartItemAsync(request , cancellationToken);
+            var result = await _cartRepositry.Carts.UpdateCartItemAsync(userId ,request , cancellationToken);
 
             return result.IsSuccess
                 ? Ok(result.Value)

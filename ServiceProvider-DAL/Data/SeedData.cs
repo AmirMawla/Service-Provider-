@@ -139,51 +139,51 @@ namespace ServiceProvider_DAL.Data
 
           private  static async Task SeedRoles(UserManager<Vendor> userManager, RoleManager<IdentityRole> roleManager)
           {
-            //if (!await roleManager.RoleExistsAsync("Admin"))
-            //{
-            //    var adminRole = new IdentityRole { Name = "Admin" };
-            //    await roleManager.CreateAsync(adminRole);
-            //}
+                 //if (!await roleManager.RoleExistsAsync("Admin"))
+                 //{
+                 //    var adminRole = new IdentityRole { Name = "Admin" };
+                 //    await roleManager.CreateAsync(adminRole);
+                 //}
 
-            //if (!await roleManager.RoleExistsAsync("Vendor"))
-            //{
-            //    var VendorRole = new IdentityRole { Name = "Vendor" };
-            //    await roleManager.CreateAsync(VendorRole);
-            //}
-            if (!await roleManager.RoleExistsAsync("Admin"))
-            {
-                var adminRole = new IdentityRole { Name = "Admin", ConcurrencyStamp = Guid.NewGuid().ToString() };
-                await roleManager.CreateAsync(adminRole);
-            }
-            else
-            {
-                var existingAdminRole = await roleManager.FindByNameAsync("Admin");
-                if (existingAdminRole?.ConcurrencyStamp == null)
-                {
-                    existingAdminRole!.ConcurrencyStamp = Guid.NewGuid().ToString();
-                    await roleManager.UpdateAsync(existingAdminRole);
-                }
-            }
+                 //if (!await roleManager.RoleExistsAsync("Vendor"))
+                 //{
+                 //    var VendorRole = new IdentityRole { Name = "Vendor" };
+                 //    await roleManager.CreateAsync(VendorRole);
+                 //}
+                 if (!await roleManager.RoleExistsAsync("Admin"))
+                 {
+                     var adminRole = new IdentityRole { Name = "Admin", ConcurrencyStamp = Guid.NewGuid().ToString() };
+                     await roleManager.CreateAsync(adminRole);
+                 }
+                 else
+                 {
+                     var existingAdminRole = await roleManager.FindByNameAsync("Admin");
+                     if (existingAdminRole?.ConcurrencyStamp == null)
+                     {
+                         existingAdminRole!.ConcurrencyStamp = Guid.NewGuid().ToString();
+                         await roleManager.UpdateAsync(existingAdminRole);
+                     }
+                 }
 
-            if (!await roleManager.RoleExistsAsync("Vendor"))
-            {
-                var vendorRole = new IdentityRole { Name = "Vendor", ConcurrencyStamp = Guid.NewGuid().ToString() };
-                await roleManager.CreateAsync(vendorRole);
-            }
-            else
-            {
-                var existingVendorRole = await roleManager.FindByNameAsync("Vendor");
-                if (existingVendorRole?.ConcurrencyStamp == null)
-                {
-                    existingVendorRole!.ConcurrencyStamp = Guid.NewGuid().ToString();
-                    await roleManager.UpdateAsync(existingVendorRole);
-                }
-            }
+                 if (!await roleManager.RoleExistsAsync("Vendor"))
+                 {
+                     var vendorRole = new IdentityRole { Name = "Vendor", ConcurrencyStamp = Guid.NewGuid().ToString() };
+                     await roleManager.CreateAsync(vendorRole);
+                 }
+                 else
+                 {
+                     var existingVendorRole = await roleManager.FindByNameAsync("Vendor");
+                     if (existingVendorRole?.ConcurrencyStamp == null)
+                     {
+                         existingVendorRole!.ConcurrencyStamp = Guid.NewGuid().ToString();
+                         await roleManager.UpdateAsync(existingVendorRole);
+                     }
+                 }
 
           }
 
            private  static async Task SeedAdminUser(UserManager<Vendor> userManager, RoleManager<IdentityRole> roleManager)
-            {
+           {
                 var adminUserName = "admin";
                 var adminUser = await userManager.FindByNameAsync(adminUserName);
                 if (adminUser == null)
@@ -194,10 +194,11 @@ namespace ServiceProvider_DAL.Data
                         FullName = adminUserName,
                         BusinessType =adminUserName,
                         Email = "admin@Vendor.com",
-                        EmailConfirmed = true
+                        EmailConfirmed = true,
+                        IsApproved = true
                     };
 
-                    var result = await userManager.CreateAsync(adminUser, "111z");
+                    var result = await userManager.CreateAsync(adminUser, "Admin@123");
 
                     if (result.Succeeded)
                     {
@@ -212,7 +213,7 @@ namespace ServiceProvider_DAL.Data
                         }
                     }
                 }
-             }
+           }
     }
 }
 

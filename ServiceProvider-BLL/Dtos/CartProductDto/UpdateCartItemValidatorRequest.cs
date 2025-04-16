@@ -11,7 +11,7 @@ namespace ServiceProvider_BLL.Dtos.CartProductDto
     {
         public UpdateCartItemValidatorRequest()
         {
-            RuleFor(x => x.CartId).GreaterThan(0).WithMessage("Invalid Cart ID");
+           // RuleFor(x => x.CartId).GreaterThan(0).WithMessage("Invalid Cart ID");
             RuleFor(x => x.ProductId).GreaterThan(0).WithMessage("Invalid Product ID");
             RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Quantity must be at least 1");
         }

@@ -30,11 +30,19 @@ namespace ServiceProvider_BLL.Reposatories
         public async Task<Result<IEnumerable<ProductResponse>>> GetAllProductsAsync(CancellationToken cancellationToken = default)
         {
             var products = await _context.Products!.
-                                AsNoTracking()
-                                .ToListAsync(cancellationToken: cancellationToken);
+                Include(p => p.Reviews)
+                .Select(p => new ProductResponse(
+                    p.Id,
+                    p.NameEn,
+                    p.NameAr,
+                    p.ImageUrl,
+                    p.Description,
+                    p.Price,
+                    p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
+                )).AsNoTracking()
+                .ToListAsync(cancellationToken);
 
-
-            return products is null ?
+            return !products.Any() ?
                 Result.Failure<IEnumerable<ProductResponse>>(ProductErrors.ProductsNotFound)
                 : Result.Success(products.Adapt<IEnumerable<ProductResponse>>());
 
@@ -42,11 +50,25 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<ProductResponse>> GetProductAsync(int id, CancellationToken cancellationToken = default)
         {
-            var product = await _context.Products!.FindAsync(id, cancellationToken);
+            var productResponse = await _context.Products!
+                .Where(p => p.Id == id)
+                .Select(p => new ProductResponse(
+                     p.Id,
+                     p.NameEn,
+                     p.NameAr,
+                     p.ImageUrl,
+                     p.Description,
+                     p.Price,
+                     p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
+                ))
+                .FirstOrDefaultAsync(cancellationToken);
 
-            return product is null
-                ? Result.Failure<ProductResponse>(ProductErrors.ProductNotFound)
-                : Result.Success(product.Adapt<ProductResponse>());
+                    if (productResponse == null)
+                    {
+                        return Result.Failure<ProductResponse>(ProductErrors.ProductNotFound);
+                    }
+
+                 return Result.Success(productResponse);
         }
 
         public async Task<Result<ProductResponse>> AddProductAsync(string vendorId, ProductRequest request, CancellationToken cancellationToken = default)

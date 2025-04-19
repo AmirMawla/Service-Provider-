@@ -328,8 +328,11 @@ The API is organized into resource-based sections. Each section contains endpoin
   ```json
   [
     {
-      "id": "string",    // Vendor ID
-      "businessName": "string" // Vendor business name
+      "id": "string",
+      "email":"string",   
+      "businessName": "string",
+      "businessType": "string",
+      "taxNumber":"string" 
     }
   ]
   ```

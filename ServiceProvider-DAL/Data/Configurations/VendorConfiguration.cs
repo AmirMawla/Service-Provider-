@@ -18,6 +18,11 @@ namespace ServiceProvider_DAL.Data.Configurations
             builder.Property(v => v.BusinessType).HasMaxLength(100);
             builder.Property(v => v.TaxNumber).HasMaxLength(50);
 
+            builder.OwnsMany(x => x.RefreshTokens)
+                    .ToTable("RefreshTokens")
+                    .WithOwner()
+                    .HasForeignKey("VendorId");
+
             builder.HasMany(v => v.Products)
                    .WithOne(p => p.Vendor)
                    .HasForeignKey(p => p.VendorId);

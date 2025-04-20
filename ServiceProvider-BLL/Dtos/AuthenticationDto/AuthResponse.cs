@@ -13,6 +13,8 @@ namespace ServiceProvider_BLL.Dtos.AuthenticationDto
         string? BusinessName,
         string BusinessType,
         string Token,
-        int ExpiresIn
+        int ExpiresIn,
+        string RefreshToken,
+        DateTime RefreshTokenExpiration
     );
 }

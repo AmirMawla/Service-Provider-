@@ -18,5 +18,7 @@ namespace ServiceProvider_BLL.Errors
         public static readonly Error NoPendingVendors = new("Vendor.NoPendingVendors", "No pending vendors exisit", StatusCodes.Status404NotFound);
         public static readonly Error ApprovedVendor = new("Vendor.ApprovedVendor", "Vendor already approved.", StatusCodes.Status409Conflict);
         public static readonly Error VendorNotRegisterdInSubCategory = new("Vendor.VendorNotRegisterdInSubCategory", "Vendor not registerd in subCategory.", StatusCodes.Status400BadRequest);
+        public static readonly Error InvalidRefreshToken = new("Vendor.InvalidRefreshToken", "Invalid Refresh Token", StatusCodes.Status400BadRequest);
+
     }
 }

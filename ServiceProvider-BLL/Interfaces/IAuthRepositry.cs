@@ -12,6 +12,8 @@ namespace ServiceProvider_BLL.Interfaces
     public interface IAuthRepositry
     {
         Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellation);
+        Task<Result<AuthResponse>> GetRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellation = default);
+        Task<Result> RevokeRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellation = default);
         Task<Result> RegisterAsync(RegisterationRequest request, CancellationToken cancellationToken = default);
 
     }

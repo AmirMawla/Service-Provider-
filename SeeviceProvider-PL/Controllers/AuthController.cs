@@ -23,6 +23,23 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellation)
+        {
+            var result = await _authRepositry.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellation);
+
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem() ;
+        }
+
+        [HttpPut("revoke-refresh-token")]
+        public async Task<IActionResult> RevokeRefresh([FromBody] RefreshTokenRequest request, CancellationToken cancellation)
+        {
+            var result = await _authRepositry.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellation);
+
+            return result.IsSuccess ? Ok() : result.ToProblem();
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterationRequest request, CancellationToken cancellationToken)
         {

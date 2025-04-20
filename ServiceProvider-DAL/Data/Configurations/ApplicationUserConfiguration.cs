@@ -39,6 +39,38 @@ namespace ServiceProvider_DAL.Data.Configurations
             builder.HasMany(u => u.Orders)
                    .WithOne(o => o.User)
                    .HasForeignKey(r => r.ApplicationUserId);
+
+            builder.HasData(new List<ApplicationUser>
+            {
+                new ApplicationUser
+                { Id = "abcdefg",
+                  FullName = "ahmed tahoon",
+                  Email = "ahmed@email.com",
+                  Address = "sharkia",
+                  PhoneNumber = "01002694473"
+                },
+                 new ApplicationUser
+                { Id = "abcdedvdvfdsfgh",
+                  FullName = "amir elsayed",
+                  Email = "amir@email.com",
+                  Address = "sharkia",
+                  PhoneNumber = "01002694473"
+                },
+                  new ApplicationUser
+                { Id = "fsjnvjkdsfjsfnvf",
+                  FullName = "Hossam mostafa",
+                  Email = "hossam@email.com",
+                  Address = "sharkia",
+                  PhoneNumber = "01002694473"
+                },
+                new ApplicationUser
+                { Id = "jndsjknfjmfifimkf",
+                  FullName = "ahmed fathi",
+                  Email = "fathi@email.com",
+                  Address = "sharkia",
+                  PhoneNumber = "01002694473"
+                }
+            });
         }
     }
 }

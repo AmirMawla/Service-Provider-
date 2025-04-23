@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceProvider_DAL.Data;
 
@@ -11,9 +12,11 @@ using ServiceProvider_DAL.Data;
 namespace ServiceProvider_DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423151527_AddSenderTypeToMessageTable")]
+    partial class AddSenderTypeToMessageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,7 +191,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationUsers", (string)null);
+                    b.ToTable("ApplicationUsers");
 
                     b.HasData(
                         new
@@ -248,7 +251,7 @@ namespace ServiceProvider_DAL.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.CartProduct", b =>
@@ -266,7 +269,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartProducts", (string)null);
+                    b.ToTable("CartProducts");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Category", b =>
@@ -289,7 +292,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Message", b =>
@@ -338,7 +341,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Order", b =>
@@ -367,7 +370,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.OrderProduct", b =>
@@ -385,7 +388,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderProducts", (string)null);
+                    b.ToTable("OrderProducts");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Payment", b =>
@@ -418,7 +421,7 @@ namespace ServiceProvider_DAL.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Product", b =>
@@ -473,7 +476,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Review", b =>
@@ -509,7 +512,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Shipping", b =>
@@ -536,7 +539,7 @@ namespace ServiceProvider_DAL.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Shippings", (string)null);
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.SubCategory", b =>
@@ -564,7 +567,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategories", (string)null);
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Vendor", b =>
@@ -667,7 +670,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("VendorSubCategories", (string)null);
+                    b.ToTable("VendorSubCategories");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

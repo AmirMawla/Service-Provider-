@@ -16,6 +16,7 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _categoryRepositry = categoryRepositry;
 
         [HttpGet("")]
+        //[Authorize(Roles = "MobileUser")]
         public async Task<IActionResult> GetAllCategories(CancellationToken cancellationToken) 
         {
             var result = await _categoryRepositry.Categories.GetCategoriesAsync(cancellationToken);

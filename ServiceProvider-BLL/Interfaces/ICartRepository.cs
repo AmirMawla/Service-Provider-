@@ -12,7 +12,7 @@ namespace ServiceProvider_BLL.Interfaces
     public interface ICartRepository : IBaseRepository<Cart>
     {
         Task<Result<CartResponse>> GetCart(string userId, CancellationToken cancellationToken = default);
-        Task<Result<CartProductResponse>> AddToCartAsync(CartProductRequest request , CancellationToken cancellationToken);
+        Task<Result<CartProductResponse>> AddToCartAsync(string userId, CartProductRequest request , CancellationToken cancellationToken);
         Task<Result<CartProductResponse>> UpdateCartItemAsync(string userId,UpdateCartItemRequest request , CancellationToken cancellationToken);
     }
 }

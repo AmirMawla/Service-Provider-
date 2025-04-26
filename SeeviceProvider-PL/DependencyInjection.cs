@@ -112,8 +112,8 @@ namespace SeeviceProvider_PL
                    ValidateAudience = true,
                    ValidateLifetime = true,
                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
-                   ValidIssuer = jwtSettings?.Issuer,
-                   ValidAudience = jwtSettings?.Audience
+                   ValidIssuers = [jwtSettings?.Issuer, "CentralUserManagementService"],
+                   ValidAudiences = [jwtSettings?.Audience , "CentralUserManagementService"]
                };
            });
 

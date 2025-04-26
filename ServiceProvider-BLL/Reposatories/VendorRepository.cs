@@ -112,7 +112,7 @@ namespace ServiceProvider_BLL.Reposatories
                      p.NameEn,
                      p.NameAr,
                      p.Description!,
-                     p.ImageUrl,
+                     p.MainImageUrl,
                      p.Price,
                      p.SubCategory.Category.NameEn,
                      p.SubCategory.Category.NameAr

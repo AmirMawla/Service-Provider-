@@ -13,7 +13,7 @@ namespace ServiceProvider_DAL.Entities
         public string NameAr { get; set; } = string.Empty;
         public string? Description { get; set;} 
         public decimal Price { get; set; } 
-        public string ImageUrl {  get; set; } = string.Empty ;
+        public string MainImageUrl {  get; set; } = string.Empty ;
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int SubCategoryId { get; set; }

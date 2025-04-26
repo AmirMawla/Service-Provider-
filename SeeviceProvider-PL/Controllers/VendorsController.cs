@@ -78,7 +78,7 @@ namespace SeeviceProvider_PL.Controllers
         [Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> ChangeVendorPassword( [FromBody] ChangeVendorPasswordRequest request)
         {
-            var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var result = await _vendorRepositry.Vendors.ChangeVendorPasswordAsync(vendorId!, request);
             return result.IsSuccess

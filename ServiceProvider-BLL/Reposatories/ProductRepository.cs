@@ -35,7 +35,7 @@ namespace ServiceProvider_BLL.Reposatories
                     p.Id,
                     p.NameEn,
                     p.NameAr,
-                    p.ImageUrl,
+                    p.MainImageUrl,
                     p.Description,
                     p.Price,
                     p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
@@ -56,7 +56,7 @@ namespace ServiceProvider_BLL.Reposatories
                      p.Id,
                      p.NameEn,
                      p.NameAr,
-                     p.ImageUrl,
+                     p.MainImageUrl,
                      p.Description,
                      p.Price,
                      p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
@@ -222,7 +222,7 @@ namespace ServiceProvider_BLL.Reposatories
                     p.Id,
                     p.NameEn,
                     p.Description,
-                    p.ImageUrl,
+                    p.MainImageUrl,
                     p.Price,
                     RequestCount = _context.OrderProducts!
                             .Where(op => op.ProductId == p.Id)

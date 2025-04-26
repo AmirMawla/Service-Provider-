@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Interfaces;
+using System.Security.Claims;
 
 namespace SeeviceProvider_PL.Controllers
 {
@@ -16,7 +17,7 @@ namespace SeeviceProvider_PL.Controllers
         [HttpGet("conversation/{otherUserId}/{orderId}")]
         public async Task<IActionResult> GetConversation(string otherUserId, int orderId)
         {
-            var userId = User.FindFirst("sub")?.Value;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userRole = User.IsInRole("Vendor") ? "Vendor" : "User";
             var result = await _messageRepositry.Messages.GetConversationAsync(userId!, userRole, otherUserId, orderId);
 
@@ -26,7 +27,7 @@ namespace SeeviceProvider_PL.Controllers
         [HttpGet("conversations")]
         public async Task<IActionResult> GetConversations()
         {
-            var userId = User.FindFirst("sub")?.Value;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userRole = User.IsInRole("Vendor") ? "Vendor" : "User";
             var result = await _messageRepositry.Messages.GetUserConversationsAsync(userId!, userRole);
 
@@ -36,8 +37,8 @@ namespace SeeviceProvider_PL.Controllers
         [HttpPut("read/{messageId}")]
         public async Task<IActionResult> MarkAsRead(int messageId)
         {
-            var userId = User.FindFirst("sub")?.Value;
-            var result = await _messageRepositry.Messages.MarkMessageAsReadAsync(messageId, userId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _messageRepositry.Messages.MarkMessageAsReadAsync(messageId, userId!);
 
             return result.IsSuccess ? Ok() : result.ToProblem();
         }

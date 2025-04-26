@@ -10,7 +10,7 @@ namespace ServiceProvider_BLL.Dtos.ProductDto
         string NameEn,
         string NameAr,
         string? Description,
-        string? ImageUrl,
+        string? MainImageUrl,
         decimal Price,
         int SubCategoryId
     );

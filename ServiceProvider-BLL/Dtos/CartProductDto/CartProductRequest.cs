@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 namespace ServiceProvider_BLL.Dtos.CartProductDto
 {
     public record CartProductRequest(
-        string UserId,
         int ProductId,
         int Quantity
-        );
+    );
     
 }

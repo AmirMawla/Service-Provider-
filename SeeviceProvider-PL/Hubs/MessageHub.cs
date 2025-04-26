@@ -4,6 +4,7 @@ using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.MessageDto;
 using ServiceProvider_BLL.Interfaces;
 using System.Collections.Concurrent;
+using System.Security.Claims;
 
 namespace SeeviceProvider_PL.Hubs
 {
@@ -15,7 +16,7 @@ namespace SeeviceProvider_PL.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var userId = Context.User!.FindFirst("sub")?.Value;
+            var userId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!string.IsNullOrEmpty(userId))
             {
                 UserConnections[userId] = Context.ConnectionId;
@@ -26,7 +27,7 @@ namespace SeeviceProvider_PL.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = Context.User!.FindFirst("sub")?.Value;
+            var userId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!string.IsNullOrEmpty(userId) && UserConnections.TryRemove(userId, out _))
             {
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId);
@@ -46,8 +47,8 @@ namespace SeeviceProvider_PL.Hubs
 
         public async Task SendMessage(MessageRequest messageDto)
         {
-            var senderId = Context.User!.FindFirst("sub")?.Value;
-            var senderRole = Context.User.IsInRole("Vendor") ? "Vendor" : "User";
+            var senderId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
+            var senderRole = Context.User!.IsInRole("Vendor") ? "Vendor" : "User";
 
             var result = await _messageRepository.SendMessageAsync(senderId!, senderRole, messageDto);
 

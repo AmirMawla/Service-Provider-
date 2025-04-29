@@ -39,12 +39,30 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess? Ok(result.Value): result.ToProblem();
         }
 
+        [HttpGet("all-users-count")]
+        
+        public async Task<IActionResult> GetAllMobileUsersCount( CancellationToken cancellationToken = default)
+        {
+            var result = await _generalRepository.ApplicationUsers.GetTotalUsersCountAsync(cancellationToken);
+
+            return result.IsSuccess ? Ok(new { TotalApplicationUsers = result.Value }) : result.ToProblem();
+        }
+
         [HttpGet("all-transactions")]
         public async Task<IActionResult> GetTransactions ([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetAllTransactions(request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
+        [HttpGet("all-transactions-count")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTransactionsCount( CancellationToken cancellationToken = default)
+        {
+            var result = await _generalRepository.Payments.GetTotalTransactionsCountAsync(cancellationToken);
+
+            return result.IsSuccess ? Ok(new { TotalTransactionsCount = result.Value }) : result.ToProblem();
         }
 
         [HttpGet("users/{userId}/all-transactions")]

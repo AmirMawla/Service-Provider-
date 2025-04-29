@@ -10,7 +10,7 @@ namespace ServiceProvider_BLL.Dtos.ProductDto
          int Id,
          string NameEn,
          string Description,
-         string ImageUrl,
+         string MainImageUrl,
          decimal Price,
          int RequestCount
     );

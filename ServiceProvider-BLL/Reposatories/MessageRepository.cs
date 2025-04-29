@@ -205,5 +205,12 @@ namespace ServiceProvider_BLL.Reposatories
 
         }
 
+        public async Task<Order?> GetOrderWithRelationsAsync(int orderId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Orders!
+                        .Include(o => o.OrderProducts)
+                        .ThenInclude(op => op.Product)
+                        .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+        }
     }
 }

@@ -14,5 +14,7 @@ namespace ServiceProvider_BLL.Dtos.Common
         public string? SearchValue { get; init; }
         public string? SortColumn { get; init; }
         public string? SortDirection { get; init; }
+
+        public bool? IsApproved { get; init; }
     }
 }

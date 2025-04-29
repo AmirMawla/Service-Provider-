@@ -14,7 +14,7 @@ namespace ServiceProvider_BLL.Interfaces
 {
     public interface IVendorRepository : IBaseRepository<Vendor>
     {
-        Task<Result<IEnumerable<VendorResponse>>> GetAllProviders(CancellationToken cancellationToken = default);
+        Task<Result<PaginatedList<VendorResponse>>> GetAllProviders(RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<VendorResponse>> GetProviderDetails(string providerId,CancellationToken cancellationToken = default);
         Task<Result<PaginatedList<VendorRatingResponse>>> GetVendorsRatings(RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<ProductsOfVendorDto>>> GetProviderMenuAsync(string providerId , CancellationToken cancellationToken);
@@ -23,5 +23,6 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result> DeleteVendorAsync(string vendorId, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<VendorResponse>>> GetPendingVendorsAsync(CancellationToken cancellationToken = default);
         Task<Result> ApproveVendorAsync(string vendorId, CancellationToken cancellationToken = default);
+        Task<Result> DeactivateVendorAsync(string vendorId, CancellationToken cancellationToken = default);
     }
 }

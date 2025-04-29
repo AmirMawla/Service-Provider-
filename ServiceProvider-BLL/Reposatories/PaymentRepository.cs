@@ -35,7 +35,8 @@ namespace ServiceProvider_BLL.Reposatories
                     x.TransactionDate,
                     x.Status.ToString(),
                     x.PaymentMethod,
-                    x.OrderId
+                    x.OrderId,
+                    x.Order.User.FullName
                 ))
                 .AsNoTracking();
 
@@ -59,7 +60,8 @@ namespace ServiceProvider_BLL.Reposatories
                     x.TransactionDate,
                     x.Status.ToString(),
                     x.PaymentMethod,
-                    x.OrderId
+                    x.OrderId,
+                    x.Order.User.FullName
                 ))
                 .AsNoTracking();
 
@@ -70,6 +72,19 @@ namespace ServiceProvider_BLL.Reposatories
             var transactions = await PaginatedList<TransactionResponse>.CreateAsync(query, request.PageNumer, request.PageSize, cancellationToken);
 
             return Result.Success(transactions);
+        }
+
+        public async Task<Result<int>> GetTotalTransactionsCountAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var count = await _context.Payments!.CountAsync(cancellationToken);
+                return Result.Success(count);
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure<int>(new Error("Error", "Failed to retrieve transactions count.", StatusCodes.Status400BadRequest));
+            }
         }
     }
 }

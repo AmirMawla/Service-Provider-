@@ -14,6 +14,7 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<MessageResponse>> SendMessageAsync(string senderId, string senderRole, MessageRequest messageDto, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<MessageResponse>>> GetConversationAsync(string userId, string userRole, string otherUserId, int orderId, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<MessageResponse>>> GetUserConversationsAsync(string userId, string userRole, CancellationToken cancellationToken = default);
+        Task<Order?> GetOrderWithRelationsAsync(int orderId, CancellationToken cancellationToken = default);
         Task<Result> MarkMessageAsReadAsync(int messageId, string userId, CancellationToken cancellationToken = default);
     }
 }

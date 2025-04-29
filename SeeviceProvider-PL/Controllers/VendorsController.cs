@@ -22,9 +22,9 @@ namespace SeeviceProvider_PL.Controllers
         
         [HttpGet("")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetProviders(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProviders([FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
-            var result = await _vendorRepositry.Vendors.GetAllProviders(cancellationToken);
+            var result = await _vendorRepositry.Vendors.GetAllProviders(request,cancellationToken);
             return result.IsSuccess
                 ? Ok(result.Value)
                 : result.ToProblem();
@@ -114,6 +114,17 @@ namespace SeeviceProvider_PL.Controllers
 
             return result.IsSuccess ? Ok() : result.ToProblem();
         }
+
+        [HttpPost("deactivate-vendor/{vendorId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeactivateVendor([FromRoute] string vendorId)
+        {
+            var result = await _vendorRepositry.Vendors.DeactivateVendorAsync(vendorId);
+
+            return result.IsSuccess ? Ok() : result.ToProblem();
+        }
+
+
     }
 }
 

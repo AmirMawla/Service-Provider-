@@ -34,28 +34,42 @@ namespace ServiceProvider_BLL.Reposatories
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<Result<IEnumerable<VendorResponse>>> GetAllProviders(CancellationToken cancellationToken = default)
+        public async Task<Result<PaginatedList<VendorResponse>>> GetAllProviders(RequestFilter request,CancellationToken cancellationToken = default)
         {
-            var approvedVendors = await _context.Users
-                .Where(x => x.IsApproved)
-                .AsNoTracking()
-                .ToListAsync(cancellationToken: cancellationToken);
+            var query =  _context.Users
+                .Where(x => x.UserName != "admin")
+                .AsNoTracking();
 
-            if (!approvedVendors.Any())
-                return Result.Failure<IEnumerable<VendorResponse>>(VendorErrors.NotFound);
-
-            var notAdmins = new List<Vendor>();
-            foreach (var vendor in approvedVendors)
+            if (request.IsApproved.HasValue)
             {
-                if (await _userManager.IsInRoleAsync(vendor, "Vendor"))
-                {
-                    notAdmins.Add(vendor);
-                }
+                query = query.Where(u => u.IsApproved == request.IsApproved.Value);
             }
 
-            var providers = notAdmins.Adapt<IEnumerable<VendorResponse>>();
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                query = query.Where(x =>
+                     x.FullName.Contains(request.SearchValue) ||
+                     (x.BusinessName ?? "").Contains(request.SearchValue) ||
+                     (x.BusinessType ?? "").Contains(request.SearchValue));
+            }
 
-            return Result.Success(providers);
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = query.ProjectToType<VendorResponse>().AsNoTracking();
+
+
+            var vendors = await PaginatedList<VendorResponse>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return Result.Success(vendors);
         }
 
         public async Task<Result<PaginatedList<VendorRatingResponse>>> GetVendorsRatings(RequestFilter request,CancellationToken cancellationToken = default) 
@@ -206,6 +220,28 @@ namespace ServiceProvider_BLL.Reposatories
 
             vendor.IsApproved = true;
             vendor.EmailConfirmed = true;
+
+            var result = await _userManager.UpdateAsync(vendor);
+            if (result.Succeeded)
+                return Result.Success();
+
+            var error = result.Errors.First();
+
+            return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+
+        }
+
+        public async Task<Result> DeactivateVendorAsync(string vendorId, CancellationToken cancellationToken = default)
+        {
+            var vendor = await _userManager.FindByIdAsync(vendorId);
+            if (vendor == null || !(await _userManager.IsInRoleAsync(vendor, "Vendor")))
+                return Result.Failure(VendorErrors.NotFound);
+
+            if (vendor.IsApproved && vendor.EmailConfirmed)
+            {
+                vendor.IsApproved = false;
+                vendor.EmailConfirmed = false;
+            }
 
             var result = await _userManager.UpdateAsync(vendor);
             if (result.Succeeded)

@@ -37,11 +37,34 @@ namespace SeeviceProvider_PL.Hubs
 
         public async Task JoinOrderGroup(int orderId)
         {
+            var userId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userRole = Context.User!.IsInRole("Vendor") ? "Vendor" : "User";
+
+            // Validate that this user has permission to join this order group
+            var hasAccess = await ValidateOrderAccess(userId!, userRole, orderId);
+
+            if (!hasAccess)
+            {
+                throw new HubException("You don't have permission to access this order conversation.");
+            }
+
             await Groups.AddToGroupAsync(Context.ConnectionId, $"Order_{orderId}");
+            await Clients.Caller.SendAsync("GroupJoined", $"Joined Order_{orderId}");
         }
 
         public async Task LeaveOrderGroup(int orderId)
         {
+            var userId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userRole = Context.User!.IsInRole("Vendor") ? "Vendor" : "User";
+
+            // Validate that this user has permission to join this order group
+            var hasAccess = await ValidateOrderAccess(userId!, userRole, orderId);
+
+            if (!hasAccess)
+            {
+                throw new HubException("You don't have permission to access this order conversation.");
+            }
+
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Order_{orderId}");
         }
 
@@ -58,6 +81,26 @@ namespace SeeviceProvider_PL.Hubs
             }
 
             await Clients.Group($"Order_{messageDto.OrderId}").SendAsync("ReceiveMessage", result.Value);
+        }
+
+        private async Task<bool> ValidateOrderAccess(string userId, string userRole, int orderId)
+        {
+            // Get the order with related data
+            var order = await _messageRepository.GetOrderWithRelationsAsync(orderId);
+
+            if (order == null)
+                return false;
+
+            if (userRole == "User")
+            {
+                // For users, check if they're the order owner
+                return order.ApplicationUserId == userId;
+            }
+            else // Vendor
+            {
+                // For vendors, check if they have products in this order
+                return order.OrderProducts.Any(op => op.Product.VendorId == userId);
+            }
         }
     }
 }

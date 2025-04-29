@@ -35,7 +35,7 @@ namespace ServiceProvider_BLL.Reposatories
                     p.Id,
                     p.NameEn,
                     p.NameAr,
-                    p.ImageUrl,
+                    p.MainImageUrl,
                     p.Description,
                     p.Price,
                     p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
@@ -56,7 +56,7 @@ namespace ServiceProvider_BLL.Reposatories
                      p.Id,
                      p.NameEn,
                      p.NameAr,
-                     p.ImageUrl,
+                     p.MainImageUrl,
                      p.Description,
                      p.Price,
                      p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
@@ -108,6 +108,7 @@ namespace ServiceProvider_BLL.Reposatories
             currentProduct.NameEn = request.NameEn;
             currentProduct.NameAr = request.NameAr;
             currentProduct.Description = request.Description;
+            currentProduct.MainImageUrl = request.MainImageUrl;
             currentProduct.Price = request.Price;
             currentProduct.UpdatedAt = DateTime.UtcNow;
 
@@ -222,7 +223,7 @@ namespace ServiceProvider_BLL.Reposatories
                     p.Id,
                     p.NameEn,
                     p.Description,
-                    p.ImageUrl,
+                    p.MainImageUrl,
                     p.Price,
                     RequestCount = _context.OrderProducts!
                             .Where(op => op.ProductId == p.Id)

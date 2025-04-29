@@ -13,7 +13,7 @@ namespace ServiceProvider_DAL.Entities
         public string NameEn { get; set; } = string.Empty;
 
         public string NameAr { get; set; } = string.Empty;
-
+        public string? ImageUrl { get; set; }
         public int CategoryId { get; set; }
 
         public virtual Category Category { get; set; } = default!;

@@ -9,7 +9,8 @@ namespace ServiceProvider_BLL.Dtos.CategoryDto
     public record SubCategoryResponse(
         int Id ,
         string NameEn,
-        string NameAr
-        
+        string NameAr,
+        string? ImageUrl
+
         );
 }

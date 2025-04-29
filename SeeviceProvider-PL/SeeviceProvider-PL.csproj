@@ -32,4 +32,11 @@
     <ProjectReference Include="..\ServiceProvider-BLL\ServiceProvider-BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\categories\" />
+    <Folder Include="wwwroot\images\subcategories\" />
+    <Folder Include="wwwroot\images\products\" />
+    <Folder Include="wwwroot\images\vendors\" />
+  </ItemGroup>
+
 </Project>

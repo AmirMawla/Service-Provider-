@@ -9,6 +9,8 @@ namespace ServiceProvider_BLL.Dtos.VendorDto
     public record VendorResponse(
         string Id,
         string Email,
+        string ProfilePictureUrl,
+        string CoverImageUrl,
         string BusinessName,
         string BusinessType,
         string TaxNumber

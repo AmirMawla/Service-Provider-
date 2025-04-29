@@ -36,7 +36,7 @@ namespace ServiceProvider_DAL.Data
         public DbSet<Review>? Reviews { get; set; }
         public DbSet<Shipping>? Shippings { get; set; }
         public DbSet<VendorSubCategory>? VendorSubCategories { get; set; }
-
+        public DbSet<Banners>? Banners { get; set; }
        
 
     }

@@ -12,6 +12,7 @@ namespace ServiceProvider_BLL.Dtos.UsersDto
         string Email,
          string? Address ,
         string? PhoneNumber,
-        DateTime? RegistrationDate
+        DateTime? RegistrationDate,
+        string? ImageUrl
     );
 }

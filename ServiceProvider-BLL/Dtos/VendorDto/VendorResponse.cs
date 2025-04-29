@@ -10,6 +10,8 @@ namespace ServiceProvider_BLL.Dtos.VendorDto
         string Id,
         string FullName,
         string Email,
+        string ProfilePictureUrl,
+        string CoverImageUrl,
         string BusinessName,
         string BusinessType,
         string TaxNumber,

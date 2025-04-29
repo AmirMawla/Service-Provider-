@@ -159,7 +159,8 @@ namespace ServiceProvider_BLL.Reposatories
                 vendor.FullName = vendorDto.UserName;
 
             vendor.BusinessName = vendorDto.BusinessName;
-
+            vendor.CoverImageUrl = vendorDto.CoverImageUrl;
+            vendor.ProfilePictureUrl = vendorDto.ProfilePictureUrl;
             var result = await _userManager.UpdateAsync(vendor);
             await _context.SaveChangesAsync();
             return Result.Success(vendor.Adapt<UpdateVendorResponse>());

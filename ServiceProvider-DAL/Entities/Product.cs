@@ -20,6 +20,7 @@ namespace ServiceProvider_DAL.Entities
         public string VendorId { get; set; } = string.Empty;
         public virtual SubCategory SubCategory { get; set; } = default!;
         public virtual Vendor Vendor { get; set; } = default!;
+        public virtual ICollection<Banners>? Banners { get; set; }  = new List<Banners>();
         public virtual ICollection<OrderProduct>? OrderProducts { get; set; } = new List<OrderProduct>();
         public virtual ICollection<Review>? Reviews { get; set;} = new List<Review>();
         public virtual ICollection<CartProduct>? CartProducts { get; set; } = new List<CartProduct>();

@@ -10,6 +10,7 @@ namespace ServiceProvider_BLL.Dtos.ProductDto
         string NameEn,
         string NameAr,
         string? Description,
+        string? MainImageUrl,
         decimal Price
         );
     

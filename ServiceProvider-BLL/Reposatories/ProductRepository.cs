@@ -142,6 +142,7 @@ namespace ServiceProvider_BLL.Reposatories
             currentProduct.NameEn = request.NameEn;
             currentProduct.NameAr = request.NameAr;
             currentProduct.Description = request.Description;
+            currentProduct.MainImageUrl = request.MainImageUrl;
             currentProduct.Price = request.Price;
             currentProduct.UpdatedAt = DateTime.UtcNow;
 

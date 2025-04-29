@@ -58,7 +58,7 @@ namespace SeeviceProvider_PL
                 app.UseSwagger();
                 app.UseSwaggerUI();
             //}
-
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
 
             app.UseCors();

@@ -180,6 +180,9 @@ namespace ServiceProvider_DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -197,6 +200,7 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "ahmed@email.com",
                             FullName = "ahmed tahoon",
+                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         },
                         new
@@ -205,6 +209,7 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "amir@email.com",
                             FullName = "amir elsayed",
+                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         },
                         new
@@ -213,6 +218,7 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "hossam@email.com",
                             FullName = "Hossam mostafa",
+                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         },
                         new
@@ -221,8 +227,44 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "fathi@email.com",
                             FullName = "ahmed fathi",
+                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         });
+                });
+
+            modelBuilder.Entity("ServiceProvider_DAL.Entities.Banners", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VendorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal?>("discountPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("VendorId");
+
+                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Cart", b =>
@@ -276,6 +318,9 @@ namespace ServiceProvider_DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameAr")
                         .IsRequired()
@@ -438,8 +483,7 @@ namespace ServiceProvider_DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
+                    b.Property<string>("MainImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameAr")
@@ -550,6 +594,9 @@ namespace ServiceProvider_DAL.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NameAr")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -588,6 +635,9 @@ namespace ServiceProvider_DAL.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -624,6 +674,9 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float?>("Rating")
                         .HasColumnType("real");
@@ -719,6 +772,25 @@ namespace ServiceProvider_DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ServiceProvider_DAL.Entities.Banners", b =>
+                {
+                    b.HasOne("ServiceProvider_DAL.Entities.Product", "Product")
+                        .WithMany("Banners")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ServiceProvider_DAL.Entities.Vendor", "Vendor")
+                        .WithMany("Banners")
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Vendor");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Cart", b =>
@@ -970,6 +1042,8 @@ namespace ServiceProvider_DAL.Migrations
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Product", b =>
                 {
+                    b.Navigation("Banners");
+
                     b.Navigation("CartProducts");
 
                     b.Navigation("OrderProducts");
@@ -986,6 +1060,8 @@ namespace ServiceProvider_DAL.Migrations
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Vendor", b =>
                 {
+                    b.Navigation("Banners");
+
                     b.Navigation("Messages");
 
                     b.Navigation("Products");

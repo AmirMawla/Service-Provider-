@@ -14,6 +14,8 @@ namespace ServiceProvider_DAL.Entities
 
         public string NameAr { get; set; } = string.Empty ;
 
+        public string? ImageUrl { get; set; }
+
         public virtual ICollection<SubCategory> SubCategories { get; set; } = new List<SubCategory>();
     }
 }

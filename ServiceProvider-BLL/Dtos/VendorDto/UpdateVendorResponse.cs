@@ -11,21 +11,23 @@ namespace ServiceProvider_BLL.Dtos.VendorDto
     (
          string UserName ,
 
-         string BusinessName 
+         string BusinessName ,
+         string? ProfilePictureUrl,
+         string? CoverImageUrl
 
 
-        //public string BusinessType { get; set; }
+    //public string BusinessType { get; set; }
 
 
-        //[DataType(DataType.Password)]
-        //public string OldPassword { get; set; }
+    //[DataType(DataType.Password)]
+    //public string OldPassword { get; set; }
 
-        //[DataType(DataType.Password)]
-        //public string NewPassword { get; set; }
+    //[DataType(DataType.Password)]
+    //public string NewPassword { get; set; }
 
-        //[Required]
-        //[DataType(DataType.Password)]
-        //[Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
-        //public string ConfirmPassword { get; set; }
+    //[Required]
+    //[DataType(DataType.Password)]
+    //[Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+    //public string ConfirmPassword { get; set; }
     );
 }

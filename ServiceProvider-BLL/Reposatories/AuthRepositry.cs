@@ -165,6 +165,9 @@ namespace ServiceProvider_BLL.Reposatories
                     BusinessName = request.BusinessName,
                     BusinessType = request.BusinessType,
                     TaxNumber = request.TaxNumber,
+                    // Static image paths
+                    ProfilePictureUrl = "/images/vendors/OIP.jpg",
+                    CoverImageUrl = "/images/vendors/StartCover.jpg",
                     IsApproved = false // Vendor starts as not approved
                 };
 

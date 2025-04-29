@@ -8,8 +8,10 @@ namespace ServiceProvider_BLL.Dtos.ReviewDto
 {
     public record ReviewResponse(
         int Id,
-        int ProductId,
-        string UserId,
+        string ProductNameEn,
+        string ProductNameAr,
+        string UserFullName,
+        string VendorFullName,
         int Rating,
         string? Comment,
         DateTime CreatedAt

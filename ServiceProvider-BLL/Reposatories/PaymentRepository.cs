@@ -10,7 +10,7 @@ using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,7 +29,37 @@ namespace ServiceProvider_BLL.Reposatories
         {
             var query = _context.Payments!
                 .OrderByDescending(x => x.TransactionDate)
-                .Select(x => new TransactionResponse(
+                .AsNoTracking();
+
+            if (!query.Any())
+                return Result.Failure<PaginatedList<TransactionResponse>>(new Error("Not Found","No transactions found",StatusCodes.Status404NotFound));
+
+            if (request.Statuses != null && request.Statuses.Any())
+            {
+                // Convert string statuses to the enum type (e.g., "Completed" → PaymentStatus.Completed)
+                var statusEnums = request.Statuses
+                    .Select(s => Enum.Parse<PaymentStatus>(s, ignoreCase: true))
+                    .ToList();
+
+                query = query.Where(x => statusEnums.Contains(x.Status));
+            }
+
+
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Order.User.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.OrderId.ToString(), searchTerm)
+                );
+            }
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = query.Select(x => new TransactionResponse(
                     x.Id,
                     x.TotalAmount,
                     x.TransactionDate,
@@ -37,14 +67,8 @@ namespace ServiceProvider_BLL.Reposatories
                     x.PaymentMethod,
                     x.OrderId,
                     x.Order.User.FullName
-                ))
-                .AsNoTracking();
-
-            if (!query.Any())
-                return Result.Failure<PaginatedList<TransactionResponse>>(new Error("Not Found","No transactions found",StatusCodes.Status404NotFound));
-
-
-            var transactions = await PaginatedList<TransactionResponse>.CreateAsync(query, request.PageNumer, request.PageSize, cancellationToken);
+                ));
+            var transactions = await PaginatedList<TransactionResponse>.CreateAsync(source, request.PageNumer, request.PageSize, cancellationToken);
 
             return Result.Success(transactions);
         }

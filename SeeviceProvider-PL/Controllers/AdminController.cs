@@ -49,6 +49,7 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("all-transactions")]
+        
         public async Task<IActionResult> GetTransactions ([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetAllTransactions(request, cancellationToken);

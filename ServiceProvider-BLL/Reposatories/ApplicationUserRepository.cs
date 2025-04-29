@@ -39,8 +39,11 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (!string.IsNullOrEmpty(request.SearchValue))
             {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
                 query = query.Where(x =>
-                     x.FullName.Contains(request.SearchValue));
+                    EF.Functions.Like(x.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Email.ToLower(), searchTerm) 
+                );
             }
 
             if (!string.IsNullOrEmpty(request.SortColumn))

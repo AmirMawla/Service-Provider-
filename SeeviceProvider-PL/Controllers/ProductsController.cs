@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.ReviewDto;
 using ServiceProvider_BLL.Interfaces;
@@ -18,9 +19,9 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _productRepositry = productRepositry;
 
         [HttpGet("")]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken) 
+        public async Task<IActionResult> GetAll([FromQuery] RequestFilter request,CancellationToken cancellationToken) 
         {
-            var result = await _productRepositry.Products.GetAllProductsAsync(cancellationToken);
+            var result = await _productRepositry.Products.GetAllProductsAsync(request,cancellationToken);
 
             return result.IsSuccess
                 ? Ok(result.Value)

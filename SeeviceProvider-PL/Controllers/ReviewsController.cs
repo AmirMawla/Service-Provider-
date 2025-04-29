@@ -33,6 +33,14 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
+        [HttpGet("user-vendor-reviews")]
+        public async Task<IActionResult> GetUserVendorRatings([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
+        {
+            var result = await _reviewRepository.Reviews.GetAllRatingsFromAllUsersToAllVendorAsync(request, cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
         [HttpPut("{reviewId}")]
         public async Task<IActionResult> UpdateReview([FromRoute]int reviewId, [FromBody] UpdateReviewRequest request) 
         {

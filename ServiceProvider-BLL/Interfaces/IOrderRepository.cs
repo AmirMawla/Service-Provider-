@@ -1,4 +1,6 @@
 ﻿using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_DAL.Entities;
 using System;
@@ -12,6 +14,7 @@ namespace ServiceProvider_BLL.Interfaces
     public interface IOrderRepository : IBaseRepository<Order>
     {
         Task<Result<OrderResponseV2>> GetOrderAsync(int orderId, CancellationToken cancellationToken = default);
+        Task<Result<PaginatedList<OrderResponse>>> GetAllOrderAsync(RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<OrderResponseV2>>> GetUserOrdersAsync(string userId, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId, CancellationToken cancellationToken = default);
         Task<Result<OrderResponseV2>> AddOrderAsync(string userId, OrderRequest request, CancellationToken cancellationToken = default);

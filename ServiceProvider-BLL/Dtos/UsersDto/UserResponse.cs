@@ -11,6 +11,7 @@ namespace ServiceProvider_BLL.Dtos.UsersDto
         string FullName,
         string Email,
          string? Address ,
-        string? PhoneNumber
+        string? PhoneNumber,
+        DateTime? RegistrationDate
     );
 }

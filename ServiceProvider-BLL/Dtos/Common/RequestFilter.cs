@@ -16,5 +16,7 @@ namespace ServiceProvider_BLL.Dtos.Common
         public string? SortDirection { get; init; }
 
         public bool? IsApproved { get; init; }
+
+        public List<string>? Statuses { get; init; }
     }
 }

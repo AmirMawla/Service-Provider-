@@ -2,17 +2,21 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.ReviewDto;
+using ServiceProvider_BLL.Dtos.VendorDto;
 using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -27,24 +31,52 @@ namespace ServiceProvider_BLL.Reposatories
 
 
 
-        public async Task<Result<IEnumerable<ProductResponse>>> GetAllProductsAsync(CancellationToken cancellationToken = default)
+        public async Task<Result<PaginatedList<ProductResponse>>> GetAllProductsAsync(RequestFilter request,CancellationToken cancellationToken = default)
         {
-            var products = await _context.Products!.
-                Include(p => p.Reviews)
-                .Select(p => new ProductResponse(
-                    p.Id,
-                    p.NameEn,
-                    p.NameAr,
-                    p.MainImageUrl,
-                    p.Description,
-                    p.Price,
-                    p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
-                )).AsNoTracking()
-                .ToListAsync(cancellationToken);
+            var query =  _context.Products!.
+                Include(p => p.Reviews).AsNoTracking();
 
-            return !products.Any() ?
-                Result.Failure<IEnumerable<ProductResponse>>(ProductErrors.ProductsNotFound)
-                : Result.Success(products.Adapt<IEnumerable<ProductResponse>>());
+            if (!query.Any())
+                Result.Failure<PaginatedList<ProductResponse>>(ProductErrors.ProductsNotFound);
+
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.NameEn.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.NameAr.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Vendor.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Vendor.BusinessName??"".ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Description ?? "".ToLower(), searchTerm)
+                );
+            }
+
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = query.Select(p => new ProductResponse(
+                p.Id,
+                p.NameEn,
+                p.NameAr,
+                p.MainImageUrl,
+                p.Description,
+                p.Vendor.FullName,
+                p.Vendor.BusinessName!,
+                p.Price,
+                p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
+            ));
+
+            var products = await PaginatedList<ProductResponse>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return Result.Success(products);
 
         }
 
@@ -58,6 +90,8 @@ namespace ServiceProvider_BLL.Reposatories
                      p.NameAr,
                      p.MainImageUrl,
                      p.Description,
+                     p.Vendor.FullName,
+                     p.Vendor.BusinessName!,
                      p.Price,
                      p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
                 ))
@@ -140,6 +174,8 @@ namespace ServiceProvider_BLL.Reposatories
             var reviews = await _context.Reviews!
                             .Where(x => x.ProductId == productId)
                             .Include(x => x.User)
+                            .Include(x => x.Product)
+                            .ThenInclude(x => x.Vendor)
                             .AsNoTracking()
                             .ToListAsync(cancellationToken);
 

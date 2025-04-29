@@ -11,7 +11,7 @@ using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,6 +46,49 @@ namespace ServiceProvider_BLL.Reposatories
                 return Result.Failure<PaginatedList<VendorReviewsResponse>>(ReviewErrors.VendorReviewsNotFound);
 
             var reviews = await PaginatedList<VendorReviewsResponse>.CreateAsync(query, request.PageNumer, request.PageSize, cancellationToken);
+
+            return Result.Success(reviews);
+        }
+
+        public async Task<Result<PaginatedList<ReviewResponse>>> GetAllRatingsFromAllUsersToAllVendorAsync( RequestFilter request, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Reviews!
+                .Include(x =>x.User)
+                .Include(x => x.Product)
+                .ThenInclude(x=>x.Vendor)
+                .AsNoTracking();
+
+            if (!query.Any())
+                return Result.Failure<PaginatedList<ReviewResponse>>(ReviewErrors.ReviewsNotFound);
+
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.User.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Product.Vendor.FullName ?? "".ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Product.NameEn ?? "".ToLower(), searchTerm)||
+                    EF.Functions.Like(x.Product.NameAr ?? "".ToLower(), searchTerm)
+                );
+            }
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = query.Select(r => new ReviewResponse(
+                r.Id,
+                r.Product.NameEn,
+                r.Product.NameAr,
+                r.User.FullName,
+                r.Product.Vendor.FullName,
+                r.Rating,
+                r.Comment,
+                r.CreatedAt
+                ));
+
+            var reviews = await PaginatedList<ReviewResponse>.CreateAsync(source, request.PageNumer, request.PageSize, cancellationToken);
 
             return Result.Success(reviews);
         }

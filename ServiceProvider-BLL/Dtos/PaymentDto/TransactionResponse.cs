@@ -12,6 +12,7 @@ namespace ServiceProvider_BLL.Dtos.PaymentDto
       DateTime TransactionDate,
       string Status,
       string PaymentMethod,
-      int OrderId
+      int OrderId,
+      string ApplicationUserFullName
     );
 }

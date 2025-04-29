@@ -29,6 +29,12 @@ namespace ServiceProvider_DAL.Data.Configurations
                 .IsRequired()
                 .HasDefaultValue(false);
 
+            builder.Property(o => o.SenderType)
+               .HasConversion(
+               c => c.ToString(),
+               c => (SenderType)Enum.Parse(typeof(SenderType), c)
+               );
+
 
             builder.HasOne(m => m.User)
                 .WithMany(u => u.Messages)

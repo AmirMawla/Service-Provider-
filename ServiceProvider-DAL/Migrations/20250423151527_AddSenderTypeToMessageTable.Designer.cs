@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceProvider_DAL.Data;
 
@@ -11,9 +12,11 @@ using ServiceProvider_DAL.Data;
 namespace ServiceProvider_DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423151527_AddSenderTypeToMessageTable")]
+    partial class AddSenderTypeToMessageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,9 +183,6 @@ namespace ServiceProvider_DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -191,7 +191,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationUsers", (string)null);
+                    b.ToTable("ApplicationUsers");
 
                     b.HasData(
                         new
@@ -200,7 +200,6 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "ahmed@email.com",
                             FullName = "ahmed tahoon",
-                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         },
                         new
@@ -209,7 +208,6 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "amir@email.com",
                             FullName = "amir elsayed",
-                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         },
                         new
@@ -218,7 +216,6 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "hossam@email.com",
                             FullName = "Hossam mostafa",
-                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         },
                         new
@@ -227,44 +224,8 @@ namespace ServiceProvider_DAL.Migrations
                             Address = "sharkia",
                             Email = "fathi@email.com",
                             FullName = "ahmed fathi",
-                            ImageUrl = "",
                             PhoneNumber = "01002694473"
                         });
-                });
-
-            modelBuilder.Entity("ServiceProvider_DAL.Entities.Banners", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VendorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal?>("discountPercentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("VendorId");
-
-                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Cart", b =>
@@ -290,7 +251,7 @@ namespace ServiceProvider_DAL.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.CartProduct", b =>
@@ -308,7 +269,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartProducts", (string)null);
+                    b.ToTable("CartProducts");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Category", b =>
@@ -318,9 +279,6 @@ namespace ServiceProvider_DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameAr")
                         .IsRequired()
@@ -334,7 +292,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Message", b =>
@@ -383,7 +341,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Order", b =>
@@ -412,7 +370,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.OrderProduct", b =>
@@ -430,7 +388,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderProducts", (string)null);
+                    b.ToTable("OrderProducts");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Payment", b =>
@@ -463,7 +421,7 @@ namespace ServiceProvider_DAL.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Product", b =>
@@ -483,7 +441,8 @@ namespace ServiceProvider_DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("MainImageUrl")
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameAr")
@@ -517,7 +476,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Review", b =>
@@ -553,7 +512,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Shipping", b =>
@@ -580,7 +539,7 @@ namespace ServiceProvider_DAL.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Shippings", (string)null);
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.SubCategory", b =>
@@ -593,9 +552,6 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameAr")
                         .IsRequired()
@@ -611,7 +567,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategories", (string)null);
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Vendor", b =>
@@ -633,9 +589,6 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -674,9 +627,6 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("ProfilePictureUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float?>("Rating")
                         .HasColumnType("real");
@@ -720,7 +670,7 @@ namespace ServiceProvider_DAL.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("VendorSubCategories", (string)null);
+                    b.ToTable("VendorSubCategories");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -772,25 +722,6 @@ namespace ServiceProvider_DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ServiceProvider_DAL.Entities.Banners", b =>
-                {
-                    b.HasOne("ServiceProvider_DAL.Entities.Product", "Product")
-                        .WithMany("Banners")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ServiceProvider_DAL.Entities.Vendor", "Vendor")
-                        .WithMany("Banners")
-                        .HasForeignKey("VendorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Vendor");
                 });
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Cart", b =>
@@ -1042,8 +973,6 @@ namespace ServiceProvider_DAL.Migrations
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Product", b =>
                 {
-                    b.Navigation("Banners");
-
                     b.Navigation("CartProducts");
 
                     b.Navigation("OrderProducts");
@@ -1060,8 +989,6 @@ namespace ServiceProvider_DAL.Migrations
 
             modelBuilder.Entity("ServiceProvider_DAL.Entities.Vendor", b =>
                 {
-                    b.Navigation("Banners");
-
                     b.Navigation("Messages");
 
                     b.Navigation("Products");

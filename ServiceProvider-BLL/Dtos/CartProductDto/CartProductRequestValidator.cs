@@ -11,7 +11,7 @@ namespace ServiceProvider_BLL.Dtos.CartProductDto
     {
         public CartProductRequestValidator() 
         {
-            RuleFor(x => x.UserId).NotEmpty().WithMessage("User ID is required");
+            //RuleFor(x => x.UserId).NotEmpty().WithMessage("User ID is required");
 
             RuleFor(x => x.ProductId).GreaterThan(0).WithMessage("Invalid Product ID");
 

@@ -8,12 +8,14 @@ namespace ServiceProvider_BLL.Dtos.VendorDto
 {
     public record VendorResponse(
         string Id,
+        string FullName,
         string Email,
         string ProfilePictureUrl,
         string CoverImageUrl,
         string BusinessName,
         string BusinessType,
-        string TaxNumber
+        string TaxNumber,
+        bool IsApproved
     );
 
 }

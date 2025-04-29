@@ -24,9 +24,9 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetProviders(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProviders([FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
-            var result = await _vendorRepositry.Vendors.GetAllProviders(cancellationToken);
+            var result = await _vendorRepositry.Vendors.GetAllProviders(request,cancellationToken);
             return result.IsSuccess
                 ? Ok(result.Value)
                 : result.ToProblem();
@@ -80,7 +80,7 @@ namespace SeeviceProvider_PL.Controllers
         [Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> ChangeVendorPassword([FromBody] ChangeVendorPasswordRequest request)
         {
-            var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var result = await _vendorRepositry.Vendors.ChangeVendorPasswordAsync(vendorId!, request);
             return result.IsSuccess
@@ -129,6 +129,18 @@ namespace SeeviceProvider_PL.Controllers
         //    await _appDbContext.SaveChangesAsync();
         //    return Ok(vendor);
         //}
+
+        [HttpPost("deactivate-vendor/{vendorId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeactivateVendor([FromRoute] string vendorId)
+        {
+            var result = await _vendorRepositry.Vendors.DeactivateVendorAsync(vendorId);
+
+            return result.IsSuccess ? Ok() : result.ToProblem();
+        }
+
+
+
     }
 }
 

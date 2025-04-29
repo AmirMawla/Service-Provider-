@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
@@ -13,6 +14,7 @@ namespace ServiceProvider_BLL.Reposatories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<Vendor> _usermanager;
         private readonly IPasswordHasher<Vendor> _passwordHasher;
         public IApplicationUserRepository ApplicationUsers { get; private set; }
@@ -32,9 +34,10 @@ namespace ServiceProvider_BLL.Reposatories
 
       
 
-        public UnitOfWork(AppDbContext context,UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher)
+        public UnitOfWork(AppDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher)
         { 
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
             _usermanager = userManager;
             _passwordHasher = passwordHasher;
             ApplicationUsers = new ApplicationUserRepository(_context);
@@ -45,7 +48,7 @@ namespace ServiceProvider_BLL.Reposatories
             Reviews = new ReviewRepository(_context);
             Orders = new OrderRepository(_context);
             OrderProducts = new OrderProductRepository(_context);
-            Carts = new CartRepository(_context);
+            Carts = new CartRepository(_context,_httpContextAccessor);
             CartProducts = new CartProductRepository(_context);
             Categories = new CategoryRepository(_context);
             Shippings = new ShippingRepository(_context);

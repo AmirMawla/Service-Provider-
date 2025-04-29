@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
+using SeeviceProvider_PL.Hubs;
 
 namespace SeeviceProvider_PL
 {
@@ -24,6 +25,8 @@ namespace SeeviceProvider_PL
 
             //Inject all services
             builder.Services.AddDependency(builder.Configuration);
+
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -65,6 +68,8 @@ namespace SeeviceProvider_PL
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapHub<MessageHub>("/hubs/message");
 
             app.UseExceptionHandler();
 

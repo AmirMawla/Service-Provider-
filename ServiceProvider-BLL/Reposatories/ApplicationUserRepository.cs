@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Abstractions;
@@ -52,6 +53,21 @@ namespace ServiceProvider_BLL.Reposatories
             var users = await PaginatedList<UserResponse>.CreateAsync(source, request.PageNumer, request.PageSize, cancellationToken);
 
             return Result.Success(users);
+        }
+
+        public async Task<Result<int>> GetTotalUsersCountAsync(CancellationToken cancellationToken = default) 
+        {
+            try
+            {
+                // Query the ApplicationUsers table
+                var usersCount = await _context.ApplicationUsers!.CountAsync(cancellationToken);
+                return Result.Success(usersCount);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here (e.g., using ILogger)
+                return Result.Failure<int>(new Error("Error","Failed to retrieve user count.",StatusCodes.Status400BadRequest));
+            }
         }
     }
 }

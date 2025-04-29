@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace ServiceProvider_BLL.Dtos.OrderDto
 {
     public record OrderRequest(
-        string UserId,
         string PaymentMethod
-        );
+    );
 
 }

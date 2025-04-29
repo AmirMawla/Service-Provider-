@@ -21,15 +21,18 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
-        [HttpGet("users/{userId}")]
-        public async Task<IActionResult> GetUserOrders(string userId, CancellationToken cancellationToken)
+        [HttpGet("users")]
+        [Authorize(Roles = "MobileUser")]
+        public async Task<IActionResult> GetUserOrders( CancellationToken cancellationToken)
         {
             // Authorization check
             //var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             //if (currentUserId != userId && !User.IsInRole("Admin"))
             //    return Forbid();
 
-            var result = await _orderRepositry.Orders.GetUserOrdersAsync(userId, cancellationToken);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _orderRepositry.Orders.GetUserOrdersAsync(userId!, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
@@ -49,9 +52,12 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpPost("")]
+        [Authorize(Roles = "MobileUser")]
         public async Task<IActionResult> AddOrder ( [FromBody] OrderRequest request, CancellationToken cancellationToken)
         {
-            var result = await _orderRepositry.Orders.AddOrderAsync(request, cancellationToken);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _orderRepositry.Orders.AddOrderAsync(userId!,request, cancellationToken);
 
             return result.IsSuccess
                 ?  CreatedAtAction(nameof(GetOrder), new { id = result.Value.Id }, result.Value)

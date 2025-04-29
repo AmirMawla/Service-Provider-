@@ -14,5 +14,6 @@ namespace ServiceProvider_BLL.Interfaces
     public interface IApplicationUserRepository : IBaseRepository<ApplicationUser>
     {
         Task<Result<PaginatedList<UserResponse>>> GetAllMobileUsers(RequestFilter request, CancellationToken cancellationToken = default);
+        Task<Result<int>> GetTotalUsersCountAsync(CancellationToken cancellationToken = default);
     }
 }

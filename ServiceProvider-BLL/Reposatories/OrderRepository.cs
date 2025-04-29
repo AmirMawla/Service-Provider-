@@ -96,7 +96,7 @@ namespace ServiceProvider_BLL.Reposatories
 
             return Result.Success(orders.Adapt<IEnumerable<OrderResponseV2>>());
         }
-        public async Task<Result<OrderResponseV2>> AddOrderAsync( OrderRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<OrderResponseV2>> AddOrderAsync( string userId ,OrderRequest request, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -105,7 +105,7 @@ namespace ServiceProvider_BLL.Reposatories
                 var cart = await _context.Carts!
                     .Include(c => c.CartProducts)
                     .ThenInclude(cp => cp.Product)
-                    .FirstOrDefaultAsync(c => c.ApplicationUserId == request.UserId, cancellationToken: cancellationToken);
+                    .FirstOrDefaultAsync(c => c.ApplicationUserId == userId, cancellationToken: cancellationToken);
                     
 
                 if (cart == null || !cart.CartProducts.Any())
@@ -113,7 +113,7 @@ namespace ServiceProvider_BLL.Reposatories
 
                 var order = new Order
                 {
-                    ApplicationUserId = request.UserId,
+                    ApplicationUserId = userId,
                     TotalAmount = cart.CartProducts.Sum(cp => cp.Quantity * cp.Product.Price),
                     OrderDate = DateTime.UtcNow,
                     Status = OrderStatus.Pending

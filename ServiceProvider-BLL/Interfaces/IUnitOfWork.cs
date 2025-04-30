@@ -22,7 +22,7 @@ namespace ServiceProvider_BLL.Interfaces
         IMessageRepository Messages { get; }
         IReviewRepository Reviews { get; }
         IVendorSubCategoryRepository VendorSubCategories { get; }
-
+        IBannersRepository Banners { get; }
         Task<int> Complete();
 
     }

@@ -414,7 +414,7 @@ namespace ServiceProvider_DAL.Data
                     NameAr = "سامسونج جالاكسي S23",
                     Description = "Latest Samsung flagship smartphone with powerful performance and camera.",
                     Price = 999.99m,
-                    MainImageUrl = "/images/products/test.jpg",
+                    MainImageUrl = "/images/products/Samsung Galaxy S23.jpg",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Mobile Phones").Id,
@@ -741,12 +741,12 @@ namespace ServiceProvider_DAL.Data
 
             await SeedAdminUser(userManager, roleManager);
 
-            await SeedApplicationUsers(context);
+            //await SeedApplicationUsers(context);
             await SeedCarts(context);
             await SeedOrders(context);
             await SeedReviews(context);
             await SeedShipping(context);
-
+            await SeedBanners(context);
         }
 
 
@@ -820,117 +820,117 @@ namespace ServiceProvider_DAL.Data
             }
         }
 
-        public static async Task SeedApplicationUsers(AppDbContext context)
-        {
-            if (context.ApplicationUsers.Count() > 6) return;
+    //    public static async Task SeedApplicationUsers(AppDbContext context)
+    //    {
+    //        if (context.ApplicationUsers.Count() > 6) return;
 
-            var users = new List<ApplicationUser>
-    {
-        new ApplicationUser
-        {
-            FullName = "Ahmed El Sayed",
-            Email = "ahmed@example.com",
-            Address = "123 Cairo St.",
-            PhoneNumber = "01012345678",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1990, 5, 10)
-        },
-        new ApplicationUser
-        {
-            FullName = "Mona Ali",
-            Email = "mona@example.com",
-            Address = "456 Alexandria Rd.",
-            PhoneNumber = "01123456789",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1985, 7, 20)
-        },
-        new ApplicationUser
-        {
-            FullName = "Sara Mohamed",
-            Email = "sara@example.com",
-            Address = "789 Giza St.",
-            PhoneNumber = "01234567890",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1992, 3, 15)
-        },
-        new ApplicationUser
-        {
-            FullName = "Omar Tarek",
-            Email = "omar@example.com",
-            Address = "101 Mansoura St.",
-            PhoneNumber = "01087654321",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1988, 8, 2)
-        },
-        new ApplicationUser
-        {
-            FullName = "Nadia Hassan",
-            Email = "nadia@example.com",
-            Address = "25 Nasr City St.",
-            PhoneNumber = "01556712345",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1995, 11, 18)
-        },
-        new ApplicationUser
-        {
-            FullName = "Tamer Ali",
-            Email = "tamer@example.com",
-            Address = "36 Zamalek St.",
-            PhoneNumber = "01065432109",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1990, 4, 20)
-        },
-        new ApplicationUser
-        {
-            FullName = "Laila Farouk",
-            Email = "laila@example.com",
-            Address = "88 Downtown St.",
-            PhoneNumber = "01187654322",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1987, 2, 28)
-        },
-        new ApplicationUser
-        {
-            FullName = "Mohamed Ashraf",
-            Email = "mohamed@example.com",
-            Address = "77 Maadi St.",
-            PhoneNumber = "01054321678",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1989, 9, 12)
-        },
-        new ApplicationUser
-        {
-            FullName = "Fayza Mahmoud",
-            Email = "fayza@example.com",
-            Address = "13 Mohandeseen St.",
-            PhoneNumber = "01233456789",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1993, 1, 5)
-        },
-        new ApplicationUser
-        {
-            FullName = "Khaled Mohamed",
-            Email = "khaled@example.com",
-            Address = "44 Giza St.",
-            PhoneNumber = "01012345567",
-            ImageUrl ="/images/vendors/OIP.jpg",
-            RegistrationDate = DateTime.UtcNow,
-            BirthDate = new DateOnly(1986, 10, 15)
-        }
-    };
+    //        var users = new List<ApplicationUser>
+    //{
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Ahmed El Sayed",
+    //        Email = "ahmed@example.com",
+    //        Address = "123 Cairo St.",
+    //        PhoneNumber = "01012345678",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1990, 5, 10)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Mona Ali",
+    //        Email = "mona@example.com",
+    //        Address = "456 Alexandria Rd.",
+    //        PhoneNumber = "01123456789",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1985, 7, 20)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Sara Mohamed",
+    //        Email = "sara@example.com",
+    //        Address = "789 Giza St.",
+    //        PhoneNumber = "01234567890",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1992, 3, 15)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Omar Tarek",
+    //        Email = "omar@example.com",
+    //        Address = "101 Mansoura St.",
+    //        PhoneNumber = "01087654321",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1988, 8, 2)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Nadia Hassan",
+    //        Email = "nadia@example.com",
+    //        Address = "25 Nasr City St.",
+    //        PhoneNumber = "01556712345",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1995, 11, 18)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Tamer Ali",
+    //        Email = "tamer@example.com",
+    //        Address = "36 Zamalek St.",
+    //        PhoneNumber = "01065432109",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1990, 4, 20)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Laila Farouk",
+    //        Email = "laila@example.com",
+    //        Address = "88 Downtown St.",
+    //        PhoneNumber = "01187654322",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1987, 2, 28)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Mohamed Ashraf",
+    //        Email = "mohamed@example.com",
+    //        Address = "77 Maadi St.",
+    //        PhoneNumber = "01054321678",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1989, 9, 12)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Fayza Mahmoud",
+    //        Email = "fayza@example.com",
+    //        Address = "13 Mohandeseen St.",
+    //        PhoneNumber = "01233456789",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1993, 1, 5)
+    //    },
+    //    new ApplicationUser
+    //    {
+    //        FullName = "Khaled Mohamed",
+    //        Email = "khaled@example.com",
+    //        Address = "44 Giza St.",
+    //        PhoneNumber = "01012345567",
+    //        ImageUrl ="/images/vendors/OIP.jpg",
+    //        RegistrationDate = DateTime.UtcNow,
+    //        BirthDate = new DateOnly(1986, 10, 15)
+    //    }
+    //};
 
-            await context.ApplicationUsers.AddRangeAsync(users);
-            await context.SaveChangesAsync();
-        }
+    //        await context.ApplicationUsers.AddRangeAsync(users);
+    //        await context.SaveChangesAsync();
+    //    }
 
 
         public static async Task SeedCarts(AppDbContext context)
@@ -1201,6 +1201,116 @@ namespace ServiceProvider_DAL.Data
     };
 
             await context.Shippings.AddRangeAsync(shippings);
+            await context.SaveChangesAsync();
+        }
+
+
+        public static async Task SeedBanners(AppDbContext context)
+        {
+            if (context.Banners.Any()) return;
+
+            var banners = new List<Banners>
+{
+    new Banners
+    {
+        Description = "Limited Time Offer on Samsung Galaxy S23!",
+        ImageUrl = "/images/banners/galaxy_offer.jpg",
+        DiscountPercentage = 10.00m,
+        ProductId = context.Products.First(p => p.NameEn == "Samsung Galaxy S23").Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Tarek Tech").Id
+    },
+    new Banners
+    {
+        Description = "Big Deal on Dell XPS 13!",
+        ImageUrl = "/images/banners/dell_xps_deal.jpg",
+        DiscountPercentage = 15.00m,
+        ProductId = context.Products.First(p => p.NameEn == "Dell XPS 13").Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Hawkins Supplies").Id
+    },
+    new Banners
+    {
+        Description = "Leather Jacket Winter Sale!",
+        ImageUrl = "/images/banners/leather_jacket.jpg",
+        DiscountPercentage = 20.00m,
+        ProductId = context.Products.First(p => p.NameEn.Contains("Men's Leather Jacket")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Style Hub").Id
+    },
+    new Banners
+    {
+        Description = "Evening Dress Special Discount",
+        ImageUrl = "/images/banners/evening_dress.jpg",
+        DiscountPercentage = 25.00m,
+        ProductId = context.Products.First(p => p.NameEn.Contains("Women's Evening Dress")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Style Hub").Id
+    },
+    new Banners
+    {
+        Description = "Relax at Spa – Now 30% Off!",
+        ImageUrl = "/images/banners/spa_relax.jpg",
+        DiscountPercentage = 30.00m,
+        ProductId = context.Products.First(p => p.NameEn.Contains("Spa Relaxation Package")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Beauty Care").Id
+    },
+    new Banners
+    {
+        Description = "Tire Replacement Flash Deal!",
+        ImageUrl = "/images/banners/18.jpg",
+        DiscountPercentage = 18.00m,
+        ProductId = context.Products.First(p => p.NameEn.Contains("Car Tire Replacement")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "CarFix").Id
+    },
+ 
+    new Banners
+    {
+        Description = "Modern Sofa – Comfort & Style Sale!",
+        ImageUrl = "/images/banners/22.jpg",
+        DiscountPercentage = 22.00m,
+        ProductId = context.Products.First(p => p.NameEn.Contains("Modern Sofa")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Decor World").Id
+    },
+    new Banners
+    {
+        Description = "Playhouse Fun Now 15% Off!",
+        ImageUrl = "/images/banners/15.jpg",
+        DiscountPercentage = 15.00m,
+        ProductId = context.Products.First(p => p.NameEn.Contains("Kids' Playhouse")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Kids Fun").Id
+    },
+    new Banners
+    {
+        Description = "Exclusive Laptop Discount!",
+        ImageUrl = "/images/banners/17.jpg",
+        DiscountPercentage = 17.00m,
+        ProductId = context.Products.First(p => p.SubCategory.NameEn == "Laptops").Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Hawkins Supplies").Id
+    },
+    new Banners
+    {
+        Description = "Summer Wardrobe Clearance!",
+        ImageUrl = "/images/banners/19.jpg",
+            DiscountPercentage = 19.00m,
+        ProductId = context.Products.First(p => p.SubCategory.NameEn == "Women's Clothing").Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Style Hub").Id
+    },
+    new Banners
+    {
+        Description = "Men's Casual Offers!",
+        ImageUrl = "/images/banners/16.jpg",
+        DiscountPercentage = 16.00m,
+        ProductId = context.Products.First(p => p.SubCategory.NameEn == "Men's Clothing").Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Style Hub").Id
+    },
+    new Banners
+    {
+        Description = "Top Furniture Deals of the Month!",
+        ImageUrl = "/images/banners/14.jpg",
+        DiscountPercentage = 14.00m,
+        ProductId = context.Products.First(p => p.SubCategory.NameEn.Contains("Furniture")).Id,
+        VendorId = context.Users.First(v => v.BusinessName == "Decor World").Id
+    }
+};
+
+            await context.Banners.AddRangeAsync(banners);
             await context.SaveChangesAsync();
         }
     }

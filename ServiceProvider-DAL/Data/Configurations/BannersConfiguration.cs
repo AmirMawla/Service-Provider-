@@ -26,9 +26,10 @@ namespace ServiceProvider_DAL.Data.Configurations
                    .WithMany(v => v.Banners)
                    .HasForeignKey(b => b.VendorId);
 
-      
+            builder.Property(b => b.DiscountPercentage)
+                      .HasColumnType("decimal(18,2)");
 
-  
+
         }
     }
 }

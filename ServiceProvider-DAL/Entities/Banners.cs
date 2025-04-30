@@ -11,7 +11,7 @@ namespace ServiceProvider_DAL.Entities
         public int Id { get; set; }
         public string? Description { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
-        public decimal? discountPercentage { get; set; } 
+        public decimal? DiscountPercentage { get; set; } 
         public int ProductId { get; set; }
         public string VendorId { get; set; } = string.Empty;
         public virtual Product? Product { get; set; }

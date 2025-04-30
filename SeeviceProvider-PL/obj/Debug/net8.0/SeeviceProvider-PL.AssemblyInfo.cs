@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SeeviceProvider-PL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b127d4258e00292380bf26314afb669f18c02fed")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48b737ee4cccfcb6a4ec6237763bc843c067ebcd")]
 [assembly: System.Reflection.AssemblyProductAttribute("SeeviceProvider-PL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SeeviceProvider-PL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -47,10 +47,16 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (!string.IsNullOrEmpty(request.SearchValue))
             {
+                //query = query.Where(x =>
+                //     x.FullName.Contains(request.SearchValue) ||
+                //     (x.BusinessName ?? "").Contains(request.SearchValue) ||
+                //     (x.BusinessType ?? "").Contains(request.SearchValue));
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
                 query = query.Where(x =>
-                     x.FullName.Contains(request.SearchValue) ||
-                     (x.BusinessName ?? "").Contains(request.SearchValue) ||
-                     (x.BusinessType ?? "").Contains(request.SearchValue));
+                    EF.Functions.Like(x.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.BusinessName ?? "".ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.BusinessType ?? "".ToLower(), searchTerm)
+                );
             }
 
 
@@ -83,10 +89,12 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (!string.IsNullOrEmpty(request.SearchValue))
             {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
                 query = query.Where(x =>
-                     x.FullName.Contains(request.SearchValue) ||
-                     (x.BusinessName ?? "").Contains(request.SearchValue) ||
-                     (x.BusinessType ?? "").Contains(request.SearchValue));
+                    EF.Functions.Like(x.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.BusinessName ?? "".ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.BusinessType ?? "".ToLower(), searchTerm)
+                );
             }
 
 

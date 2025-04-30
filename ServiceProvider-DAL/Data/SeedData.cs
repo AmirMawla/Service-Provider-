@@ -21,7 +21,7 @@ namespace ServiceProvider_DAL.Data
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(
-                new Category { NameEn = "Food", NameAr = "الأكل", ImageUrl = "/images/categories/food.jpg" },
+                    new Category { NameEn = "Food", NameAr = "الأكل", ImageUrl = "/images/categories/food.jpg" },
                     new Category { NameEn = "Beverages", NameAr = "الشرب", ImageUrl = "/images/categories/Beverages.jpg" },
                     new Category { NameEn = "Clothing", NameAr = "الملابس", ImageUrl = "/images/categories/Clothing.jpg" },
                     new Category { NameEn = "Electronics", NameAr = "الإلكترونيات", ImageUrl = "/images/categories/Electronics.jpg" },

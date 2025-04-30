@@ -24,11 +24,21 @@ namespace SeeviceProvider_PL.Controllers
         //    return result.IsSuccess ? Ok(result) : result.ToProblem();
         //}
 
-        [Authorize]
+        
         [HttpGet("{vendorId}/vendor-reviews")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> GetVendorRatings([FromRoute] string vendorId , [FromQuery] RequestFilter request , CancellationToken cancellationToken = default)  
         {
             var result = await _reviewRepository.Reviews.GetRatingsByVendorAsync(vendorId , request , cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
+        [HttpGet("user-vendor-reviews")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserVendorRatings([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
+        {
+            var result = await _reviewRepository.Reviews.GetAllRatingsFromAllUsersToAllVendorAsync(request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }

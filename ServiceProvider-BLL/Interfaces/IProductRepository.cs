@@ -1,4 +1,6 @@
 ﻿using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.ReviewDto;
 using ServiceProvider_DAL.Entities;
@@ -12,7 +14,7 @@ namespace ServiceProvider_BLL.Interfaces
 {
     public interface IProductRepository : IBaseRepository<Product>
     {
-        Task<Result<IEnumerable<ProductResponse>>> GetAllProductsAsync(CancellationToken cancellationToken = default);
+        Task<Result<PaginatedList<ProductResponse>>> GetAllProductsAsync(RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<ProductResponse>> GetProductAsync(int id , CancellationToken cancellationToken = default);
         Task<Result<List<ProductRequestCount>>> GetMostCommonProductAsync(CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<ProductResponse>>> GetNewProductsAsync(CancellationToken cancellationToken = default);

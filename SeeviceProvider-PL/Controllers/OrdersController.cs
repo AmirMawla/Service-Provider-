@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_BLL.Interfaces;
 using System.Security.Claims;
@@ -33,6 +34,15 @@ namespace SeeviceProvider_PL.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var result = await _orderRepositry.Orders.GetUserOrdersAsync(userId!, cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
+        [HttpGet("all-orders")]
+        public async Task<IActionResult> GetAllOrders([FromQuery] RequestFilter request,CancellationToken cancellationToken)
+        { 
+
+            var result = await _orderRepositry.Orders.GetAllOrderAsync(request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }

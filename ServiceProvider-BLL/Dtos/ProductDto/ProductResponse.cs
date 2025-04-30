@@ -12,6 +12,8 @@ namespace ServiceProvider_BLL.Dtos.ProductDto
         string NameAr,
         string? MainImageUrl,
         string? Description,
+        string VendorFullName,
+        string VendorBusinessName,
         decimal Price,
         double Rating
     );

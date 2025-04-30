@@ -49,6 +49,7 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("all-transactions")]
+        
         public async Task<IActionResult> GetTransactions ([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetAllTransactions(request, cancellationToken);
@@ -57,7 +58,7 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("all-transactions-count")]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> GetTransactionsCount( CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetTotalTransactionsCountAsync(cancellationToken);

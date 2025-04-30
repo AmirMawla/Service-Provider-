@@ -5335,5 +5335,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file D:\\amir\\data\\programing\\my projects\\ServiceProvider\\ServiceProvider-DAL\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'expectedPackageFiles', line 104, position 0."
+    }
+  ]
 }

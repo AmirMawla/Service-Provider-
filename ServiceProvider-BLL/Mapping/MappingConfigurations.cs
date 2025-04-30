@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using ServiceProvider_BLL.Dtos.ProductDto;
+using ServiceProvider_BLL.Dtos.ReviewDto;
 using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,8 @@ namespace ServiceProvider_BLL.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-            
+            config.NewConfig<Review,ReviewResponse>()
+                .Map(dest => dest.VendorFullName, src => src.Product.Vendor.FullName);
         }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_BLL.Dtos.OrderProductDto;
 using ServiceProvider_BLL.Dtos.PaymentDto;
+using ServiceProvider_BLL.Dtos.ReviewDto;
 using ServiceProvider_BLL.Dtos.ShippingDto;
 using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
@@ -11,9 +14,10 @@ using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -62,6 +66,52 @@ namespace ServiceProvider_BLL.Reposatories
             );
 
             return Result.Success(response);
+        }
+
+        public async Task<Result<PaginatedList<OrderResponse>>> GetAllOrderAsync(RequestFilter request, CancellationToken cancellationToken = default)
+        {
+            var query =  _context.Orders!
+                     .Include(o => o.User)
+                     .Include(o => o.OrderProducts)
+                     .ThenInclude(op => op.Product)
+                     .ThenInclude(p => p.Vendor)
+                     .AsNoTracking();
+
+            if (!query.Any())
+                return Result.Failure<PaginatedList<OrderResponse>>(OrderErrors.OrderNotFound);
+
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.User.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Id.ToString() , searchTerm) ||
+                    EF.Functions.Like(x.OrderProducts.Select(o => o.Product.Vendor.FullName).SingleOrDefault()!.ToLower(), searchTerm)
+                );
+            }
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source =  query.Select(o => new OrderResponse(
+                o.Id,
+                o.ApplicationUserId,
+                o.User.FullName,
+                o.OrderProducts.Select(x => new VendorOrderResponse(
+                    x.Product.Vendor.Id,
+                    x.Product.Vendor.FullName,
+                    x.Product.Vendor.BusinessName!,
+                    x.Product.Vendor.BusinessType
+                    )).Distinct().ToList(),
+                o.TotalAmount,
+                o.OrderDate,
+                o.Status.ToString()
+                ));
+
+            var orders = await PaginatedList<OrderResponse>.CreateAsync(source, request.PageNumer, request.PageSize, cancellationToken);
+            return Result.Success(orders);
         }
 
         public async Task<Result<IEnumerable<OrderResponseV2>>> GetUserOrdersAsync(string userId , CancellationToken cancellationToken = default)

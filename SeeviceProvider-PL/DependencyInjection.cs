@@ -5,7 +5,9 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SeeviceProvider_PL.Swagger;
 using ServiceProvider_BLL.Authentication;
 using ServiceProvider_BLL.Authentication.Filters;
 using ServiceProvider_BLL.Errors;
@@ -13,6 +15,7 @@ using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_BLL.Reposatories;
 using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
 
@@ -24,9 +27,9 @@ namespace SeeviceProvider_PL
         {
             services.AddControllers();
 
-            services.AddEndpointsApiExplorer();
+           // services.AddEndpointsApiExplorer();
 
-            services.AddSwaggerGen();
+            //services.AddSwaggerGen();
 
                 
             services.AddCors(options =>
@@ -38,6 +41,7 @@ namespace SeeviceProvider_PL
             );
 
             services
+                .AddSwaggerServices()
                 .AddMapsterConfiguration()
                 .AddFluentValidationConfiguration()
                 .AddAuthConfiguration(configuration);
@@ -60,6 +64,17 @@ namespace SeeviceProvider_PL
             services.AddProblemDetails();
 
 
+
+            return services;
+        }
+
+        private static IServiceCollection AddSwaggerServices(this IServiceCollection services)
+        {
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
+
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
             return services;
         }

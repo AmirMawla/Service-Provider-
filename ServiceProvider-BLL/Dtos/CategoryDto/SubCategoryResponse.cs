@@ -11,6 +11,5 @@ namespace ServiceProvider_BLL.Dtos.CategoryDto
         string NameEn,
         string NameAr,
         string? ImageUrl
-
         );
 }

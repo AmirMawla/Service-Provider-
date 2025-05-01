@@ -116,7 +116,7 @@ namespace ServiceProvider_DAL.Data
                  new SubCategory { NameEn = "Bedroom Furniture", NameAr = "أثاث غرفة النوم", ImageUrl = "/images/subcategories/Bedroom Furniture.jpg", CategoryId = context.Categories.First(c => c.NameEn == "Furniture").Id },
                  new SubCategory { NameEn = "Office Furniture", NameAr = "أثاث المكتب", ImageUrl = "/images/subcategories/Office Furniture.jpg", CategoryId = context.Categories.First(c => c.NameEn == "Furniture").Id },
                  new SubCategory { NameEn = "Outdoor Furniture", NameAr = "أثاث الحدائق", ImageUrl = "/images/subcategories/Outdoor Furniture.jpg", CategoryId = context.Categories.First(c => c.NameEn == "Furniture").Id },
-                 new SubCategory { NameEn = "Decor", NameAr = "الديكور", ImageUrl = "/images/subcategories/Decor.jpg", CategoryId = context.Categories.First(c => c.NameEn == "Furniture").Id },
+                 new SubCategory { NameEn = "Decor", NameAr = "الديكور", ImageUrl = "/images/subcategories/Decorjpg.jpg", CategoryId = context.Categories.First(c => c.NameEn == "Furniture").Id },
 
 
                  // Subcategories for Automotive Services

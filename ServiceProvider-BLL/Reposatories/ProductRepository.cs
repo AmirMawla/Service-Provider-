@@ -131,6 +131,57 @@ namespace ServiceProvider_BLL.Reposatories
 
         }
 
+        public async Task<Result<PaginatedList<ProductResponse>>> GetAllProductsUnderSubcategoryAsync(int subCategoryId,RequestFilter request, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Products!.
+                Include(p => p.Reviews)
+                .Where(p => p.SubCategoryId == subCategoryId)
+                .AsNoTracking();
+
+            if (!query.Any())
+                Result.Failure<PaginatedList<ProductResponse>>(ProductErrors.ProductsNotFound);
+
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.NameEn.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.NameAr.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Vendor.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Vendor.BusinessName ?? "".ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.Description ?? "".ToLower(), searchTerm)
+                );
+            }
+
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = query.Select(p => new ProductResponse(
+                p.Id,
+                p.NameEn,
+                p.NameAr,
+                p.MainImageUrl,
+                p.Description,
+                p.Vendor.FullName,
+                p.Vendor.BusinessName!,
+                p.Price,
+                p.Reviews!.Any() ? p.Reviews!.Average(r => r.Rating) : 0
+            ));
+
+            var products = await PaginatedList<ProductResponse>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return Result.Success(products);
+
+        }
+
         public async Task<Result> UpdateProductAsync(int id, UpdateProductRequest request, string vendorId, CancellationToken cancellationToken = default)
         {
             var currentProduct = await _context.Products!.FirstOrDefaultAsync(p => p.Id == id && p.VendorId == vendorId, cancellationToken: cancellationToken);

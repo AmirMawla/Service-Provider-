@@ -53,7 +53,7 @@ namespace ServiceProvider_BLL.Reposatories
 
         }
 
-        public async Task<Result<IEnumerable<VendorRevenueResponse>>> GetTopVendorsAsync()
+        public async Task<Result<IEnumerable<VendorRevenueResponse>>> GetTopVendorsAsync(CancellationToken cancellationToken = default)
         {
 
             var vendorsQuery = _context.Users
@@ -68,7 +68,7 @@ namespace ServiceProvider_BLL.Reposatories
                     v.CoverImageUrl
                 });
 
-            var vendorList = await vendorsQuery.ToListAsync(); // Execute query in the database
+            var vendorList = await vendorsQuery.ToListAsync(cancellationToken); // Execute query in the database
 
             var vendorsRevenue = vendorList.Select(vendor => new VendorRevenueResponse
             (

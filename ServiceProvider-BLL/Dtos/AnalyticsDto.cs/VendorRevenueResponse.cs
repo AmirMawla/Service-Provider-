@@ -11,6 +11,8 @@ namespace ServiceProvider_BLL.Dtos.AnalyticsDto.cs
       string FullName,
       string? BusinessName,
       string BusinessType,
+      string? ProfilePictureUrl,
+      string? CoverImageUrl,
       decimal TotalRevenue,
       int TotalOrderCount
     );

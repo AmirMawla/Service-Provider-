@@ -63,7 +63,9 @@ namespace ServiceProvider_BLL.Reposatories
                     v.Id,
                     v.FullName,
                     v.BusinessName,
-                    v.BusinessType
+                    v.BusinessType,
+                    v.ProfilePictureUrl,
+                    v.CoverImageUrl
                 });
 
             var vendorList = await vendorsQuery.ToListAsync(); // Execute query in the database
@@ -74,6 +76,8 @@ namespace ServiceProvider_BLL.Reposatories
                 vendor.FullName,
                 vendor.BusinessName,
                 vendor.BusinessType,
+                vendor.ProfilePictureUrl,
+                vendor.CoverImageUrl,
                 _context.Products!
                     .Where(p => p.VendorId == vendor.Id)
                     .Join(_context.OrderProducts!,

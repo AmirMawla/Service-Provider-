@@ -146,6 +146,33 @@ namespace ServiceProvider_BLL.Reposatories
 
             return Result.Success(orders.Adapt<IEnumerable<OrderResponseV2>>());
         }
+
+        public async Task<Result<IEnumerable<RecentOrderResponse>>> GetTopFiveRecentOrdersAsync( string vendorId, int count = 5,CancellationToken cancellationToken = default)
+        {
+            var orders = await _context.Orders!
+                .Where(o => o.OrderProducts.Any(op => op.Product.VendorId == vendorId))
+                .OrderByDescending(o => o.OrderDate)
+                .Take(count)
+                .Select(o => new RecentOrderResponse(
+                    o.Id,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    o.Status.ToString(),
+                    o.User.FullName,
+                    o.OrderProducts.Select(op => new OrderItemResponse(
+                        op.Product.NameEn,
+                        op.Product.NameAr,
+                        op.Quantity,
+                        op.Product.Price
+                    )).ToList()
+                ))
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return orders.Any()
+                ? Result.Success(orders.AsEnumerable())
+                : Result.Failure<IEnumerable<RecentOrderResponse>>(OrderErrors.NoOrdersForThisVendor);
+        }
         public async Task<Result<OrderResponseV2>> AddOrderAsync( string userId ,OrderRequest request, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();

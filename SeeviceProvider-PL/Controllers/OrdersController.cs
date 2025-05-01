@@ -61,6 +61,17 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
+        [HttpGet("vendors/top-five-recent-orders")]
+        [Authorize(Policy = "ApprovedVendor")]
+        public async Task<IActionResult> GetTopFiveRecentVendorOrders(int count = 5,CancellationToken cancellationToken = default)
+        {
+            var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _orderRepositry.Orders.GetTopFiveRecentOrdersAsync(vendorId!, count, cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
         [HttpPost("")]
         [Authorize(Roles = "MobileUser")]
         public async Task<IActionResult> AddOrder ( [FromBody] OrderRequest request, CancellationToken cancellationToken)

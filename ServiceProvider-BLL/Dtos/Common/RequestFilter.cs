@@ -15,7 +15,7 @@ namespace ServiceProvider_BLL.Dtos.Common
         public string? SortColumn { get; init; }
         public string? SortDirection { get; init; }
 
-        public bool? IsApproved { get; init; }
+        public bool? Status { get; init; }
 
         public List<string>? Statuses { get; init; }
     }

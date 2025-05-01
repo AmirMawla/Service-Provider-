@@ -19,6 +19,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Security.Claims;
+using System.Globalization;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -27,11 +29,15 @@ namespace ServiceProvider_BLL.Reposatories
         private readonly AppDbContext _context;
         private readonly UserManager<Vendor> _userManager;
         private readonly IPasswordHasher<Vendor> _passwordHasher;
-        public VendorRepository(AppDbContext context, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher) : base(context)
+        private readonly string _vendorId;
+        
+        public VendorRepository(AppDbContext context, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IHttpContextAccessor httpContextAccessor) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _passwordHasher = passwordHasher;
+            _vendorId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         }
 
         public async Task<Result<PaginatedList<VendorResponse>>> GetAllProviders(RequestFilter request,CancellationToken cancellationToken = default)
@@ -40,9 +46,9 @@ namespace ServiceProvider_BLL.Reposatories
                 .Where(x => x.UserName != "admin")
                 .AsNoTracking();
 
-            if (request.IsApproved.HasValue)
+            if (request.Status.HasValue)
             {
-                query = query.Where(u => u.IsApproved == request.IsApproved.Value);
+                query = query.Where(u => u.IsApproved == request.Status.Value);
             }
 
             if (!string.IsNullOrEmpty(request.SearchValue))
@@ -134,7 +140,7 @@ namespace ServiceProvider_BLL.Reposatories
                      p.NameEn,
                      p.NameAr,
                      p.Description!,
-                     p.MainImageUrl,
+                     p.MainImageUrl!,
                      p.Price,
                      p.SubCategory.Category.NameEn,
                      p.SubCategory.Category.NameAr
@@ -145,7 +151,108 @@ namespace ServiceProvider_BLL.Reposatories
                 ? Result.Success<IEnumerable<ProductsOfVendorDto>>(menu)
                 : Result.Failure<IEnumerable<ProductsOfVendorDto>>(ProductErrors.NotFound);
         }
-       
+
+
+        public async Task<Result<IEnumerable<TopVendorResponse>>> GetTopVendorsByOrders(CancellationToken cancellationToken = default)
+        {
+            var vendors = await _context.Users
+                .Where(u => u.IsApproved) // Filter for vendors
+                .Select(v => new {
+                    Vendor = v,
+                    OrderCount = v.Products!
+                        .SelectMany(p => p.OrderProducts!)
+                        .Count(),
+                    Category = v.VendorSubCategories!
+                        .Select(vsc => vsc.SubCategory.Category.NameEn)
+                        .FirstOrDefault() ?? "General"
+                })
+                .OrderByDescending(x => x.OrderCount)
+                .Take(5)
+                .Select(x => new TopVendorResponse(
+                    x.Vendor.FullName,
+                    x.Vendor.BusinessName!,
+                    x.Vendor.BusinessType,
+                    x.Vendor.ProfilePictureUrl ?? "/images/default-vendor.jpg",
+                    x.Category,
+                    x.OrderCount
+                ))
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            if (!vendors.Any())
+                return Result.Failure<IEnumerable<TopVendorResponse>>(VendorErrors.NotFound);
+
+            return Result.Success(vendors.AsEnumerable());
+        }
+
+        public async Task<VendorDashboardResponse> GetVendorDashboard(CancellationToken cancellationToken = default)
+        {
+            var ordersResult = await GetOrderCounts(cancellationToken);
+            var revenueResult = await GetRevenueData(cancellationToken);
+            var ratingResult = await GetAverageRating(cancellationToken);
+
+            return new VendorDashboardResponse(
+                OrdersThisWeek: ordersResult.weekly,
+                OrdersThisMonth: ordersResult.monthly,
+                RevenueTrend: revenueResult.trend,
+                CurrentRevenue: revenueResult.current,
+                AverageRating: ratingResult
+            );
+        }
+
+        private async Task<(int weekly, int monthly)> GetOrderCounts(CancellationToken cancellationToken = default)
+        {
+
+
+            var now = DateTime.UtcNow;
+            var startOfWeek = now.AddDays(-(int)now.DayOfWeek);
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+
+            var query = _context.Orders!
+                .Where(o => o.OrderProducts.Any(op =>
+                    op.Product.VendorId == _vendorId));
+
+            return (
+                weekly: await query.CountAsync(o => o.OrderDate >= startOfWeek,cancellationToken),
+                monthly: await query.CountAsync(o => o.OrderDate >= startOfMonth,cancellationToken)
+            );
+        }
+
+        private async Task<(List<MonthlyRevenue> trend, decimal current)> GetRevenueData(CancellationToken cancellationToken = default)
+        {
+
+
+            var paymentsQuery = _context.Payments!
+                .Where(p => p.Order.OrderProducts.Any(op =>
+                    op.Product.VendorId == _vendorId));
+
+            // Last 4 months revenue trend
+            var trend = await paymentsQuery
+                .GroupBy(p => new { p.TransactionDate.Year, p.TransactionDate.Month })
+                .OrderByDescending(g => g.Key.Year)
+                .ThenByDescending(g => g.Key.Month)
+                .Take(4)
+                .Select(g => new MonthlyRevenue(
+                     CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key.Month),
+                      g.Sum(p => p.TotalAmount)
+                ))
+                .ToListAsync(cancellationToken);
+
+            // Current total revenue
+            var current = await paymentsQuery.SumAsync(p => p.TotalAmount,cancellationToken);
+
+            return (trend, current);
+        }
+
+        private async Task<double> GetAverageRating(CancellationToken cancellationToken = default)
+        {
+
+
+            return await _context.Reviews!
+                .Where(r => r.Product.VendorId == _vendorId)
+                .AverageAsync(r => (double?)r.Rating,cancellationToken) ?? 0.0;
+        }
+
 
         public async Task<Result<UpdateVendorResponse>> UpdateVendorAsync(string id,UpdateVendorResponse vendorDto, CancellationToken cancellationToken = default)
         {

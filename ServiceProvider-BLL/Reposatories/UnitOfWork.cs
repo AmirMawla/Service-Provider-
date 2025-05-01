@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
@@ -41,7 +42,7 @@ namespace ServiceProvider_BLL.Reposatories
             _usermanager = userManager;
             _passwordHasher = passwordHasher;
             ApplicationUsers = new ApplicationUserRepository(_context);
-            Vendors = new VendorRepository(_context,_usermanager,_passwordHasher);
+            Vendors = new VendorRepository(_context,_usermanager,_passwordHasher, _httpContextAccessor);
             Products = new ProductRepository(_context);
             VendorSubCategories = new VendorSubCategoryRepository(_context);
             SubCategories = new SubCategoryRepository(_context);

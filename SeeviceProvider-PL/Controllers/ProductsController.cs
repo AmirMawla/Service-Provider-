@@ -49,6 +49,18 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+        [HttpGet("most-vendor-requested-product")]
+        [Authorize(Policy ="ApprovedVendor")]
+        public async Task<IActionResult> GetVendorMostRequested(CancellationToken cancellationToken)
+        {
+            var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _productRepositry.Products.GetMostRequestedProductFromAVendorAsync(vendorId!,cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
         [HttpGet("most-recent")]
         public async Task<IActionResult> GetMostRecent(CancellationToken cancellationToken)
         {

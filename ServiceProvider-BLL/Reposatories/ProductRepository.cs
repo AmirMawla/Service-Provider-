@@ -284,6 +284,31 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(products.Adapt<IEnumerable<ProductResponse>>());
         }
 
+        public async Task<Result<IEnumerable<MostRequestedProductResponse>>> GetMostRequestedProductFromAVendorAsync(string vendorId,CancellationToken cancellationToken = default)
+        {
+            var products = await _context.Products!
+                .Where(p => p.VendorId == vendorId)
+                .Select(p => new {
+                    Product = p,
+                    OrderCount = p.OrderProducts!.Count,
+                    TotalRevenue = p.OrderProducts.Sum(op => op.Quantity * op.Product.Price)
+                })
+                .OrderByDescending(x => x.OrderCount)
+                .Select(x => new MostRequestedProductResponse(
+                    x.Product.Id,
+                    x.Product.NameEn,
+                    x.Product.NameAr,
+                    x.Product.MainImageUrl!,
+                    x.OrderCount,
+                    x.TotalRevenue
+                ))
+                .ToListAsync(cancellationToken);
+
+            if (!products.Any())
+                return Result.Failure<IEnumerable<MostRequestedProductResponse>>(ProductErrors.ProductsNotFound);
+
+            return Result.Success(products.AsEnumerable());
+        }
 
         private async Task UpdateProductAverageRating(int productId)
         {

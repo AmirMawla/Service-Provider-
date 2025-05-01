@@ -48,9 +48,28 @@ namespace SeeviceProvider_PL.Controllers
         public async Task<IActionResult> GetProviderDetalis([FromRoute] string providerId, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetProviderDetails(providerId, cancellationToken);
+
             return result.IsSuccess
                 ? Ok(result.Value)
                 : result.ToProblem();
+        }
+
+        [HttpGet("top-5-vendors")]
+        public async Task<IActionResult> GetTopVendors(CancellationToken cancellationToken =default)
+        {
+            var result = await _vendorRepositry.Vendors.GetTopVendorsByOrders();
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
+        [HttpGet("vendor-dashboard")]
+        [Authorize(Policy = "ApprovedVendor")]
+        public async Task<IActionResult> GetDashboard(CancellationToken cancellationToken = default)
+        {
+            var result = await _vendorRepositry.Vendors.GetVendorDashboard(cancellationToken);
+            return Ok(result);
         }
 
 

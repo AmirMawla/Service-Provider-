@@ -52,6 +52,7 @@ namespace SeeviceProvider_PL
             services.AddDbContext<AppDbContext>(options =>
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
 
+
             //services.AddIdentity<Vendor, IdentityRole>()
             //    .AddEntityFrameworkStores<AppDbContext>()
             //    .AddDefaultTokenProviders();
@@ -144,6 +145,14 @@ namespace SeeviceProvider_PL
             {
                 options.AddPolicy("AdminOrApprovedVendor", policy =>
                 policy.RequireRole("Vendor","Admin").RequireAssertion(context =>
+                        context.User.Identity!.IsAuthenticated &&
+                        context.User.HasClaim(c => c.Type == "IsApproved" && c.Value.Equals("true", StringComparison.OrdinalIgnoreCase))));
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ApprovedVendor", policy =>
+                policy.RequireRole("Vendor").RequireAssertion(context =>
                         context.User.Identity!.IsAuthenticated &&
                         context.User.HasClaim(c => c.Type == "IsApproved" && c.Value.Equals("true", StringComparison.OrdinalIgnoreCase))));
             });

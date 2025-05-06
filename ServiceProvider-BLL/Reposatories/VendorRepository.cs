@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Claims;
 using System.Globalization;
+using ServiceProvider_BLL.Dtos.ReviewDto;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -84,17 +85,18 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(vendors);
         }
 
-        public async Task<Result<PaginatedList<VendorRatingResponse>>> GetVendorsRatings(RequestFilter request,CancellationToken cancellationToken = default) 
+        public async Task<Result<PaginatedList<VendorResponse>>> GetAllProvidersForMobile(RequestFilter request, CancellationToken cancellationToken = default)
         {
-
             var query = _context.Users
-                .Where(x => x.IsApproved);
-
-            if (!query.Any())
-                return Result.Failure<PaginatedList<VendorRatingResponse>>(VendorErrors.NotFound);
+                .Where(x => x.UserName != "admin" && x.IsApproved)
+                .AsNoTracking();
 
             if (!string.IsNullOrEmpty(request.SearchValue))
             {
+                //query = query.Where(x =>
+                //     x.FullName.Contains(request.SearchValue) ||
+                //     (x.BusinessName ?? "").Contains(request.SearchValue) ||
+                //     (x.BusinessType ?? "").Contains(request.SearchValue));
                 var searchTerm = $"%{request.SearchValue.ToLower()}%";
                 query = query.Where(x =>
                     EF.Functions.Like(x.FullName.ToLower(), searchTerm) ||
@@ -109,11 +111,69 @@ namespace ServiceProvider_BLL.Reposatories
                 query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
-            var source = query.ProjectToType<VendorRatingResponse>().AsNoTracking();
+            var source = query.ProjectToType<VendorResponse>().AsNoTracking();
 
-            var vendors = await PaginatedList<VendorRatingResponse>.CreateAsync(source, request.PageNumer, request.PageSize);
+
+            var vendors = await PaginatedList<VendorResponse>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
 
             return Result.Success(vendors);
+        }
+
+        public async Task<Result<PaginatedList<VendorRatingResponse>>> GetVendorsRatings(string vendorId ,RequestFilter request,CancellationToken cancellationToken = default) 
+        {
+
+            var vendorExists = await _context.Users.AnyAsync(u => u.Id == vendorId && u.IsApproved, cancellationToken: cancellationToken);
+            if (!vendorExists) return Result.Failure<PaginatedList<VendorRatingResponse>>(VendorErrors.NotFound);
+
+            var query = _context.Reviews!
+                .Where(r => r.Product.VendorId == vendorId)
+                .Include(r => r.Product)
+                .Include(r => r.User)
+                .OrderByDescending(r => r.CreatedAt)
+                .AsNoTracking();
+
+            // Search filter
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(r =>
+                    EF.Functions.Like(r.Comment!.ToLower(), searchTerm) ||
+                    EF.Functions.Like(r.Product.NameEn.ToLower(), searchTerm) ||
+                    EF.Functions.Like(r.Product.NameAr.ToLower(), searchTerm));
+            }
+
+            // Sorting
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = query.Select(r => new VendorRatingResponse(
+                r.Id,
+                r.Rating,
+                r.Comment ?? string.Empty,
+                r.CreatedAt,
+                r.Product.NameEn,
+                r.Product.NameAr,
+                r.User.FullName,
+                r.User.Id
+            ));
+
+            var reviews = await PaginatedList<VendorRatingResponse>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return reviews.Items.Any()
+            ? Result.Success(reviews)
+                : Result.Failure<PaginatedList<VendorRatingResponse>>(ReviewErrors.ReviewsNotFound);
         }
 
         public async Task<Result<VendorResponse>> GetProviderDetails(string providerId, CancellationToken cancellationToken = default)

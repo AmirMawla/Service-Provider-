@@ -10,6 +10,7 @@ namespace ServiceProvider_BLL.Dtos.CartProductDto
         int ProductId,
         string NameEn,
         string NameAr,
+        string MainImageUrl,
         decimal Price,
         int Quantity
         );

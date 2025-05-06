@@ -32,11 +32,38 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
-        [HttpGet("vendors-rating")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetProvidersRatings([FromQuery] RequestFilter request, CancellationToken cancellationToken)
+        [HttpGet("for-mobile")]
+        [Authorize(Roles = "MobileUser")]
+        public async Task<IActionResult> GetProvidersForMobile([FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
-            var result = await _vendorRepositry.Vendors.GetVendorsRatings(request, cancellationToken);
+            var result = await _vendorRepositry.Vendors.GetAllProvidersForMobile(request, cancellationToken);
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
+        [HttpGet("vendors-rating")]
+        [Authorize(Policy ="AdminOrApprovedVendor")]
+        public async Task<IActionResult> GetProvidersRatings(string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (currentUserRole == "Vendor")
+            {
+                // Vendors can only access their own reviews
+                if (!string.IsNullOrEmpty(vendorId) && vendorId != currentUserId)
+                    return Forbid();
+
+                vendorId = currentUserId;
+            }
+            else if (string.IsNullOrEmpty(vendorId))
+            {
+                return BadRequest("Vendor ID is required for admin users");
+            }
+
+            var result = await _vendorRepositry.Vendors.GetVendorsRatings(vendorId!,request, cancellationToken);
+
             return result.IsSuccess
                 ? Ok(result.Value)
                 : result.ToProblem();
@@ -44,7 +71,7 @@ namespace SeeviceProvider_PL.Controllers
 
 
         [HttpGet("{providerId}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,MobileUser")]
         public async Task<IActionResult> GetProviderDetalis([FromRoute] string providerId, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetProviderDetails(providerId, cancellationToken);
@@ -74,7 +101,7 @@ namespace SeeviceProvider_PL.Controllers
 
 
         [HttpGet("{providerId}/menu")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> GetProviderMenu([FromRoute] string providerId, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetProviderMenuAsync(providerId, cancellationToken);

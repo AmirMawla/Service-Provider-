@@ -112,11 +112,11 @@ namespace ServiceProvider_BLL.Reposatories
             if (!subCategoryExists)
                 return Result.Failure<ProductResponse>(SubCategoryErrors.SubCategoryNotFound);
 
-            var isRegistered = await _context.VendorSubCategories!
-            .AnyAsync(vsc => vsc.VendorId == vendorId && vsc.SubCategoryId == request.SubCategoryId, cancellationToken: cancellationToken);
+            //var isRegistered = await _context.VendorSubCategories!
+            //.AnyAsync(vsc => vsc.VendorId == vendorId && vsc.SubCategoryId == request.SubCategoryId, cancellationToken: cancellationToken);
 
-            if (!isRegistered)
-                return Result.Failure<ProductResponse>(VendorErrors.VendorNotRegisterdInSubCategory);
+            //if (!isRegistered)
+            //    return Result.Failure<ProductResponse>(VendorErrors.VendorNotRegisterdInSubCategory);
 
             var product = request.Adapt<Product>();
 

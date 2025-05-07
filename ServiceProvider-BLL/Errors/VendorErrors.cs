@@ -11,6 +11,7 @@ namespace ServiceProvider_BLL.Errors
     public static class VendorErrors
     {
         public static readonly Error NotFound = new("Not Found", "no Vendors found", StatusCodes.Status404NotFound);
+        public static readonly Error UserNotFound = new("Not Found", "no users found", StatusCodes.Status404NotFound);
         public static readonly Error InvalidCredentials = new("Vendor.InvalidCredentials", "Invalid Email/Password", StatusCodes.Status400BadRequest);
         public static readonly Error DuplicatedEmail = new("Vendor.DuplicatedEmail", "Email already exisit", StatusCodes.Status409Conflict);
         public static readonly Error NotApproved = new("Vendor.NotApproved", "Your account is pending admin approval.", StatusCodes.Status401Unauthorized);

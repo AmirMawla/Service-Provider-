@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.AnalyticsDto.cs;
 using ServiceProvider_BLL.Dtos.Common;
+using ServiceProvider_BLL.Dtos.PaymentDto;
+using ServiceProvider_BLL.Dtos.UsersDto;
 using ServiceProvider_BLL.Interfaces;
 
 namespace SeeviceProvider_PL.Controllers
@@ -16,6 +19,7 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _generalRepository = generalRepository;
 
         [HttpGet("today-stats")]
+        [ProducesResponseType(typeof(TodaysStatsResponse),StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTodayStats(CancellationToken cancellationToken = default) 
         {
             var result = await _analyticsRepositry.GetTodaysStatsAsync(cancellationToken);
@@ -24,14 +28,17 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("top-vendors")]
+        [ProducesResponseType(typeof(IEnumerable<VendorRevenueResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTopVendors()
         {
             var result = await _analyticsRepositry.GetTopVendorsAsync();
 
             return Ok(result.Value);
         }
-
+        //PaginatedList<UserResponse>
         [HttpGet("all-users")]
+        [ProducesResponseType(typeof(PaginatedList<UserResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllMobileUsers([FromQuery] RequestFilter request , CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.ApplicationUsers.GetAllMobileUsers(request,cancellationToken);
@@ -40,16 +47,18 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("all-users-count")]
-        
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllMobileUsersCount( CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.ApplicationUsers.GetTotalUsersCountAsync(cancellationToken);
 
             return result.IsSuccess ? Ok(new { TotalApplicationUsers = result.Value }) : result.ToProblem();
         }
-
+        //<PaginatedList<TransactionResponse>
         [HttpGet("all-transactions")]
-        
+        [ProducesResponseType(typeof(PaginatedList<TransactionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTransactions ([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetAllTransactions(request, cancellationToken);
@@ -58,7 +67,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("all-transactions-count")]
-        //[AllowAnonymous]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)] 
         public async Task<IActionResult> GetTransactionsCount( CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetTotalTransactionsCountAsync(cancellationToken);
@@ -67,6 +77,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("users/{userId}/all-transactions")]
+        [ProducesResponseType(typeof(PaginatedList<TransactionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserTransactions([FromRoute] string userId,[FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
         {
             var result = await _generalRepository.Payments.GetUserTransactions(userId,request, cancellationToken);
@@ -75,8 +87,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
 
-
         [HttpGet("project-summary")]
+        [ProducesResponseType(typeof(OverAllStatisticsResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProjectSummary()
         {
             var result = await _analyticsRepositry.GetOverallStatisticsAsync();

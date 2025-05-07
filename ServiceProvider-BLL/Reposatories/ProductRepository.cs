@@ -112,11 +112,11 @@ namespace ServiceProvider_BLL.Reposatories
             if (!subCategoryExists)
                 return Result.Failure<ProductResponse>(SubCategoryErrors.SubCategoryNotFound);
 
-            //var isRegistered = await _context.VendorSubCategories!
-            //.AnyAsync(vsc => vsc.VendorId == vendorId && vsc.SubCategoryId == request.SubCategoryId, cancellationToken: cancellationToken);
+            var isRegistered = await _context.VendorSubCategories!
+            .AnyAsync(vsc => vsc.VendorId == vendorId && vsc.SubCategoryId == request.SubCategoryId, cancellationToken: cancellationToken);
 
-            //if (!isRegistered)
-            //    return Result.Failure<ProductResponse>(VendorErrors.VendorNotRegisterdInSubCategory);
+            if (!isRegistered)
+                return Result.Failure<ProductResponse>(VendorErrors.VendorNotRegisterdInSubCategory);
 
             var product = request.Adapt<Product>();
 
@@ -182,19 +182,25 @@ namespace ServiceProvider_BLL.Reposatories
 
         }
 
-        public async Task<Result> UpdateProductAsync(int id, UpdateProductRequest request, string vendorId, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateProductAsync(int id,UpdateProductRequest request,string currentUserId,bool isAdmin,CancellationToken cancellationToken = default)
         {
-            var currentProduct = await _context.Products!.FirstOrDefaultAsync(p => p.Id == id && p.VendorId == vendorId, cancellationToken: cancellationToken);
+            var productQuery = _context.Products!.Where(p => p.Id == id);
 
-            if (currentProduct is null)
-                return Result.Failure(ProductErrors.ProductNotFound);
+            // Apply vendor filter if not admin
+            if (!isAdmin)
+            {
+                productQuery = productQuery.Where(p => p.VendorId == currentUserId);
+            }
 
-            // request.Adapt(currentProduct);
-            currentProduct.NameEn = request.NameEn;
-            currentProduct.NameAr = request.NameAr;
-            currentProduct.Description = request.Description;
-            currentProduct.MainImageUrl = request.MainImageUrl;
-            currentProduct.Price = request.Price;
+            var currentProduct = await productQuery.FirstOrDefaultAsync(cancellationToken);
+
+            if (currentProduct == null)
+            {
+                return Result.Failure(ProductErrors.NotFound);
+            }
+
+            
+            request.Adapt(currentProduct); 
             currentProduct.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(cancellationToken);
@@ -202,45 +208,106 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success();
         }
 
-        public async Task<Result> DeleteProductAsync(int id, string vendorId, CancellationToken cancellationToken = default)
+        public async Task<Result> DeleteProductAsync(int id,string currentUserId,bool isAdmin,CancellationToken cancellationToken = default)
         {
-            var product = await _context.Products!.FirstOrDefaultAsync(p => p.Id == id && p.VendorId == vendorId, cancellationToken: cancellationToken);
+            var productQuery = _context.Products!.Where(p => p.Id == id);
 
-            if (product is null)
-                return Result.Failure(ProductErrors.ProductNotFound);
+            // Apply vendor filter if not admin
+            if (!isAdmin)
+            {
+                productQuery = productQuery.Where(p => p.VendorId == currentUserId);
+            }
+
+            var product = await productQuery.FirstOrDefaultAsync(cancellationToken);
+
+            if (product == null)
+            {
+                return Result.Failure(ProductErrors.NotFound);
+            }
 
             _context.Remove(product);
-
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }
 
-        public async Task<Result<IEnumerable<ReviewResponse>>> GetReviewsForSpecificServiceAsync(int productId, CancellationToken cancellationToken = default)
+        public async Task<Result<PaginatedList<ReviewResponse>>> GetReviewsForSpecificServiceAsync(int productId, RequestFilter request,CancellationToken cancellationToken = default)
         {
-            var productExisit = await _context.Products!.AnyAsync(x => x.Id == productId, cancellationToken);
+            
+            var productExists = await _context.Products!
+                .AnyAsync(x => x.Id == productId, cancellationToken);
 
-            if (!productExisit)
-                return Result.Failure<IEnumerable<ReviewResponse>>(ProductErrors.ProductNotFound);
+            if (!productExists)
+                return Result.Failure<PaginatedList<ReviewResponse>>(ProductErrors.ProductNotFound);
 
-            var reviews = await _context.Reviews!
-                            .Where(x => x.ProductId == productId)
-                            .Include(x => x.User)
-                            .Include(x => x.Product)
-                            .ThenInclude(x => x.Vendor)
-                            .AsNoTracking()
-                            .ToListAsync(cancellationToken);
+           
+            var query = _context.Reviews!
+                .Where(x => x.ProductId == productId)
+                .Include(x => x.User)
+                .Include(x => x.Product)
+                    .ThenInclude(x => x.Vendor)
+                .AsNoTracking();
 
-            if (!reviews.Any())
-                return Result.Failure<IEnumerable<ReviewResponse>>(ReviewErrors.ReviewsNotFound);
+            
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Comment!.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.User.FullName.ToLower(), searchTerm)
+                );
+            }
 
-            var response = reviews.Adapt<IEnumerable<ReviewResponse>>();
+           
+            if (request.MinRating.HasValue)
+            {
+                query = query.Where(x => x.Rating >= request.MinRating.Value);
+            }
 
-            return Result.Success(response);
+            if (request.MaxRating.HasValue)
+            {
+                query = query.Where(x => x.Rating <= request.MaxRating.Value);
+            }
 
+          
+
+            var sortColumn = !string.IsNullOrEmpty(request.SortColumn)
+                ? request.SortColumn
+                : "CreatedAt";  // Default sort
+
+            var sortDirection = !string.IsNullOrEmpty(request.SortDirection)
+                ? request.SortDirection
+                : "desc";  // Default direction
+
+            query = query.OrderBy($"{sortColumn} {sortDirection}");
+
+            
+            var source = query.Select(x => new ReviewResponse(
+                x.Id,
+                x.Product.NameEn,
+                x.Product.NameAr,
+                x.User.FullName,
+                x.User.Email,
+                x.Product.Vendor.FullName,
+                x.Rating,
+                x.Comment,
+                x.CreatedAt
+            ));
+
+           
+            var reviews = await PaginatedList<ReviewResponse>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return reviews.Items.Any()
+                ? Result.Success(reviews)
+                : Result.Failure<PaginatedList<ReviewResponse>>(ReviewErrors.ReviewsNotFound);
         }
 
-        public async Task<Result<ReviewResponse>> AddReviewAsync(int productId, ReviewRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<ReviewResponse>> AddReviewAsync(int productId,string userId, ReviewRequest request, CancellationToken cancellationToken = default)
         {
             var productExisit = await _context.Products!.AnyAsync(x => x.Id == productId, cancellationToken);
 
@@ -250,7 +317,7 @@ namespace ServiceProvider_BLL.Reposatories
             var hasOrderdProduct = await _context.OrderProducts!
                                     .AnyAsync(x =>
                                       x.ProductId == productId &&
-                                      x.Order.ApplicationUserId == request.UserId &&
+                                      x.Order.ApplicationUserId == userId &&
                                       x.Order.Status == OrderStatus.Delivered
                                       , cancellationToken
                                     );
@@ -262,7 +329,7 @@ namespace ServiceProvider_BLL.Reposatories
             var existingReview = await _context.Reviews!
                     .FirstOrDefaultAsync(r =>
                         r.ProductId == productId &&
-                        r.ApplicationUserId == request.UserId, cancellationToken: cancellationToken
+                        r.ApplicationUserId == userId, cancellationToken: cancellationToken
                     );
 
             if (existingReview != null)
@@ -272,7 +339,7 @@ namespace ServiceProvider_BLL.Reposatories
             var review = new Review
             {
                 ProductId = productId,
-                ApplicationUserId = request.UserId,
+                ApplicationUserId = userId,
                 Rating = request.Rating,
                 Comment = request.Comment,
                 CreatedAt = DateTime.UtcNow
@@ -283,7 +350,17 @@ namespace ServiceProvider_BLL.Reposatories
 
             await UpdateProductAverageRating(productId);
 
-            var response = review.Adapt<ReviewResponse>();
+            var response = new ReviewResponse(
+                review.Id,
+                review.Product.NameEn,
+                review.Product.NameAr,
+                review.User.FullName,
+                review.User.Email,
+                review.Product.Vendor.FullName,
+                review.Rating,
+                review.Comment,
+                review.CreatedAt
+            );
             
 
             return Result.Success(response);

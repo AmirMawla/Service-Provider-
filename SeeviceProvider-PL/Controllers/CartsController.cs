@@ -17,6 +17,8 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _cartRepositry = CartRepositry;
 
         [HttpGet("")]
+        [ProducesResponseType(typeof(CartResponse),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCartDetalis( CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -29,6 +31,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpPost("items")]
+        [ProducesResponseType(typeof(CartProductResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddToCart([FromBody] CartProductRequest request , CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -42,6 +46,8 @@ namespace SeeviceProvider_PL.Controllers
 
         
         [HttpPut("items")]
+        [ProducesResponseType(typeof(CartProductResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemRequest request , CancellationToken cancellationToken)
         {
             

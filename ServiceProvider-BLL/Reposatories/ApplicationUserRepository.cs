@@ -35,7 +35,7 @@ namespace ServiceProvider_BLL.Reposatories
 
 
             if (!query.Any())
-                return Result.Failure<PaginatedList<UserResponse>>(VendorErrors.NotFound);
+                return Result.Failure<PaginatedList<UserResponse>>(VendorErrors.UserNotFound);
 
             if (!string.IsNullOrEmpty(request.SearchValue))
             {

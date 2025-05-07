@@ -20,6 +20,9 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _productRepositry = productRepositry;
 
         [HttpGet("")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(PaginatedList<ProductResponse>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAll([FromQuery] RequestFilter request,CancellationToken cancellationToken) 
         {
             var result = await _productRepositry.Products.GetAllProductsAsync(request,cancellationToken);
@@ -30,6 +33,9 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get([FromRoute] int id,CancellationToken cancellationToken)
         {
             var result = await _productRepositry.Products.GetProductAsync(id,cancellationToken);
@@ -40,6 +46,9 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("most-requested")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(List<ProductRequestCount>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMostRequested(CancellationToken cancellationToken)
         {
             var result = await _productRepositry.Products.GetMostCommonProductAsync(cancellationToken);
@@ -51,6 +60,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("most-vendor-requested-product")]
         [Authorize(Policy ="ApprovedVendor")]
+        [ProducesResponseType(typeof(IEnumerable<MostRequestedProductResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetVendorMostRequested(CancellationToken cancellationToken)
         {
             var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -62,6 +73,9 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("most-recent")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(IEnumerable<ProductResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMostRecent(CancellationToken cancellationToken)
         {
             var result = await _productRepositry.Products.GetNewProductsAsync(cancellationToken);
@@ -72,17 +86,26 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{productId}/reviews")]
-        public async Task<IActionResult> GetServiceReviews([FromRoute] int productId, CancellationToken cancellationToken)
+        [Authorize(Roles ="Admin,MobileUser")]
+        [ProducesResponseType(typeof(PaginatedList<ReviewResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetServiceReviews([FromRoute] int productId, [FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
-            var result = await productRepositry.Products.GetReviewsForSpecificServiceAsync(productId, cancellationToken);
+            var result = await productRepositry.Products.GetReviewsForSpecificServiceAsync(productId, request,cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
         [HttpPost("{productId}/reviews")]
+        [Authorize(Roles ="MobileUser")]
+        [ProducesResponseType(typeof(ReviewResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateReview([FromRoute]int productId, [FromBody] ReviewRequest request)
         {
-            var result = await productRepositry.Products.AddReviewAsync(productId,request);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await productRepositry.Products.AddReviewAsync(productId,userId!,request);
 
             return result.IsSuccess
                 ? CreatedAtAction(nameof(Get), new { id = result.Value.Id }, result.Value)
@@ -91,6 +114,9 @@ namespace SeeviceProvider_PL.Controllers
         
         [HttpPost("")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
+        [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateService([FromBody] ProductRequest request , CancellationToken cancellationToken)
         {
 
@@ -103,11 +129,13 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-        public async Task<IActionResult> UpdateService(int id, [FromBody] UpdateProductRequest request , CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateService([FromRoute]int id, [FromBody] UpdateProductRequest request , CancellationToken cancellationToken)
         {
-
-            var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _productRepositry.Products.UpdateProductAsync(id, request, vendorId!,cancellationToken);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+            var result = await _productRepositry.Products.UpdateProductAsync(id, request ,currentUserId!,isAdmin, cancellationToken);
             return result.IsSuccess ? 
                 NoContent():
                 result.ToProblem();
@@ -115,10 +143,14 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-        public async Task<IActionResult> DeleteService(int id , CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteService([FromRoute]int id , CancellationToken cancellationToken)
         {
-            var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _productRepositry.Products.DeleteProductAsync(id, vendorId!,cancellationToken);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
+            var result = await _productRepositry.Products.DeleteProductAsync(id,currentUserId!,isAdmin,cancellationToken);
             return result.IsSuccess 
                 ? NoContent() 
                 : result.ToProblem();

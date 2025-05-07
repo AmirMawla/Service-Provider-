@@ -82,6 +82,7 @@ namespace ServiceProvider_BLL.Reposatories
                 r.Product.NameEn,
                 r.Product.NameAr,
                 r.User.FullName,
+                r.User.Email,
                 r.Product.Vendor.FullName,
                 r.Rating,
                 r.Comment,
@@ -92,14 +93,14 @@ namespace ServiceProvider_BLL.Reposatories
 
             return Result.Success(reviews);
         }
-        public async Task<Result> UpdateReviewAsync(int reviewId, UpdateReviewRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateReviewAsync(int reviewId,string userId ,UpdateReviewRequest request, CancellationToken cancellationToken = default)
         {
             var review = await _context.Reviews!.FindAsync(reviewId, cancellationToken);
 
             if(review == null)
                 return Result.Failure(ReviewErrors.ReviewNotFound);
 
-            if (review.ApplicationUserId != request.UserId)
+            if (review.ApplicationUserId != userId)
                 return Result.Failure(ReviewErrors.Forbid);
 
             review.Rating = request.Rating;

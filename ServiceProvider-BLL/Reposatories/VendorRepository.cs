@@ -47,6 +47,9 @@ namespace ServiceProvider_BLL.Reposatories
                 .Where(x => x.UserName != "admin")
                 .AsNoTracking();
 
+            if (!query.Any())
+                return Result.Failure<PaginatedList<VendorResponse>>(VendorErrors.NotFound);
+
             if (request.Status.HasValue)
             {
                 query = query.Where(u => u.IsApproved == request.Status.Value);
@@ -54,10 +57,6 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (!string.IsNullOrEmpty(request.SearchValue))
             {
-                //query = query.Where(x =>
-                //     x.FullName.Contains(request.SearchValue) ||
-                //     (x.BusinessName ?? "").Contains(request.SearchValue) ||
-                //     (x.BusinessType ?? "").Contains(request.SearchValue));
                 var searchTerm = $"%{request.SearchValue.ToLower()}%";
                 query = query.Where(x =>
                     EF.Functions.Like(x.FullName.ToLower(), searchTerm) ||
@@ -91,17 +90,24 @@ namespace ServiceProvider_BLL.Reposatories
                 .Where(x => x.UserName != "admin" && x.IsApproved)
                 .AsNoTracking();
 
+            if (!query.Any())
+                return Result.Failure<PaginatedList<VendorResponse>>(VendorErrors.NotFound);
+
             if (!string.IsNullOrEmpty(request.SearchValue))
             {
-                //query = query.Where(x =>
-                //     x.FullName.Contains(request.SearchValue) ||
-                //     (x.BusinessName ?? "").Contains(request.SearchValue) ||
-                //     (x.BusinessType ?? "").Contains(request.SearchValue));
                 var searchTerm = $"%{request.SearchValue.ToLower()}%";
                 query = query.Where(x =>
                     EF.Functions.Like(x.FullName.ToLower(), searchTerm) ||
                     EF.Functions.Like(x.BusinessName ?? "".ToLower(), searchTerm) ||
                     EF.Functions.Like(x.BusinessType ?? "".ToLower(), searchTerm)
+                );
+            }
+
+            if (!string.IsNullOrEmpty(request.BusinessType))
+            {
+                var businessTypeFilter = request.BusinessType.Trim().ToLower();
+                query = query.Where(x =>
+                    EF.Functions.Like(x.BusinessType.ToLower(), $"%{businessTypeFilter}%")
                 );
             }
 
@@ -406,7 +412,7 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 
         }
-
+       
         public async Task<Result> DeactivateVendorAsync(string vendorId, CancellationToken cancellationToken = default)
         {
             var vendor = await _userManager.FindByIdAsync(vendorId);

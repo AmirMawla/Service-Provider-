@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.CategoryDto;
 using ServiceProvider_BLL.Dtos.Common;
+using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.VendorDto;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_BLL.Reposatories;
@@ -24,6 +26,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(PaginatedList<VendorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProviders([FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetAllProviders(request,cancellationToken);
@@ -34,6 +38,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("for-mobile")]
         [Authorize(Roles = "MobileUser")]
+        [ProducesResponseType(typeof(PaginatedList<VendorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProvidersForMobile([FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetAllProvidersForMobile(request, cancellationToken);
@@ -44,6 +50,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("vendors-rating")]
         [Authorize(Policy ="AdminOrApprovedVendor")]
+        [ProducesResponseType(typeof(PaginatedList<VendorRatingResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProvidersRatings(string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -72,6 +80,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("{providerId}")]
         [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(VendorResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProviderDetalis([FromRoute] string providerId, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetProviderDetails(providerId, cancellationToken);
@@ -82,6 +92,9 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("top-5-vendors")]
+        [Authorize(Roles = "MobileUser")]
+        [ProducesResponseType(typeof(IEnumerable<TopVendorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTopVendors(CancellationToken cancellationToken =default)
         {
             var result = await _vendorRepositry.Vendors.GetTopVendorsByOrders();
@@ -93,6 +106,7 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("vendor-dashboard")]
         [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(VendorDashboardResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDashboard(CancellationToken cancellationToken = default)
         {
             var result = await _vendorRepositry.Vendors.GetVendorDashboard(cancellationToken);
@@ -101,7 +115,9 @@ namespace SeeviceProvider_PL.Controllers
 
 
         [HttpGet("{providerId}/menu")]
-        [Authorize(Policy = "AdminOrApprovedVendor")]
+        [Authorize]
+        [ProducesResponseType(typeof(IEnumerable<ProductsOfVendorDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProviderMenu([FromRoute] string providerId, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetProviderMenuAsync(providerId, cancellationToken);
@@ -122,7 +138,6 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpPut("change-password")]
-        //[Authorize(Roles = "Admin")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> ChangeVendorPassword([FromBody] ChangeVendorPasswordRequest request)
         {
@@ -137,16 +152,20 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpDelete("{providerId}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteVendor([FromRoute] string providerId, CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.DeleteVendorAsync(providerId, cancellationToken);
             return result.IsSuccess
-                ? Ok()
+                ? NoContent()
                 : result.ToProblem();
         }
 
         [HttpGet("pending-vendors")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(IEnumerable<VendorResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPendingVendors(CancellationToken cancellationToken)
         {
             var result = await _vendorRepositry.Vendors.GetPendingVendorsAsync(cancellationToken);
@@ -156,6 +175,9 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPost("approve-vendor/{vendorId}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> ApproveVendor([FromRoute] string vendorId)
         {
             var result = await _vendorRepositry.Vendors.ApproveVendorAsync(vendorId);
@@ -178,6 +200,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPost("deactivate-vendor/{vendorId}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeactivateVendor([FromRoute] string vendorId)
         {
             var result = await _vendorRepositry.Vendors.DeactivateVendorAsync(vendorId);

@@ -213,14 +213,22 @@ namespace ServiceProvider_BLL.Reposatories
         {
             var productQuery = _context.Products!.Where(p => p.Id == id);
 
-            // Apply vendor filter if not admin
+            
             if (!isAdmin)
             {
                 productQuery = productQuery.Where(p => p.VendorId == currentUserId);
             }
 
-<<<<<<< HEAD
+
+            var currentProduct = await productQuery.FirstOrDefaultAsync(cancellationToken);
             string? imagePath = null;
+
+            if (currentProduct == null)
+            {
+                return Result.Failure(ProductErrors.NotFound);
+            }
+
+
 
             if (request.Image != null)
             {
@@ -243,18 +251,10 @@ namespace ServiceProvider_BLL.Reposatories
             currentProduct.NameAr = request.NameAr;
             currentProduct.Description = request.Description;
             currentProduct.Price = request.Price;
-=======
-            var currentProduct = await productQuery.FirstOrDefaultAsync(cancellationToken);
-
-            if (currentProduct == null)
-            {
-                return Result.Failure(ProductErrors.NotFound);
-            }
-
-            
-            request.Adapt(currentProduct); 
->>>>>>> e9baacf55c2648caa20863aa323f53bf684b5aec
             currentProduct.UpdatedAt = DateTime.UtcNow;
+
+          
+            
 
             await _context.SaveChangesAsync(cancellationToken);
             return Result.Success();

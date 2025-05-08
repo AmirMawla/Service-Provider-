@@ -21,11 +21,9 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Claims;
 using System.Globalization;
-<<<<<<< HEAD
 using Microsoft.AspNetCore.Hosting;
-=======
 using ServiceProvider_BLL.Dtos.ReviewDto;
->>>>>>> e9baacf55c2648caa20863aa323f53bf684b5aec
+
 
 namespace ServiceProvider_BLL.Reposatories
 {

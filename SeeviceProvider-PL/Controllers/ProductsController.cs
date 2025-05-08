@@ -114,14 +114,11 @@ namespace SeeviceProvider_PL.Controllers
         
         [HttpPost("")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-<<<<<<< HEAD
-        public async Task<IActionResult> CreateService([FromForm] CreateProductDto request , CancellationToken cancellationToken)
-=======
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateService([FromBody] ProductRequest request , CancellationToken cancellationToken)
->>>>>>> e9baacf55c2648caa20863aa323f53bf684b5aec
+        public async Task<IActionResult> CreateService([FromForm] CreateProductDto request , CancellationToken cancellationToken)
+
         {
 
             var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -131,15 +128,13 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+
+
         [HttpPut("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-<<<<<<< HEAD
-        public async Task<IActionResult> UpdateService(int id, [FromForm] UpdateProductRequest request , CancellationToken cancellationToken)
-=======
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateService([FromRoute]int id, [FromBody] UpdateProductRequest request , CancellationToken cancellationToken)
->>>>>>> e9baacf55c2648caa20863aa323f53bf684b5aec
+        public async Task<IActionResult> UpdateService([FromRoute]int id, [FromForm] UpdateProductRequest request , CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var isAdmin = User.IsInRole("Admin");
@@ -148,6 +143,8 @@ namespace SeeviceProvider_PL.Controllers
                 NoContent():
                 result.ToProblem();
         }
+
+
 
         [HttpDelete("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]

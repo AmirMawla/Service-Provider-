@@ -20,7 +20,7 @@ namespace SeeviceProvider_PL.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            var validFolders = new[] { "vendors", "products", "categories", "subcategories" };
+            var validFolders = new[] { "vendors", "products", "categories", "subcategories","banners" };
             if (!validFolders.Contains(folder.ToLower()))
                 return BadRequest("Invalid folder name.");
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,10 +11,9 @@ namespace ServiceProvider_BLL.Dtos.VendorDto
     public record UpdateVendorResponse
     (
          string UserName ,
-
          string BusinessName ,
-         string? ProfilePictureUrl,
-         string? CoverImageUrl
+         IFormFile? ProfilePictureUrl,
+         IFormFile? CoverImageUrl
 
 
     //public string BusinessType { get; set; }

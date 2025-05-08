@@ -117,7 +117,8 @@ namespace SeeviceProvider_PL.Controllers
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateService([FromBody] ProductRequest request , CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateService([FromForm] CreateProductDto request , CancellationToken cancellationToken)
+
         {
 
             var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -127,11 +128,13 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+
+
         [HttpPut("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateService([FromRoute]int id, [FromBody] UpdateProductRequest request , CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateService([FromRoute]int id, [FromForm] UpdateProductRequest request , CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var isAdmin = User.IsInRole("Admin");
@@ -140,6 +143,8 @@ namespace SeeviceProvider_PL.Controllers
                 NoContent():
                 result.ToProblem();
         }
+
+
 
         [HttpDelete("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]

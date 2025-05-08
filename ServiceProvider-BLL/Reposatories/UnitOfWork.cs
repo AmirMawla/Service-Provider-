@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ServiceProvider_BLL.Interfaces;
@@ -18,6 +19,7 @@ namespace ServiceProvider_BLL.Reposatories
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<Vendor> _usermanager;
         private readonly IPasswordHasher<Vendor> _passwordHasher;
+        private readonly IWebHostEnvironment _env;
         public IApplicationUserRepository ApplicationUsers { get; private set; }
         public IVendorRepository Vendors { get; private set; }
         public IVendorSubCategoryRepository VendorSubCategories { get; private set; }
@@ -33,29 +35,31 @@ namespace ServiceProvider_BLL.Reposatories
         public IPaymentRepository Payments { get; private set; }
         public IMessageRepository Messages { get; private set; }
         public IBannersRepository Banners { get; private set; }
-      
 
-        public UnitOfWork(AppDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher)
-        { 
+
+        public UnitOfWork(AppDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IWebHostEnvironment env)
+        {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _usermanager = userManager;
             _passwordHasher = passwordHasher;
+            _env = env;
             ApplicationUsers = new ApplicationUserRepository(_context);
-            Vendors = new VendorRepository(_context,_usermanager,_passwordHasher, _httpContextAccessor);
-            Products = new ProductRepository(_context);
+            Vendors = new VendorRepository(_context, _usermanager, _passwordHasher, _httpContextAccessor, _env);
+            Products = new ProductRepository(_context, _env);
             VendorSubCategories = new VendorSubCategoryRepository(_context);
             SubCategories = new SubCategoryRepository(_context);
             Reviews = new ReviewRepository(_context);
             Orders = new OrderRepository(_context);
             OrderProducts = new OrderProductRepository(_context);
-            Carts = new CartRepository(_context,_httpContextAccessor);
+            Carts = new CartRepository(_context, _httpContextAccessor);
             CartProducts = new CartProductRepository(_context);
             Categories = new CategoryRepository(_context);
             Shippings = new ShippingRepository(_context);
             Payments = new PaymentRepository(_context);
             Messages = new MessageRepository(_context);
-           Banners = new BannersRepository(_context);
+            Banners = new BannersRepository(_context);
+            _env = env;
         }
 
         public async Task<int> Complete() =>

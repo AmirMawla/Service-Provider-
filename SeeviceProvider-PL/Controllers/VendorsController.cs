@@ -128,13 +128,13 @@ namespace SeeviceProvider_PL.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVendor(string id, [FromBody] UpdateVendorResponse vendorDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateVendor(string id, [FromForm] UpdateVendorResponse vendorDto, CancellationToken cancellationToken)
         {
 
             var result = await _vendorRepositry.Vendors.UpdateVendorAsync(id, vendorDto, cancellationToken);
-            return result.IsSuccess
-                 ? Ok(result.Value)
-                 : result.ToProblem();
+            return result.IsSuccess ?
+                NoContent() :
+                result.ToProblem();
         }
 
         [HttpPut("change-password")]

@@ -44,6 +44,7 @@ namespace ServiceProvider_BLL.Reposatories
                          ProductId: cp.ProductId,
                          NameEn: cp.Product.NameEn,
                          NameAr: cp.Product.NameAr,
+                         MainImageUrl: cp.Product.MainImageUrl!,
                          Price: cp.Product.Price,
                          Quantity: cp.Quantity
                 )).ToList()

@@ -11,6 +11,7 @@ namespace ServiceProvider_BLL.Dtos.ReviewDto
         string ProductNameEn,
         string ProductNameAr,
         string UserFullName,
+        string UserEmail,
         string VendorFullName,
         int Rating,
         string? Comment,

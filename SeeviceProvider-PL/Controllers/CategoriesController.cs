@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.CategoryDto;
+using ServiceProvider_BLL.Dtos.VendorDto;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Entities;
 
@@ -17,6 +18,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("")]
         //[Authorize(Roles = "MobileUser")]
+        [ProducesResponseType(typeof(CategoryResponse),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllCategories(CancellationToken cancellationToken) 
         {
             var result = await _categoryRepositry.Categories.GetCategoriesAsync(cancellationToken);
@@ -28,6 +31,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{categoryId}/providers")]
+        [ProducesResponseType(typeof(IEnumerable<VendorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProvidersByCategory([FromRoute] int categoryId , CancellationToken cancellationToken)
         {
             var result = await _categoryRepositry.Categories.GetProvidersByCategoryAsync(categoryId , cancellationToken);
@@ -37,6 +42,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{categoryId}/subCategories")]
+        [ProducesResponseType(typeof(IEnumerable<SubCategoryResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetSubCategoryByCategory([FromRoute] int categoryId, CancellationToken cancellationToken)
         {
             var result = await _categoryRepositry.Categories.GetSubCategoryByCategoryAsync(categoryId, cancellationToken);
@@ -47,6 +54,8 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPost("")]
         [Authorize(Roles ="Admin")]
+        [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> AddCategory([FromBody] CategoryRequest request, CancellationToken cancellationToken)
         {
             var result = await _categoryRepositry.Categories.AddCategoryAsync(request, cancellationToken);
@@ -58,6 +67,9 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPost("{categoryId}/subcategories")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
+        [ProducesResponseType(typeof(SubCategoryResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateSubCategory( [FromRoute] int categoryId,[FromBody] SubCategoryRequest request , CancellationToken cancellationToken)
         {
 
@@ -72,6 +84,8 @@ namespace SeeviceProvider_PL.Controllers
         
         [HttpDelete("subcategories/{subCategoryId}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteSubCategory([FromRoute] int subCategoryId, CancellationToken cancellationToken)
         {
 

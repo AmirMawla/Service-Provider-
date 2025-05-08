@@ -11,8 +11,6 @@ namespace ServiceProvider_BLL.Dtos.ReviewDto
     {
         public ReviewRequestValidator()
         {
-            RuleFor(x => x.UserId)
-                .NotEmpty();
 
             RuleFor(x => x.Rating)
                 .InclusiveBetween(1, 5)

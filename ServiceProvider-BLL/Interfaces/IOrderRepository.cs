@@ -13,13 +13,13 @@ namespace ServiceProvider_BLL.Interfaces
 {
     public interface IOrderRepository : IBaseRepository<Order>
     {
-        Task<Result<OrderResponseV2>> GetOrderAsync(int orderId, CancellationToken cancellationToken = default);
+        Task<Result<OrderResponseV2>> GetOrderAsync(int orderId, string currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
         Task<Result<PaginatedList<OrderResponse>>> GetAllOrderAsync(RequestFilter request, CancellationToken cancellationToken = default);
-        Task<Result<IEnumerable<OrderResponseV2>>> GetUserOrdersAsync(string userId, CancellationToken cancellationToken = default);
-        Task<Result<IEnumerable<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId, CancellationToken cancellationToken = default);
+        Task<Result<PaginatedList<OrderResponseV2>>> GetUserOrdersAsync(string userId, RequestFilter request, CancellationToken cancellationToken = default);
+        Task<Result<PaginatedList<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId, RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<RecentOrderResponse>>> GetTopFiveRecentOrdersAsync(string vendorId, int count = 5, CancellationToken cancellationToken = default);
         Task<Result<OrderResponseV2>> AddOrderAsync(string userId, OrderRequest request, CancellationToken cancellationToken = default);
-        Task<Result<OrderResponseV2>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default);
+        Task<Result<OrderResponseV2>> UpdateOrderStatusAsync(int orderId, string currentUserId, bool isAdmin, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default);
         Task<Result<OrderResponse>> CheckoutAsync(CheckoutRequest request , CancellationToken cancellationToken);
 
 

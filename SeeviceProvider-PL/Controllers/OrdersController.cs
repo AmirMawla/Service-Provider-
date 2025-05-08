@@ -5,6 +5,7 @@ using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_BLL.Interfaces;
+using ServiceProvider_DAL.Entities;
 using System.Security.Claims;
 
 namespace SeeviceProvider_PL.Controllers
@@ -16,29 +17,50 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _orderRepositry = orderRepositry;
 
         [HttpGet("{id}")]
+        [Authorize(Roles ="Admin,MobileUser")]
+        [ProducesResponseType(typeof(OrderResponseV2),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetOrder([FromRoute] int id , CancellationToken cancellationToken)
         {
-            var result = await _orderRepositry.Orders.GetOrderAsync(id , cancellationToken);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
+            var result = await _orderRepositry.Orders.GetOrderAsync(id,currentUserId!,isAdmin, cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
-
+       
         [HttpGet("users")]
-        [Authorize(Roles = "MobileUser")]
-        public async Task<IActionResult> GetUserOrders( CancellationToken cancellationToken)
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(PaginatedList<OrderResponseV2>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUserOrders([FromQuery] string? userId,[FromQuery] RequestFilter request,CancellationToken cancellationToken)
         {
-            // Authorization check
-            //var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //if (currentUserId != userId && !User.IsInRole("Admin"))
-            //    return Forbid();
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (currentUserRole == "MobileUser")
+            {
+                // users can only access their own orders
+                if (!string.IsNullOrEmpty(userId) && userId != currentUserId)
+                    return Forbid();
 
-            var result = await _orderRepositry.Orders.GetUserOrdersAsync(userId!, cancellationToken);
+                userId = currentUserId;
+            }
+            else if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("User ID is required for admin users");
+            }
+
+            var result = await _orderRepositry.Orders.GetUserOrdersAsync(userId!,request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
         [HttpGet("all-orders")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(PaginatedList<OrderResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllOrders([FromQuery] RequestFilter request,CancellationToken cancellationToken)
         { 
 
@@ -49,20 +71,36 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("vendors/{vendorId}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-        public async Task<IActionResult> GetVendorOrders(string vendorId, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(PaginatedList<OrdersOfVendorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetVendorOrders([FromRoute]string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
-            // Authorization check
-            //var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //if (currentUserId != userId && !User.IsInRole("Admin"))
-            //    return Forbid();
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
 
-            var result = await _orderRepositry.Orders.GetVendorsOrders(vendorId, cancellationToken);
+            if (currentUserRole == "Vendor")
+            {
+                // Vendors can only access their own reviews
+                if (!string.IsNullOrEmpty(vendorId) && vendorId != currentUserId)
+                    return Forbid();
+
+                vendorId = currentUserId;
+            }
+            else if (string.IsNullOrEmpty(vendorId))
+            {
+                return BadRequest("Vendor ID is required for admin users");
+            }
+
+            var result = await _orderRepositry.Orders.GetVendorsOrders(vendorId!, request,cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
         [HttpGet("vendors/top-five-recent-orders")]
         [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(IEnumerable<RecentOrderResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTopFiveRecentVendorOrders(int count = 5,CancellationToken cancellationToken = default)
         {
             var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -74,7 +112,9 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPost("")]
         [Authorize(Roles = "MobileUser")]
-        public async Task<IActionResult> AddOrder ( [FromBody] OrderRequest request, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(OrderResponseV2), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddOrder ([FromBody] OrderRequest request, CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -87,9 +127,15 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPut("{id}/status")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
+        [ProducesResponseType(typeof(OrderResponseV2), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] int id, [FromBody] UpdateOrderStatusRequest request , CancellationToken cancellationToken)
         {
-            var result = await _orderRepositry.Orders.UpdateOrderStatusAsync(id, request , cancellationToken);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
+            var result = await _orderRepositry.Orders.UpdateOrderStatusAsync(id,currentUserId!,isAdmin, request , cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 

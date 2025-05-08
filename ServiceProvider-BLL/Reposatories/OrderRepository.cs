@@ -1,4 +1,6 @@
-﻿using Mapster;
+﻿using Azure.Core;
+using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Abstractions;
@@ -30,7 +32,7 @@ namespace ServiceProvider_BLL.Reposatories
             _context = context;
         }
 
-        public async Task<Result<OrderResponseV2>> GetOrderAsync(int orderId, CancellationToken cancellationToken = default)
+        public async Task<Result<OrderResponseV2>> GetOrderAsync(int orderId,string currentUserId,bool isAdmin, CancellationToken cancellationToken = default)
         {
             var order = await _context.Orders!
                      .Include(o => o.OrderProducts)
@@ -41,6 +43,11 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (order == null)
                 return Result.Failure<OrderResponseV2>(OrderErrors.OrderNotFound);
+
+            if (!isAdmin && order.ApplicationUserId != currentUserId)
+            {
+                return Result.Failure<OrderResponseV2>(new Error("Order.AccessDenied", "You don't have permission to access this order",StatusCodes.Status403Forbidden));
+            }
 
             var response = new OrderResponseV2(
                  order.Id,
@@ -114,37 +121,57 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(orders);
         }
 
-        public async Task<Result<IEnumerable<OrderResponseV2>>> GetUserOrdersAsync(string userId , CancellationToken cancellationToken = default)
+        public async Task<Result<PaginatedList<OrderResponseV2>>> GetUserOrdersAsync(string userId,RequestFilter request , CancellationToken cancellationToken = default)
         {
-            var orders = await _context.Orders!
+            var query = _context.Orders!
                 .Where(o => o.ApplicationUserId == userId)
                 .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
                 .Include(o => o.Payment)
-                .Select(o => new OrderResponseV2(
-                    o.Id,
-                    o.TotalAmount,
-                    o.OrderDate,
-                    o.Status.ToString(),
-                    o.OrderProducts.Select(op => new OrderProductResponse(
-                        op.ProductId,
-                        op.Product.NameEn,
-                        op.Product.NameAr,
-                        op.Product.Price,
-                        op.Quantity
-                    )).ToList(),
-                    new PaymentResponse(
-                        o.Payment.TotalAmount,
-                        o.Payment.Status.ToString(),
-                        o.Payment.TransactionDate
-                    ),
-                    o.Shipping != null ? new ShippingResponse(
-                        o.Shipping.Status,
-                        o.Shipping.EstimatedDeliveryDate
-                    ) : null
-                ))
-                .ToListAsync(cancellationToken: cancellationToken);
+                .Include(o => o.Shipping)
+                .OrderByDescending(o => o.OrderDate)
+                .AsNoTracking();
 
-            return Result.Success(orders.Adapt<IEnumerable<OrderResponseV2>>());
+            // Apply sorting if specified
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var projectedQuery = query.Select(o => new OrderResponseV2(
+                o.Id,
+                o.TotalAmount,
+                o.OrderDate,
+                o.Status.ToString(),
+                o.OrderProducts.Select(op => new OrderProductResponse(
+                    op.ProductId,
+                    op.Product.NameEn,
+                    op.Product.NameAr,
+                    op.Product.Price,
+                    op.Quantity
+                )).ToList(),
+                new PaymentResponse(
+                    o.Payment.TotalAmount,
+                    o.Payment.Status.ToString(),
+                    o.Payment.TransactionDate
+                    //o.Payment.PaymentMethodType
+                ),
+                o.Shipping != null ? new ShippingResponse(
+                    o.Shipping.Status,
+                    o.Shipping.EstimatedDeliveryDate
+                ) : null
+            ));
+
+            var orders = await PaginatedList<OrderResponseV2>.CreateAsync(
+            projectedQuery,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return orders.Items.Any()
+                ? Result.Success(orders)
+                : Result.Failure<PaginatedList<OrderResponseV2>>(OrderErrors.OrderNotFound);
         }
 
         public async Task<Result<IEnumerable<RecentOrderResponse>>> GetTopFiveRecentOrdersAsync( string vendorId, int count = 5,CancellationToken cancellationToken = default)
@@ -224,7 +251,7 @@ namespace ServiceProvider_BLL.Reposatories
 
                 await transaction.CommitAsync(cancellationToken);
 
-                return await GetOrderAsync(order.Id);
+                return await GetOrderDetailsAsync(order.Id);
             }
             catch
             {
@@ -233,45 +260,81 @@ namespace ServiceProvider_BLL.Reposatories
             }
         }
 
-        public async Task<Result<OrderResponseV2>> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<OrderResponseV2>> UpdateOrderStatusAsync(int orderId, string currentUserId, bool isAdmin, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default)
         {
-            var order = await _context.Orders!.FindAsync(orderId , cancellationToken);
+            var order = await _context.Orders!
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+                .ThenInclude(p => p.Vendor)
+                .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+
             if (order == null)
                 return Result.Failure<OrderResponseV2>(OrderErrors.OrderNotFound);
 
+            if (!isAdmin)
+            {
+                // Check if current user is a vendor associated with the order
+                var isOrderVendor = order.OrderProducts
+                    .Any(op => op.Product.VendorId == currentUserId);
+
+                if (!isOrderVendor)
+                {
+                    return Result.Failure<OrderResponseV2>(new Error("Order.AccessDenied", "You don't have permission to access this order", StatusCodes.Status403Forbidden));
+                }
+            }
+
             order.Status = (OrderStatus)Enum.Parse(typeof(OrderStatus), request.NewStatus, true); 
+
             await _context.SaveChangesAsync(cancellationToken);
 
-            return await GetOrderAsync(orderId);
+            return await GetOrderDetailsAsync(orderId);
         }
 
-        public async Task<Result<IEnumerable<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId,CancellationToken cancellationToken = default) 
+        public async Task<Result<PaginatedList<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId,RequestFilter request,CancellationToken cancellationToken = default)
         {
-            var orders = await _context.Orders!
+
+            var vendorExists = await _context.Users.AnyAsync(u => u.Id == vendorId && u.IsApproved, cancellationToken: cancellationToken);
+            if (!vendorExists)
+            {
+                return Result.Failure<PaginatedList<OrdersOfVendorResponse>>(VendorErrors.NotFound);
+            }
+
+            var baseQuery = _context.Orders!
                 .Include(o => o.OrderProducts)
                 .ThenInclude(op => op.Product)
                 .Where(o => o.OrderProducts.Any(op => op.Product.VendorId == vendorId))
-                .Select(x => new OrdersOfVendorResponse(
-                    x.Id,
-                    x.TotalAmount,
-                    x.OrderDate,
-                    x.Status.ToString(),
-                    x.OrderProducts.Select(op => new OrderProductResponse(
-                        op.ProductId,
-                        op.Product.NameEn,
-                        op.Product.NameAr,
-                        op.Product.Price,
-                        op.Quantity
-                    )).ToList()
-                )).ToListAsync(cancellationToken);
+                .OrderByDescending(o => o.OrderDate);
 
-            if (!orders.Any())
+          
+            if (!string.IsNullOrEmpty(request.SortColumn))
             {
-                return Result.Failure<IEnumerable<OrdersOfVendorResponse>>(OrderErrors.NoOrdersForThisVendor);
+                baseQuery = baseQuery.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
-            return Result.Success<IEnumerable<OrdersOfVendorResponse>>(orders);
+            var query = baseQuery.Select(o => new OrdersOfVendorResponse(
+                o.Id,
+                o.TotalAmount,
+                o.OrderDate,
+                o.Status.ToString(),
+                o.OrderProducts.Select(op => new OrderProductResponse(
+                    op.ProductId,
+                    op.Product.NameEn,
+                    op.Product.NameAr,
+                    op.Product.Price,
+                    op.Quantity
+                )).ToList()
+            ));
+
+            var orders = await PaginatedList<OrdersOfVendorResponse>.CreateAsync(
+                query.AsNoTracking(),
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return Result.Success(orders);
         }
+
 
         public async Task<Result<OrderResponse>> CheckoutAsync(CheckoutRequest request, CancellationToken cancellationToken)
         {
@@ -320,6 +383,44 @@ namespace ServiceProvider_BLL.Reposatories
             }
         }
 
+        private async Task<Result<OrderResponseV2>> GetOrderDetailsAsync(int orderId,CancellationToken cancellationToken = default)
+        {
+            var order = await _context.Orders!
+                     .Include(o => o.OrderProducts)
+                     .ThenInclude(op => op.Product)
+                     .Include(o => o.Payment)
+                     .Include(o => o.Shipping)
+                     .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken: cancellationToken);
+
+            if (order == null)
+                return Result.Failure<OrderResponseV2>(OrderErrors.OrderNotFound);
+
+
+            var response = new OrderResponseV2(
+                 order.Id,
+                 order.TotalAmount,
+                 order.OrderDate,
+                 order.Status.ToString(),
+                 order.OrderProducts.Select(op => new OrderProductResponse(
+                     op.ProductId,
+                     op.Product.NameEn,
+                     op.Product.NameAr,
+                     op.Product.Price,
+                     op.Quantity
+                 )).ToList(),
+                 new PaymentResponse(
+                     order.Payment.TotalAmount,
+                     order.Payment.Status.ToString(),
+                     order.Payment.TransactionDate
+                 ),
+                 order.Shipping != null ? new ShippingResponse(
+                     order.Shipping.Status,
+                     order.Shipping.EstimatedDeliveryDate
+                 ) : null
+            );
+
+            return Result.Success(response);
+        }
 
     }
 }

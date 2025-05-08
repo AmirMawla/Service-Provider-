@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace ServiceProvider_BLL.Dtos.ReviewDto
 {
     public record ReviewRequest(
-        string UserId,
         int Rating,
         string? Comment
         );

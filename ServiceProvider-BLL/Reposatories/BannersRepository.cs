@@ -26,7 +26,7 @@ namespace ServiceProvider_BLL.Reposatories
         public async Task<Result<IEnumerable<BannersResponse>>> GetTopBannersAsync(CancellationToken cancellationToken = default)
         {
 
-            var topBanners = await _appDbContext.Banners
+            var topBanners = await _appDbContext.Banners!
                .Include(b => b.Product)
                .Include(b => b.Vendor)
                .OrderByDescending(b => b.DiscountPercentage)
@@ -39,7 +39,7 @@ namespace ServiceProvider_BLL.Reposatories
                    b.DiscountPercentage,
                    new VendorBannersResponse
                    (
-                       b.Vendor.Id,
+                       b.Vendor!.Id,
                        b.Vendor.FullName,
                        b.Vendor.BusinessName,
                        b.Vendor.BusinessType,
@@ -50,7 +50,7 @@ namespace ServiceProvider_BLL.Reposatories
                    ),
                    new ProductBannersResponse
                    (
-                       b.Product.Id,
+                       b.Product!.Id,
                        b.Product.NameEn,
                        b.Product.NameAr,
                        b.Product.Description,
@@ -59,7 +59,7 @@ namespace ServiceProvider_BLL.Reposatories
                        
                    )
                ))
-               .ToListAsync(); // Execute calculation in-memory
+               .ToListAsync(cancellationToken); // Execute calculation in-memory
 
 
             return Result.Success(topBanners.Adapt<IEnumerable<BannersResponse>>());

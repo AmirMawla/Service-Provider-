@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
+using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.ReviewDto;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Entities;
+using System.Security.Claims;
 using System.Threading;
 
 namespace SeeviceProvider_PL.Controllers
@@ -27,15 +29,35 @@ namespace SeeviceProvider_PL.Controllers
         
         [HttpGet("{vendorId}/vendor-reviews")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-        public async Task<IActionResult> GetVendorRatings([FromRoute] string vendorId , [FromQuery] RequestFilter request , CancellationToken cancellationToken = default)  
+        [ProducesResponseType(typeof(PaginatedList<VendorReviewsResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetVendorRatings([FromRoute] string? vendorId , [FromQuery] RequestFilter request , CancellationToken cancellationToken = default)  
         {
-            var result = await _reviewRepository.Reviews.GetRatingsByVendorAsync(vendorId , request , cancellationToken);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (currentUserRole == "Vendor")
+            {
+                // Vendors can only access their own reviews
+                if (!string.IsNullOrEmpty(vendorId) && vendorId != currentUserId)
+                    return Forbid();
+
+                vendorId = currentUserId!;
+            }
+            else if (string.IsNullOrEmpty(vendorId))
+            {
+                return BadRequest("Vendor ID is required for admin users");
+            }
+
+            var result = await _reviewRepository.Reviews.GetRatingsByVendorAsync(vendorId! , request , cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
         [HttpGet("user-vendor-reviews")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(PaginatedList<ReviewResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserVendorRatings([FromQuery] RequestFilter request, CancellationToken cancellationToken = default)
         {
             var result = await _reviewRepository.Reviews.GetAllRatingsFromAllUsersToAllVendorAsync(request, cancellationToken);
@@ -44,19 +66,29 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpPut("{reviewId}")]
+        [Authorize(Roles = "MobileUser")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UpdateReview([FromRoute]int reviewId, [FromBody] UpdateReviewRequest request) 
         {
-            var result = await _reviewRepository.Reviews.UpdateReviewAsync(reviewId,request);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _reviewRepository.Reviews.UpdateReviewAsync(reviewId,userId!,request);
 
-               return result.IsSuccess ? Ok() : result.ToProblem();
+               return result.IsSuccess ? NoContent() : result.ToProblem();
         }
 
         [HttpDelete("{reviewId}")]
-        public async Task<IActionResult> DeleteReview([FromRoute] int reviewId , [FromBody]string userId)
+        [Authorize(Roles = "MobileUser")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> DeleteReview([FromRoute] int reviewId )
         {
-            var result = await _reviewRepository.Reviews.DeleteReviewAsync(reviewId, userId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _reviewRepository.Reviews.DeleteReviewAsync(reviewId, userId!);
 
-            return result.IsSuccess ? Ok() : result.ToProblem();
+            return result.IsSuccess ? NoContent() : result.ToProblem();
         }
     }
 }

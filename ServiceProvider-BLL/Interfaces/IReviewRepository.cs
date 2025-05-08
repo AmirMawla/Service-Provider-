@@ -15,7 +15,7 @@ namespace ServiceProvider_BLL.Interfaces
     {
         Task<Result<PaginatedList<VendorReviewsResponse>>> GetRatingsByVendorAsync(string vendorId, RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<PaginatedList<ReviewResponse>>> GetAllRatingsFromAllUsersToAllVendorAsync(RequestFilter request, CancellationToken cancellationToken = default);
-        Task<Result> UpdateReviewAsync(int reviewId, UpdateReviewRequest request, CancellationToken cancellationToken = default);
+        Task<Result> UpdateReviewAsync(int reviewId,string userId ,UpdateReviewRequest request, CancellationToken cancellationToken = default);
         Task<Result> DeleteReviewAsync(int reviewId, string userId, CancellationToken cancellationToken = default);
     }
 }

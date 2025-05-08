@@ -19,7 +19,7 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<List<ProductRequestCount>>> GetMostCommonProductAsync(CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<ProductResponse>>> GetNewProductsAsync(CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<MostRequestedProductResponse>>> GetMostRequestedProductFromAVendorAsync(string vendorId, CancellationToken cancellationToken = default);
-        Task<Result<ProductResponse>> AddProductAsync(string vendorId,ProductRequest request, CancellationToken cancellationToken = default);
+        Task<Result<ProductResponse>> AddProductAsync(string vendorId,CreateProductDto request, CancellationToken cancellationToken = default);
         Task<Result> UpdateProductAsync(int id, UpdateProductRequest request, string vendorId, CancellationToken cancellationToken = default);
         Task<Result<PaginatedList<ProductResponse>>> GetAllProductsUnderSubcategoryAsync(int subCategoryId, RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result> DeleteProductAsync(int id, string vendorId, CancellationToken cancellationToken = default);

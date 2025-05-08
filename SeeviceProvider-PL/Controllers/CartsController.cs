@@ -11,7 +11,7 @@ namespace SeeviceProvider_PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "MobileUser")]
+    [Authorize(Roles = "MobileUser,Admin")]
     public class CartsController(IUnitOfWork CartRepositry) : ControllerBase
     {
         private readonly IUnitOfWork _cartRepositry = CartRepositry;

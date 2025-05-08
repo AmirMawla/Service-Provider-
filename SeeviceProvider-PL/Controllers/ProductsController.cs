@@ -91,7 +91,7 @@ namespace SeeviceProvider_PL.Controllers
         
         [HttpPost("")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-        public async Task<IActionResult> CreateService([FromBody] ProductRequest request , CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateService([FromForm] CreateProductDto request , CancellationToken cancellationToken)
         {
 
             var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -103,7 +103,7 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
-        public async Task<IActionResult> UpdateService(int id, [FromBody] UpdateProductRequest request , CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateService(int id, [FromForm] UpdateProductRequest request , CancellationToken cancellationToken)
         {
 
             var vendorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

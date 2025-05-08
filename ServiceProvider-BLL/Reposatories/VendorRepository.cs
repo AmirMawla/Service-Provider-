@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Claims;
 using System.Globalization;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -30,14 +31,15 @@ namespace ServiceProvider_BLL.Reposatories
         private readonly UserManager<Vendor> _userManager;
         private readonly IPasswordHasher<Vendor> _passwordHasher;
         private readonly string _vendorId;
-        
-        public VendorRepository(AppDbContext context, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IHttpContextAccessor httpContextAccessor) : base(context)
+        private readonly IWebHostEnvironment _env;
+
+        public VendorRepository(AppDbContext context, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment env) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _passwordHasher = passwordHasher;
             _vendorId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            _env = env;
         }
 
         public async Task<Result<PaginatedList<VendorResponse>>> GetAllProviders(RequestFilter request,CancellationToken cancellationToken = default)
@@ -254,23 +256,58 @@ namespace ServiceProvider_BLL.Reposatories
         }
 
 
-        public async Task<Result<UpdateVendorResponse>> UpdateVendorAsync(string id,UpdateVendorResponse vendorDto, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateVendorAsync(string id,UpdateVendorResponse vendorDto, CancellationToken cancellationToken = default)
         {
 
             var vendor = await _userManager.FindByIdAsync(id);
             if (vendor == null )
                 return Result.Failure<UpdateVendorResponse>(VendorErrors.NotFound);
-            
+
+
+
+            string? ProfileimagePath = null;
+            string? CoverimagePath = null;
+
+            if (vendorDto.ProfilePictureUrl != null)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "images/vendors");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{vendorDto.ProfilePictureUrl.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await vendorDto.ProfilePictureUrl.CopyToAsync(stream);
+
+                ProfileimagePath = $"/images/vendors/{uniqueFileName}";
+                vendor.ProfilePictureUrl = ProfileimagePath;
+            }
+
+            if (vendorDto.CoverImageUrl != null)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "images/vendors");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{vendorDto.CoverImageUrl.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await vendorDto.CoverImageUrl.CopyToAsync(stream);
+
+                CoverimagePath = $"/images/vendors/{uniqueFileName}";
+                vendor.CoverImageUrl = CoverimagePath;
+            }
+
+
+
             vendor.UserName = vendorDto.UserName;
             if (vendor.FullName == null)
                 vendor.FullName = vendorDto.UserName;
 
             vendor.BusinessName = vendorDto.BusinessName;
-            vendor.CoverImageUrl = vendorDto.CoverImageUrl;
-            vendor.ProfilePictureUrl = vendorDto.ProfilePictureUrl;
             var result = await _userManager.UpdateAsync(vendor);
             await _context.SaveChangesAsync();
-            return Result.Success(vendor.Adapt<UpdateVendorResponse>());
+            return Result.Success();
         }
 
         public async Task<Result> ChangeVendorPasswordAsync(string vendorId, ChangeVendorPasswordRequest request)

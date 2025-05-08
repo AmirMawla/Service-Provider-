@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
@@ -23,10 +24,11 @@ namespace ServiceProvider_BLL.Reposatories
     public class ProductRepository : BaseRepository<Product>, IProductRepository
     {
         private readonly AppDbContext _context;
-
-        public ProductRepository(AppDbContext context) : base(context)
+        private readonly IWebHostEnvironment _env;
+        public ProductRepository(AppDbContext context, IWebHostEnvironment env) : base(context)
         {
             _context = context;
+            _env = env;
         }
 
 
@@ -105,7 +107,7 @@ namespace ServiceProvider_BLL.Reposatories
                  return Result.Success(productResponse);
         }
 
-        public async Task<Result<ProductResponse>> AddProductAsync(string vendorId, ProductRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<ProductResponse>> AddProductAsync(string vendorId, CreateProductDto request, CancellationToken cancellationToken = default)
         {
             var subCategoryExists = await _context.SubCategories!.AnyAsync(sc => sc.Id == request.SubCategoryId, cancellationToken: cancellationToken);
 
@@ -118,10 +120,35 @@ namespace ServiceProvider_BLL.Reposatories
             if (!isRegistered)
                 return Result.Failure<ProductResponse>(VendorErrors.VendorNotRegisterdInSubCategory);
 
-            var product = request.Adapt<Product>();
 
-            product.VendorId = vendorId;
-            product.CreatedAt = DateTime.UtcNow;
+
+            string? imagePath = null;
+
+            if (request.Image != null)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "images/products");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{request.Image.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await request.Image.CopyToAsync(stream);
+
+                imagePath = $"/images/products/{uniqueFileName}";
+            }
+
+            var product = new Product
+            {
+                NameEn = request.NameEn,
+                NameAr = request.NameAr,
+                Description = request.Description,
+                Price = request.Price,
+                MainImageUrl = imagePath,
+                CreatedAt = DateTime.UtcNow,
+                SubCategoryId = request.SubCategoryId,
+                VendorId = vendorId
+            };
 
             await _context.Products!.AddAsync(product, cancellationToken);
 
@@ -189,16 +216,32 @@ namespace ServiceProvider_BLL.Reposatories
             if (currentProduct is null)
                 return Result.Failure(ProductErrors.ProductNotFound);
 
+            string? imagePath = null;
+
+            if (request.Image != null)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "images/products");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{request.Image.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await request.Image.CopyToAsync(stream);
+
+                imagePath = $"/images/products/{uniqueFileName}";
+                currentProduct.MainImageUrl = imagePath;
+            }
+
+          
             // request.Adapt(currentProduct);
             currentProduct.NameEn = request.NameEn;
             currentProduct.NameAr = request.NameAr;
             currentProduct.Description = request.Description;
-            currentProduct.MainImageUrl = request.MainImageUrl;
             currentProduct.Price = request.Price;
             currentProduct.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(cancellationToken);
-
             return Result.Success();
         }
 

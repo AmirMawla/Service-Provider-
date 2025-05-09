@@ -14,6 +14,7 @@ using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq.Dynamic.Core;
@@ -215,10 +216,47 @@ namespace ServiceProvider_BLL.Reposatories
                 if (cart == null || !cart.CartProducts.Any())
                     return Result.Failure<OrderResponseV2>(CartErrors.CartNotFoundOrEmpty);
 
+
+                var totalAmount = cart.CartProducts.Sum(cp => cp.Quantity * cp.Product.Price);
+
+                // Create Stripe payment intent
+                var stripeAmount = Convert.ToInt64(totalAmount * 100); // Convert to piasters (EGP subunits)
+
+                var paymentIntentService = new PaymentIntentService();
+                var paymentIntent = await paymentIntentService.CreateAsync(new PaymentIntentCreateOptions
+                {
+                    Amount = stripeAmount,
+                    Currency = "egp",
+                    PaymentMethod = request.PaymentMethodId,
+                    Confirm = true,
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                }, cancellationToken: cancellationToken);
+
+                var paymentMethodService = new PaymentMethodService();
+                var paymentMethod = await paymentMethodService.GetAsync(
+                    paymentIntent.PaymentMethodId,  // Get ID from PaymentIntent
+                    cancellationToken: cancellationToken
+                );
+
+                // Format payment method description
+                var paymentMethodDescription = paymentMethod?.Card != null
+                    ? $"{paymentMethod.Card.Brand} ending in {paymentMethod.Card.Last4}"
+                    : "Card payment";
+
+                if (paymentIntent.Status != "succeeded")
+                {
+                    return Result.Failure<OrderResponseV2>(OrderErrors.PaymentProcessingFailed);
+                }
+
+
                 var order = new Order
                 {
                     ApplicationUserId = userId,
-                    TotalAmount = cart.CartProducts.Sum(cp => cp.Quantity * cp.Product.Price),
+                    TotalAmount = totalAmount,
                     OrderDate = DateTime.UtcNow,
                     Status = OrderStatus.Pending
                 };
@@ -230,8 +268,10 @@ namespace ServiceProvider_BLL.Reposatories
                 {
                     OrderId = order.Id,
                     TotalAmount = order.TotalAmount,
-                    Status = PaymentStatus.Pending,
-                    PaymentMethod = request.PaymentMethod,
+                    Status = paymentIntent.Status == "succeeded"
+                    ? PaymentStatus.Completed
+                    : PaymentStatus.Failed,
+                    PaymentMethod = paymentMethodDescription,
                     TransactionDate = DateTime.UtcNow
                 };
 

@@ -1,4 +1,5 @@
 ﻿using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.SearchDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;

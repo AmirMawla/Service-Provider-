@@ -12,6 +12,7 @@ using System.Text;
 using System.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
 using SeeviceProvider_PL.Hubs;
+using Stripe;
 
 namespace SeeviceProvider_PL
 {
@@ -25,6 +26,8 @@ namespace SeeviceProvider_PL
 
             //Inject all services
             builder.Services.AddDependency(builder.Configuration);
+
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             builder.Services.AddSignalR();
 

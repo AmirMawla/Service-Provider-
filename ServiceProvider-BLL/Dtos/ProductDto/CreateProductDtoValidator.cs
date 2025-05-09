@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceProvider_BLL.Dtos.ProductDto;
-internal class CreateProductDtoValidator : AbstractValidator<CreateProductDto>
+public class CreateProductDtoValidator : AbstractValidator<CreateProductDto>
 {
     public CreateProductDtoValidator()
     {

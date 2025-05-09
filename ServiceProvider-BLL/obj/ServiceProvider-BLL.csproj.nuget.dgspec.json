@@ -80,6 +80,10 @@
               "target": "Package",
               "version": "[9.0.0, )"
             },
+            "Stripe.net": {
+              "target": "Package",
+              "version": "[48.1.0, )"
+            },
             "System.Linq.Dynamic.Core": {
               "target": "Package",
               "version": "[1.6.0.2, )"
@@ -102,6 +106,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x86": {
+          "#import": []
         }
       }
     },
@@ -209,6 +218,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x86": {
+          "#import": []
         }
       }
     }

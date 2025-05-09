@@ -11,7 +11,7 @@ namespace ServiceProvider_BLL.Dtos.OrderDto
     {
         public OrderRequestValidator() 
         {
-            RuleFor(x => x.PaymentMethod)
+            RuleFor(x => x.PaymentMethodId)
                 .NotEmpty();
         }
     }

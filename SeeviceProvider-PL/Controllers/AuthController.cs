@@ -6,6 +6,7 @@ using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Authentication;
 using ServiceProvider_BLL.Dtos.AuthenticationDto;
 using ServiceProvider_BLL.Interfaces;
+using Stripe;
 
 namespace SeeviceProvider_PL.Controllers
 {
@@ -59,6 +60,31 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess? Ok(): result.ToProblem();
         }
 
+
+        [HttpPost("create-test-payment-method")]
+        public async Task<IActionResult> CreateTestPaymentMethod([FromBody] TestTokenRequest request)
+        {
+            var pmOptions = new PaymentMethodCreateOptions
+            {
+                Type = "card",
+                Card = new PaymentMethodCardOptions
+                {
+                    Token = request.TestToken // e.g. "tok_visa"
+                },
+            };
+
+            var service = new PaymentMethodService();
+            var paymentMethod = await service.CreateAsync(pmOptions);
+
+            return Ok(new
+            {
+                PaymentMethodId = paymentMethod.Id,
+                Brand = paymentMethod.Card.Brand,
+                Last4 = paymentMethod.Card.Last4
+            });
+        }
+
+        public record TestTokenRequest(string TestToken);
 
     }
 }

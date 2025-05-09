@@ -52,6 +52,8 @@ namespace SeeviceProvider_PL
             services.AddDbContext<AppDbContext>(options =>
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
 
+            
+
 
             //services.AddIdentity<Vendor, IdentityRole>()
             //    .AddEntityFrameworkStores<AppDbContext>()

@@ -1,4 +1,5 @@
-﻿using SeeviceProvider_BLL.Abstractions;
+﻿using Microsoft.AspNetCore.Mvc;
+using SeeviceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.ProductDto;
@@ -27,5 +28,6 @@ namespace ServiceProvider_BLL.Interfaces
 
         Task<Result<ReviewResponse>> AddReviewAsync(int productId,string userId, ReviewRequest request, CancellationToken cancellationToken = default);
         Task<Result<PaginatedList<ReviewResponse>>> GetReviewsForSpecificServiceAsync(int productId, RequestFilter request, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<ProductDto>>> GetAllProductsUnderSubcategoryandVendorAsync(string providerId, int subCategoryId, CancellationToken cancellationToken = default);
     }
 }

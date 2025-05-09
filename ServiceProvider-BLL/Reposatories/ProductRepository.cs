@@ -527,5 +527,28 @@ namespace ServiceProvider_BLL.Reposatories
                 }
             }
         }
+
+        public async Task<Result<IEnumerable<ProductDto>>> GetAllProductsUnderSubcategoryandVendorAsync(string providerId, int subCategoryId, CancellationToken cancellationToken = default)
+        {
+            var products = await _context.Products
+       .Where(p => p.VendorId == providerId && p.SubCategoryId == subCategoryId)
+       .Select(p => new ProductDto(
+           p.Id,
+           p.NameEn,
+           p.NameAr,
+           p.MainImageUrl,
+           p.Description,
+           p.Price
+
+       ))
+       .AsNoTracking()
+       .ToListAsync(cancellationToken);
+
+
+            if (!products.Any())
+                return Result.Failure<IEnumerable<ProductDto>>(ProductErrors.ProductsNotFound);
+
+            return Result.Success(products.AsEnumerable());
+        }
     }
 }

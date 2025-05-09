@@ -12,5 +12,6 @@ namespace ServiceProvider_BLL.Interfaces
     public interface ISubCategoryRepository : IBaseRepository<SubCategory>
     {
         Task<Result<IEnumerable<SubCategoryResponse>>> GetSubCategoriesAsync(CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<SubCategoryResponse>>> GetSubCategoriesUnderVendorAsync(string ProviderId ,CancellationToken cancellationToken = default);
     }
 }

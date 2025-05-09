@@ -36,5 +36,27 @@ namespace ServiceProvider_BLL.Reposatories
 
             return Result.Success(subcategoriesResponses);
         }
+
+        public async Task<Result<IEnumerable<SubCategoryResponse>>> GetSubCategoriesUnderVendorAsync(string ProviderId, CancellationToken cancellationToken = default)
+        {
+            var subCategories = await _context.VendorSubCategories!
+    .Where(vc => vc.VendorId == ProviderId)
+    .Include(vc => vc.SubCategory)
+    .Select(vc => new {
+        vc.SubCategory.Id,
+        vc.SubCategory.NameEn,
+        vc.SubCategory.NameAr,
+        vc.SubCategory.ImageUrl
+    })
+    .AsNoTracking()
+    .ToListAsync(cancellationToken);
+
+            if (!subCategories.Any())
+                return Result.Failure<IEnumerable<SubCategoryResponse>>(SubCategoryErrors.SubCategoryNotFound);
+
+            var subcategoriesResponses = subCategories.Adapt<IEnumerable<SubCategoryResponse>>();
+
+            return Result.Success(subcategoriesResponses);
+        }
     }
 }

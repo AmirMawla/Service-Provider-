@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 namespace ServiceProvider_BLL.Dtos.VendorDto
 {
     public record TopVendorResponse(
+       string Id,
        string FullName,
-       string BusinessName,
+       string? BusinessName,
        string BusinessType,
-       string ProfilePictureUrl,
+       string? ProfilePictureUrl,
+       string? CoverPictureUrl,
+       float? Rating,
        string Category,
        int OrderCount
     );

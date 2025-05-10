@@ -47,7 +47,7 @@ namespace SeeviceProvider_PL.Controllers
 
         }
 
-            [HttpGet("{subCategoryId}/products")]
+        [HttpGet("{subCategoryId}/products")]
         [Authorize(Roles = "Admin,MobileUser")]
         [ProducesResponseType(typeof(PaginatedList<ProductResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

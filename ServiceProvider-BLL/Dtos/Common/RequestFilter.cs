@@ -14,7 +14,7 @@ namespace ServiceProvider_BLL.Dtos.Common
         public string? SearchValue { get; init; }
         public string? SortColumn { get; init; }
         public string? SortDirection { get; init; }
-        public string? BusinessType { get; init; }
+        public List<string>? BusinessTypes { get; init; }
 
         public int? MinRating { get; init; }
         public int? MaxRating { get; init; }

@@ -1275,7 +1275,7 @@ namespace ServiceProvider_DAL.Data
         SubCategoryId = 54
     },
 
-    // Auto Repair (55)
+    // Auto Repair (55) Car Repair
     new Product
     {
         NameEn = "Oil Change Service",

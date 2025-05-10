@@ -36,6 +36,8 @@ namespace ServiceProvider_BLL.Reposatories
         public IMessageRepository Messages { get; private set; }
         public IBannersRepository Banners { get; private set; }
 
+        public ISearchRepository Search { get; private set; }
+
 
         public UnitOfWork(AppDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IWebHostEnvironment env)
         {
@@ -59,6 +61,7 @@ namespace ServiceProvider_BLL.Reposatories
             Payments = new PaymentRepository(_context);
             Messages = new MessageRepository(_context);
             Banners = new BannersRepository(_context);
+            Search = new SearchRepository(_context);
             _env = env;
         }
 

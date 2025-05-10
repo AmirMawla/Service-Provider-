@@ -90,7 +90,7 @@ namespace ServiceProvider_BLL.Reposatories
         public async Task<Result<PaginatedList<VendorResponse>>> GetAllProvidersForMobile(RequestFilter request, CancellationToken cancellationToken = default)
         {
             var query = _context.Users
-                .Where(x => x.UserName != "admin" && x.IsApproved)
+                .Where(x => x.UserName!.ToLower() != "amirmawlaa" && x.IsApproved)
                 .AsNoTracking();
 
             if (!query.Any())
@@ -106,12 +106,13 @@ namespace ServiceProvider_BLL.Reposatories
                 );
             }
 
-            if (!string.IsNullOrEmpty(request.BusinessType))
+            if (request.BusinessTypes != null && request.BusinessTypes.Any())
             {
-                var businessTypeFilter = request.BusinessType.Trim().ToLower();
                 query = query.Where(x =>
-                    EF.Functions.Like(x.BusinessType.ToLower(), $"%{businessTypeFilter}%")
-                );
+                request.BusinessTypes.Any(bt =>
+                    x.BusinessType != null &&
+                    x.BusinessType.ToLower().Contains(bt.ToLower())
+                ));
             }
 
 
@@ -238,10 +239,13 @@ namespace ServiceProvider_BLL.Reposatories
                 .OrderByDescending(x => x.OrderCount)
                 .Take(5)
                 .Select(x => new TopVendorResponse(
+                    x.Vendor.Id,
                     x.Vendor.FullName,
                     x.Vendor.BusinessName!,
                     x.Vendor.BusinessType,
-                    x.Vendor.ProfilePictureUrl ?? "/images/default-vendor.jpg",
+                    x.Vendor.ProfilePictureUrl ,
+                    x.Vendor.CoverImageUrl ,
+                    x.Vendor.Rating,
                     x.Category,
                     x.OrderCount
                 ))

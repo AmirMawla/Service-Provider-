@@ -23,6 +23,7 @@ namespace ServiceProvider_BLL.Interfaces
         IReviewRepository Reviews { get; }
         IVendorSubCategoryRepository VendorSubCategories { get; }
         IBannersRepository Banners { get; }
+        ISearchRepository Search { get; }
         Task<int> Complete();
 
     }

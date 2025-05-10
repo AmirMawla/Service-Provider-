@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Dtos.SearchDto;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_DAL.Data;
 using System;
@@ -113,5 +114,8 @@ namespace ServiceProvider_BLL.Reposatories
         {
             return await _dbSet.AnyAsync(filter);
         }
+
+        
+
     }
 }

@@ -406,248 +406,1585 @@ namespace ServiceProvider_DAL.Data
                 }
             }
 
-            if (!context.Products.Any())
+                if (context.Products.Count() < 40)
             {
-                await context.Products.AddRangeAsync(new Product
-                {
-                    NameEn = "Samsung Galaxy S23",
-                    NameAr = "سامسونج جالاكسي S23",
-                    Description = "Latest Samsung flagship smartphone with powerful performance and camera.",
-                    Price = 999.99m,
-                    MainImageUrl = "/images/products/Samsung Galaxy S23.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Mobile Phones").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Tarek Tech").Id
-                },
-                new Product
-                {
-                    NameEn = "Dell XPS 13",
-                    NameAr = "ديل اكس بي اس 13",
-                    Description = "Premium ultra-portable laptop with excellent display and build quality.",
-                    Price = 1499.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Laptops").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Hawkins Supplies").Id
-                },
+                var products = new List<Product> {
+                     new Product
+                     {
 
-                // Fashion
-                new Product
-                {
-                    NameEn = "Men's Leather Jacket",
-                    NameAr = "جاكيت جلدي رجالي",
-                    Description = "Stylish leather jacket for men made from genuine leather.",
-                    Price = 199.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Men's Clothing").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Style Hub").Id
-                },
-                new Product
-                {
-                    NameEn = "Women's Evening Dress",
-                    NameAr = "فستان سهرة نسائي",
-                    Description = "Elegant evening dress perfect for special occasions.",
-                    Price = 249.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Women's Clothing").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Style Hub").Id
-                },
+                         NameEn = "Samsung 55\" 4K UHD Smart TV",
+                         NameAr = "تلفزيون سامسونج 55 بوصة 4K",
+                         Description = "HDR, Smart apps, sleek design",
+                         Price = 7999.99m,
+                         MainImageUrl = "/images/products/tv1.jpg",
+                         CreatedAt = DateTime.UtcNow,
+                         UpdatedAt = DateTime.UtcNow,
+                         VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+                         SubCategoryId = 20
+                     },
+    new Product
+    {
 
-                // Home Services
-                new Product
-                {
-                    NameEn = "Home AC Repair",
-                    NameAr = "تصليح مكيفات منزلية",
-                    Description = "Professional home air conditioning repair service.",
-                    Price = 100.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Air Conditioners").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Home Fix").Id
-                },
+        NameEn = "LG 65\" NanoCell Smart TV",
+        NameAr = "تلفزيون إل جي 65 بوصة",
+        Description = "NanoCell technology with AI ThinQ",
+        Price = 12999.00m,
+        MainImageUrl = "/images/products/tv2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 20
+    },
 
-                // Health & Personal Care
-                new Product
-                {
-                    NameEn = "Spa Relaxation Package",
-                    NameAr = "باقة استرخاء السبا",
-                    Description = "Full body massage and spa services for ultimate relaxation.",
-                    Price = 180.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Spas").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Beauty Care").Id
-                },
+    // Accessories (21)
+    new Product
+    {
 
-                // Automotive Services
-                new Product
-                {
-                    NameEn = "Car Tire Replacement",
-                    NameAr = "تبديل إطارات السيارة",
-                    Description = "High-quality tire replacement service for your vehicle.",
-                    Price = 300.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Tire Shops").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "CarFix").Id
-                },
+        NameEn = "Anker Power Bank 20000mAh",
+        NameAr = "باور بانك أنكر 20000 مللي أمبير",
+        Description = "High-speed charging with PowerIQ",
+        Price = 499.99m,
+        MainImageUrl = "/images/products/accessory1.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 21
+    },
+    new Product
+    {
 
-                // Furniture
-                new Product
-                {
-                    NameEn = "Modern Sofa",
-                    NameAr = "كنبة عصرية",
-                    Description = "Stylish modern sofa with comfortable seating.",
-                    Price = 799.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Living Room Furniture").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Decor World").Id
-                },
+        NameEn = "Wireless Earbuds JBL",
+        NameAr = "سماعات JBL لاسلكية",
+        Description = "Bluetooth 5.0 with charging case",
+        Price = 699.00m,
+        MainImageUrl = "/images/products/accessory2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 21
+    },
 
-                // Toys & Games
-                new Product
-                {
-                    NameEn = "Kids' Playhouse",
-                    NameAr = "منزل ألعاب للأطفال",
-                    Description = "Colorful and safe playhouse for kids' fun activities.",
-                    Price = 120.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Children's Clothing").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Kids Fun").Id
-                },
-                // Electronics
-                new Product
-                {
-                    NameEn = "Apple MacBook Pro 14",
-                    NameAr = "آبل ماك بوك برو 14",
-                    Description = "Powerful laptop with M2 Pro chip for professionals.",
-                    Price = 1999.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Laptops").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Hawkins Supplies").Id
-                },
-                new Product
-                {
-                    NameEn = "Sony WH-1000XM5 Headphones",
-                    NameAr = "سوني WH-1000XM5 سماعات",
-                    Description = "Industry leading noise cancelling wireless headphones.",
-                    Price = 399.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameAr == "الإكسسوارات").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Tarek Tech").Id
-                },
+    // Air Conditioners (22)
+    new Product
+    {
 
-                // Fashion
-                new Product
-                {
-                    NameEn = "Women's Leather Handbag",
-                    NameAr = "حقيبة يد جلدية نسائية",
-                    Description = "Premium leather handbag stylish and durable.",
-                    Price = 129.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Women's Clothing").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Style Hub").Id
-                },
+        NameEn = "Carrier 1.5HP AC Cool & Heat",
+        NameAr = "مكيف كاريير 1.5 حصان بارد وساخن",
+        Description = "Inverter technology with remote control",
+        Price = 8999.00m,
+        MainImageUrl = "/images/products/ac1.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 22
+    },
+    new Product
+    {
 
-                new Product
-                {
-                    NameEn = "Men's Running Shoes",
-                    NameAr = "أحذية جري رجالية",
-                    Description = "Comfortable and lightweight running shoes.",
-                    Price = 89.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Men's Clothing").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Style Hub").Id
-                },
+        NameEn = "Sharp AC 2.25HP Inverter",
+        NameAr = "شارب 2.25 حصان انفرتر",
+        Description = "Energy-saving technology with fast cooling",
+        Price = 10499.00m,
+        MainImageUrl = "/images/products/ac2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 22
+    },
 
-                new Product
-                {
-                    NameEn = "Electrical Wiring Repair",
-                    NameAr = "تصليح أسلاك كهربائية",
-                    Description = "Safe and reliable electrical wiring repair services.",
-                    Price = 220.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Auto Repair").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Home Fix").Id
-                },
+    // Refrigerators (23)
+    new Product
+    {
 
-                // Health & Personal Care
-                new Product
-                {
-                    NameEn = "Haircut and Styling",
-                    NameAr = "قص وتصفيف الشعر",
-                    Description = "Professional haircut and styling services for men and women.",
-                    Price = 50.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Hair Salons").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Beauty Care").Id
-                },
+        NameEn = "Samsung 600L Double Door Fridge",
+        NameAr = "ثلاجة سامسونج 600 لتر",
+        Description = "Digital inverter, frost-free cooling",
+        Price = 11999.00m,
+        MainImageUrl = "/images/products/fridge1.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 23
+    },
+    new Product
+    {
 
-                new Product
-                {
-                    NameEn = "Facial Treatment",
-                    NameAr = "علاج الوجه",
-                    Description = "Rejuvenating facial treatment for glowing skin.",
-                    Price = 120.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Spas").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Beauty Care").Id
-                },
+        NameEn = "LG Smart Fridge 500L",
+        NameAr = "ثلاجة إل جي 500 لتر ذكية",
+        Description = "Smart inverter compressor with multi-air flow",
+        Price = 10999.00m,
+        MainImageUrl = "/images/products/fridge2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 23
+    },
 
-                // Furniture
-                new Product
-                {
-                    NameEn = "Queen Size Bed",
-                    NameAr = "سرير حجم كوين",
-                    Description = "Comfortable and spacious queen size bed frame.",
-                    Price = 1199.99m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Bedroom Furniture").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Decor World").Id
-                },
+    // Washing Machines (24)
+    new Product
+    {
 
-                // Toys & Games
-                new Product
-                {
-                    NameEn = "Remote Control Car",
-                    NameAr = "سيارة بالتحكم عن بعد",
-                    Description = "High-speed RC car for kids and adults.",
-                    Price = 75.00m,
-                    MainImageUrl = "/images/products/test.jpg",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    SubCategoryId = context.SubCategories.First(sc => sc.NameEn == "Gaming Centers").Id,
-                    VendorId = userManager.Users.First(v => v.BusinessName == "Kids Fun").Id
-                });
+        NameEn = "Bosch 8KG Front Load",
+        NameAr = "غسالة بوش 8 كجم تحميل أمامي",
+        Description = "EcoSilence Drive with AllergyPlus",
+        Price = 8499.00m,
+        MainImageUrl = "/images/products/wm1.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 24
+    },
+    new Product
+    {
+
+        NameEn = "Toshiba 7KG Top Load",
+        NameAr = "غسالة توشيبا 7 كجم تحميل علوي",
+        Description = "Hydro Twin Power Wash with air dry",
+        Price = 6299.00m,
+        MainImageUrl = "/images/products/wm2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 24
+    },
+
+    // Microwave (25)
+    new Product
+    {
+
+        NameEn = "Sharp 25L Grill Microwave",
+        NameAr = "ميكروويف شارب 25 لتر",
+        Description = "Grill + defrost functions, 900W power",
+        Price = 1499.00m,
+        MainImageUrl = "/images/products/microwave1.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 25
+    },
+    new Product
+    {
+
+        NameEn = "Samsung 30L Smart Microwave",
+        NameAr = "ميكروويف سامسونج 30 لتر ذكي",
+        Description = "LED display with multiple programs",
+        Price = 1799.00m,
+        MainImageUrl = "/images/products/microwave2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 25
+    },
+
+    // Cameras (26)
+    new Product
+    {
+
+        NameEn = "Canon EOS 200D II",
+        NameAr = "كانون EOS 200D II",
+        Description = "DSLR, 24.1MP, Wi-Fi enabled",
+        Price = 10299.00m,
+        MainImageUrl = "/images/products/camera1.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 26
+    },
+    new Product
+    {
+
+        NameEn = "Sony Alpha a6400 Mirrorless",
+        NameAr = "سوني ألفا a6400",
+        Description = "24.2MP, 4K video, fast autofocus",
+        Price = 15999.00m,
+        MainImageUrl = "/images/products/camera2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "80a331f5-2539-4c85-b38d-ced79755b135",
+        SubCategoryId = 26
+    },
+    // Mobile Phones (17)
+    new Product
+    {
+
+        NameEn = "Galaxy S23 Ultra",
+        NameAr = "جالاكسي S23 ألترا",
+        Description = "Samsung flagship phone with 200MP camera.",
+        Price = 1199.99m,
+        MainImageUrl = "/images/products/galaxy_s23_ultra.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 17
+    },
+    new Product
+    {
+
+        NameEn = "iPhone 15 Pro Max",
+        NameAr = "آيفون 15 برو ماكس",
+        Description = "Apple’s latest iPhone with titanium body and A17 chip.",
+        Price = 1299.99m,
+        MainImageUrl = "/images/products/iphone_15_pro_max.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 17
+    },
+
+    // Laptops (18)
+    new Product
+    {
+
+        NameEn = "Dell XPS 15",
+        NameAr = "ديل XPS 15",
+        Description = "High-performance laptop with OLED display.",
+        Price = 1599.99m,
+        MainImageUrl = "/images/products/dell_xps_15.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 18
+    },
+    new Product
+    {
+
+        NameEn = "MacBook Pro 14",
+        NameAr = "ماك بوك برو 14",
+        Description = "Apple laptop with M2 Pro chip and Liquid Retina display.",
+        Price = 1999.99m,
+        MainImageUrl = "/images/products/macbook_pro_14.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 18
+    },
+
+    // Gaming Consoles (19)
+    new Product
+    {
+
+        NameEn = "PlayStation 5",
+        NameAr = "بلايستيشن 5",
+        Description = "Next-gen Sony gaming console with ultra-fast SSD.",
+        Price = 499.99m,
+        MainImageUrl = "/images/products/ps5.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 19
+    },
+    new Product
+    {
+
+        NameEn = "Xbox Series X",
+        NameAr = "إكس بوكس سيريس إكس",
+        Description = "Microsoft’s most powerful console with 4K gaming.",
+        Price = 499.99m,
+        MainImageUrl = "/images/products/xbox_series_x.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 19
+    },
+
+
+    new Product
+    {
+
+        NameEn = "Logitech Wireless Mouse",
+        NameAr = "فأرة لوجيتك لاسلكية",
+        Description = "Compact and ergonomic mouse with long battery life.",
+        Price = 29.99m,
+        MainImageUrl = "/images/products/logitech_mouse.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "01930452-bd52-4f57-8c87-677c23d8690b",
+        SubCategoryId = 21
+    },
+     new Product
+     {
+         NameEn = "Floral Summer Dress",
+         NameAr = "فستان صيفي مزهر",
+         Description = "Lightweight cotton dress perfect for summer.",
+         Price = 59.99m,
+         MainImageUrl = "/images/products/floral_summer_dress.jpg",
+         CreatedAt = DateTime.UtcNow,
+         UpdatedAt = DateTime.UtcNow,
+         VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+         SubCategoryId = 13
+     },
+    new Product
+    {
+        NameEn = "Casual Denim Jacket",
+        NameAr = "جاكيت جينز كاجوال",
+        Description = "Trendy denim jacket for everyday wear.",
+        Price = 79.99m,
+        MainImageUrl = "/images/products/denim_jacket.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 13
+    },
+    new Product
+    {
+        NameEn = "Long Sleeve Maxi Dress",
+        NameAr = "فستان ماكسي بأكمام طويلة",
+        Description = "Elegant maxi dress with modest styling.",
+        Price = 89.99m,
+        MainImageUrl = "/images/products/maxi_dress.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 13
+    },
+
+    // Sportswear (15)
+    new Product
+    {
+        NameEn = "Running Leggings",
+        NameAr = "بنطال رياضي للجري",
+        Description = "Stretchable and breathable running leggings.",
+        Price = 39.99m,
+        MainImageUrl = "/images/products/running_leggings.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 15
+    },
+    new Product
+    {
+        NameEn = "Dry-Fit Sports T-shirt",
+        NameAr = "تيشيرت رياضي دراي فيت",
+        Description = "Moisture-wicking t-shirt ideal for workouts.",
+        Price = 29.99m,
+        MainImageUrl = "/images/products/dryfit_tshirt.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 15
+    },
+    new Product
+    {
+        NameEn = "Women's Training Shoes",
+        NameAr = "حذاء تدريب نسائي",
+        Description = "Lightweight shoes with responsive cushioning.",
+        Price = 99.99m,
+        MainImageUrl = "/images/products/womens_training_shoes.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 15
+    },
+
+    // Accessories (16)
+    new Product
+    {
+        NameEn = "Leather Handbag",
+        NameAr = "حقيبة يد جلدية",
+        Description = "Elegant genuine leather handbag with gold accents.",
+        Price = 149.99m,
+        MainImageUrl = "/images/products/leather_handbag.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "Fashion Sunglasses",
+        NameAr = "نظارات شمسية موضة",
+        Description = "UV-protected sunglasses with trendy frames.",
+        Price = 24.99m,
+        MainImageUrl = "/images/products/fashion_sunglasses.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "Silk Scarf",
+        NameAr = "وشاح حرير",
+        Description = "Colorful silk scarf with artistic design.",
+        Price = 34.99m,
+        MainImageUrl = "/images/products/silk_scarf.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "fd69db09-3b72-4ca8-8a50-9d17684a27a1",
+        SubCategoryId = 16
+    },
+     new Product
+     {
+         NameEn = "LED Light Bulb Pack",
+         NameAr = "حزمة لمبات LED",
+         Description = "Energy-saving LED bulbs with long lifespan.",
+         Price = 15.99m,
+         MainImageUrl = "/images/products/led_bulbs.jpg",
+         CreatedAt = DateTime.UtcNow,
+         UpdatedAt = DateTime.UtcNow,
+         VendorId = "51127ab7-0c80-40c5-b128-5825199afae4",
+         SubCategoryId = 32
+     },
+    new Product
+    {
+        NameEn = "Extension Power Strip",
+        NameAr = "مشترك كهرباء",
+        Description = "6-outlet power strip with surge protection.",
+        Price = 22.50m,
+        MainImageUrl = "/images/products/power_strip.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "51127ab7-0c80-40c5-b128-5825199afae4",
+        SubCategoryId = 32
+    },
+    new Product
+    {
+        NameEn = "Wall Socket with USB",
+        NameAr = "مقبس حائط مع USB",
+        Description = "Wall socket with dual USB ports for charging devices.",
+        Price = 18.00m,
+        MainImageUrl = "/images/products/usb_socket.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "51127ab7-0c80-40c5-b128-5825199afae4",
+        SubCategoryId = 32
+    },
+
+    // Water Supply (33)
+    new Product
+    {
+        NameEn = "Kitchen Faucet",
+        NameAr = "حنفية مطبخ",
+        Description = "Stainless steel faucet with adjustable spout.",
+        Price = 75.00m,
+        MainImageUrl = "/images/products/kitchen_faucet.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "51127ab7-0c80-40c5-b128-5825199afae4",
+        SubCategoryId = 33
+    },
+    new Product
+    {
+        NameEn = "Water Pressure Regulator",
+        NameAr = "منظم ضغط الماء",
+        Description = "Brass regulator to control home water pressure.",
+        Price = 42.00m,
+        MainImageUrl = "/images/products/water_regulator.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "51127ab7-0c80-40c5-b128-5825199afae4",
+        SubCategoryId = 33
+    },
+    new Product
+    {
+        NameEn = "Flexible Shower Hose",
+        NameAr = "خرطوم دش مرن",
+        Description = "Durable, anti-kink shower hose with chrome finish.",
+        Price = 19.99m,
+        MainImageUrl = "/images/products/shower_hose.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "51127ab7-0c80-40c5-b128-5825199afae4",
+        SubCategoryId = 33
+    },
+    // Hair Salons (27)
+    new Product
+    {
+        NameEn = "Haircut & Styling Package",
+        NameAr = "حزمة قص وتصفيف الشعر",
+        Description = "Complete haircut and styling service by professionals.",
+        Price = 120.00m,
+        MainImageUrl = "/images/products/haircut_styling.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 27
+    },
+    new Product
+    {
+        NameEn = "Hair Coloring Session",
+        NameAr = "جلسة تلوين شعر",
+        Description = "Full hair coloring with premium dye and aftercare.",
+        Price = 250.00m,
+        MainImageUrl = "/images/products/hair_coloring.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 27
+    },
+    new Product
+    {
+        NameEn = "Keratin Treatment",
+        NameAr = "علاج الكيراتين",
+        Description = "Smoothing keratin treatment for frizz-free hair.",
+        Price = 300.00m,
+        MainImageUrl = "/images/products/keratin.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 27
+    },
+
+    // Clinics (29)
+    new Product
+    {
+        NameEn = "Dental Checkup",
+        NameAr = "فحص الأسنان",
+        Description = "Comprehensive dental checkup including cleaning.",
+        Price = 200.00m,
+        MainImageUrl = "/images/products/dental_checkup.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 29
+    },
+    new Product
+    {
+        NameEn = "Skin Consultation",
+        NameAr = "استشارة بشرة",
+        Description = "Professional skin analysis and skincare plan.",
+        Price = 150.00m,
+        MainImageUrl = "/images/products/skin_consult.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 29
+    },
+    new Product
+    {
+        NameEn = "Eye Exam",
+        NameAr = "فحص العيون",
+        Description = "Comprehensive eye examination by a certified ophthalmologist.",
+        Price = 180.00m,
+        MainImageUrl = "/images/products/eye_exam.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 29
+    },
+
+    // Spas (31)
+    new Product
+    {
+        NameEn = "Full Body Massage",
+        NameAr = "تدليك الجسم الكامل",
+        Description = "Relaxing massage with aromatic oils.",
+        Price = 220.00m,
+        MainImageUrl = "/images/products/full_body_massage.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 31
+    },
+    new Product
+    {
+        NameEn = "Facial Treatment",
+        NameAr = "علاج الوجه",
+        Description = "Rejuvenating facial with deep cleansing and hydration.",
+        Price = 180.00m,
+        MainImageUrl = "/images/products/facial.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 31
+    },
+    new Product
+    {
+        NameEn = "Moroccan Bath",
+        NameAr = "حمام مغربي",
+        Description = "Traditional Moroccan bath with scrub and steam.",
+        Price = 250.00m,
+        MainImageUrl = "/images/products/moroccan_bath.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "4204e4f7-1848-4ad7-bbc5-877c9c6530c0",
+        SubCategoryId = 31
+    },
+    // Accessories (16)
+    new Product
+    {
+        NameEn = "Wireless Earbuds",
+        NameAr = "سماعات أذن لاسلكية",
+        Description = "High-quality wireless earbuds with noise cancellation.",
+        Price = 150.00m,
+        MainImageUrl = "/images/products/accessory2.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "Smartwatch Strap",
+        NameAr = "حزام ساعة ذكية",
+        Description = "Comfortable and stylish smartwatch strap.",
+        Price = 40.00m,
+        MainImageUrl = "/images/products/smartwatch_strap.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "Phone Stand Holder",
+        NameAr = "حامل هاتف",
+        Description = "Adjustable phone stand for desk use.",
+        Price = 25.00m,
+        MainImageUrl = "/images/products/phone_stand.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 16
+    },
+
+    // Mobile Phones (17)
+    new Product
+    {
+        NameEn = "iPhone 14 Pro",
+        NameAr = "آيفون 14 برو",
+        Description = "Latest Apple iPhone with advanced camera system.",
+        Price = 4500.00m,
+        MainImageUrl = "/images/products/iphone_15_pro_max.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 17
+    },
+    new Product
+    {
+        NameEn = "Samsung Galaxy S23",
+        NameAr = "سامسونج جالاكسي S23",
+        Description = "Flagship Android phone with AMOLED display.",
+        Price = 3800.00m,
+        MainImageUrl = "/images/products/galaxy_s23_ultra.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 17
+    },
+    new Product
+    {
+        NameEn = "Xiaomi Redmi Note 12",
+        NameAr = "شاومي ريدمي نوت 12",
+        Description = "Affordable smartphone with long battery life.",
+        Price = 1200.00m,
+        MainImageUrl = "/images/products/redmi_note_12.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 17
+    },
+
+    // Laptops (18)
+    new Product
+    {
+        NameEn = "Dell XPS 15",
+        NameAr = "ديل XPS 15",
+        Description = "Powerful laptop for professionals and creators.",
+        Price = 6800.00m,
+        MainImageUrl = "/images/products/dell_xps_15.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 18
+    },
+    new Product
+    {
+        NameEn = "MacBook Air M2",
+        NameAr = "ماك بوك إير M2",
+        Description = "Lightweight and fast laptop from Apple.",
+        Price = 7200.00m,
+        MainImageUrl = "/images/products/macbook_pro_14.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 18
+    },
+    new Product
+    {
+        NameEn = "Lenovo Legion 5",
+        NameAr = "لينوفو ليجيون 5",
+        Description = "Gaming laptop with NVIDIA graphics.",
+        Price = 5900.00m,
+        MainImageUrl = "/images/products/lenovo_legion_5.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 18
+    },
+
+    // Gaming Consoles (19)
+    new Product
+    {
+        NameEn = "PlayStation 5",
+        NameAr = "بلايستيشن 5",
+        Description = "Next-gen Sony gaming console.",
+        Price = 3500.00m,
+        MainImageUrl = "/images/products/ps5.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 19
+    },
+    new Product
+    {
+        NameEn = "Xbox Series X",
+        NameAr = "إكس بوكس سيريس إكس",
+        Description = "Microsoft's most powerful gaming console.",
+        Price = 3300.00m,
+        MainImageUrl = "/images/products/xbox_series_x.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 19
+    },
+    new Product
+    {
+        NameEn = "Nintendo Switch OLED",
+        NameAr = "نينتندو سويتش OLED",
+        Description = "Hybrid console with upgraded OLED screen.",
+        Price = 1800.00m,
+        MainImageUrl = "/images/products/switch_oled.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ac11f82b-ae9c-4be8-9854-0fbf98f187b0",
+        SubCategoryId = 19
+    },
+     new Product
+     {
+         NameEn = "Modern Wall Clock",
+         NameAr = "ساعة حائط عصرية",
+         Description = "Stylish modern wall clock suitable for any decor.",
+         Price = 250.00m,
+         MainImageUrl = "/images/products/wall_clock.jpg",
+         CreatedAt = DateTime.UtcNow,
+         UpdatedAt = DateTime.UtcNow,
+         VendorId = "2da02a02-2884-4c99-bf27-0d9d4f47dbd8",
+         SubCategoryId = 52
+     },
+    new Product
+    {
+        NameEn = "Wooden Picture Frame Set",
+        NameAr = "مجموعة إطارات صور خشبية",
+        Description = "Set of 4 wooden picture frames in various sizes.",
+        Price = 180.00m,
+        MainImageUrl = "/images/products/picture_frames.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "2da02a02-2884-4c99-bf27-0d9d4f47dbd8",
+        SubCategoryId = 52
+    },
+    new Product
+    {
+        NameEn = "Decorative Vase",
+        NameAr = "مزهرية زخرفية",
+        Description = "Elegant ceramic vase perfect for flowers or standalone decor.",
+        Price = 320.00m,
+        MainImageUrl = "/images/products/decorative_vase.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "2da02a02-2884-4c99-bf27-0d9d4f47dbd8",
+        SubCategoryId = 52
+    },
+    new Product
+    {
+        NameEn = "LED Strip Lights",
+        NameAr = "أشرطة إضاءة LED",
+        Description = "Multi-color LED strip lights with remote control for ambiance.",
+        Price = 95.00m,
+        MainImageUrl = "/images/products/led_strip_lights.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "2da02a02-2884-4c99-bf27-0d9d4f47dbd8",
+        SubCategoryId = 52
+    },
+    // Car Wash (53)
+    new Product
+    {
+        NameEn = "Basic Car Wash",
+        NameAr = "غسيل سيارة أساسي",
+        Description = "Exterior and interior cleaning for your car.",
+        Price = 50.00m,
+        MainImageUrl = "/images/products/basic_car_wash.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 53
+    },
+    new Product
+    {
+        NameEn = "Premium Car Detailing",
+        NameAr = "تنظيف شامل للسيارة",
+        Description = "Includes waxing, polishing, and deep interior cleaning.",
+        Price = 180.00m,
+        MainImageUrl = "/images/products/premium_detailing.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 53
+    },
+    new Product
+    {
+        NameEn = "Engine Bay Cleaning",
+        NameAr = "تنظيف محرك السيارة",
+        Description = "Professional cleaning of the car engine bay.",
+        Price = 70.00m,
+        MainImageUrl = "/images/products/engine_cleaning.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 53
+    },
+
+    // Tire Shops (54)
+    new Product
+    {
+        NameEn = "Michelin Tire 17\"",
+        NameAr = "إطار ميشلان 17 بوصة",
+        Description = "High-performance tire suitable for all seasons.",
+        Price = 350.00m,
+        MainImageUrl = "/images/products/michelin_17.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 54
+    },
+    new Product
+    {
+        NameEn = "Tire Balancing Service",
+        NameAr = "خدمة موازنة الإطارات",
+        Description = "Ensure smooth and safe driving with tire balancing.",
+        Price = 40.00m,
+        MainImageUrl = "/images/products/tire_balancing.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 54
+    },
+    new Product
+    {
+        NameEn = "Tire Replacement Labor",
+        NameAr = "أجرة تركيب الإطارات",
+        Description = "Labor cost for replacing all four tires.",
+        Price = 100.00m,
+        MainImageUrl = "/images/products/tire_replacement.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 54
+    },
+
+    // Auto Repair (55) Car Repair
+    new Product
+    {
+        NameEn = "Oil Change Service",
+        NameAr = "خدمة تغيير الزيت",
+        Description = "Includes oil filter replacement and engine oil.",
+        Price = 120.00m,
+        MainImageUrl = "/images/products/oil_change.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 55
+    },
+    new Product
+    {
+        NameEn = "Brake Pad Replacement",
+        NameAr = "استبدال فحمات الفرامل",
+        Description = "Front or rear brake pad replacement service.",
+        Price = 250.00m,
+        MainImageUrl = "/images/products/brake_replacement.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 55
+    },
+    new Product
+    {
+        NameEn = "Battery Replacement",
+        NameAr = "استبدال البطارية",
+        Description = "Installation of a new 12V car battery with warranty.",
+        Price = 400.00m,
+        MainImageUrl = "/images/products/battery_replacement.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "26b1c29e-f569-4776-b06b-8bc4c919bd0e",
+        SubCategoryId = 55
+    },
+     new Product
+     {
+         NameEn = "Hourly Gaming Session",
+         NameAr = "جلسة ألعاب بالساعة",
+         Description = "Access to the latest gaming consoles for one hour.",
+         Price = 30.00m,
+         MainImageUrl = "/images/products/hourly_gaming.jpg",
+         CreatedAt = DateTime.UtcNow,
+         UpdatedAt = DateTime.UtcNow,
+         VendorId = "f40e1fd0-89b6-4ad6-8cd2-dca87aa20afb",
+         SubCategoryId = 46
+     },
+    new Product
+    {
+        NameEn = "VIP Room Package",
+        NameAr = "باقة غرفة VIP",
+        Description = "Private room with snacks and 3 hours of gaming.",
+        Price = 120.00m,
+        MainImageUrl = "/images/products/vip_room.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f40e1fd0-89b6-4ad6-8cd2-dca87aa20afb",
+        SubCategoryId = 46
+    },
+    new Product
+    {
+        NameEn = "Weekend Tournament Entry",
+        NameAr = "اشتراك في بطولة نهاية الأسبوع",
+        Description = "Join our weekend gaming tournament with prizes.",
+        Price = 50.00m,
+        MainImageUrl = "/images/products/tournament_entry.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f40e1fd0-89b6-4ad6-8cd2-dca87aa20afb",
+        SubCategoryId = 46
+    },
+    new Product
+    {
+        NameEn = "Monthly Membership",
+        NameAr = "اشتراك شهري",
+        Description = "Unlimited access to the gaming center for one month.",
+        Price = 350.00m,
+        MainImageUrl = "/images/products/monthly_membership.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f40e1fd0-89b6-4ad6-8cd2-dca87aa20afb",
+        SubCategoryId = 46
+    },
+    // Sportswear (15)
+    new Product
+    {
+        NameEn = "Men's Running Shorts",
+        NameAr = "شورت جري للرجال",
+        Description = "Lightweight and breathable shorts for running.",
+        Price = 85.00m,
+        MainImageUrl = "/images/products/running_shorts.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "1a7d6b32-c634-4cb4-a9a7-e0b1d67b2086",
+        SubCategoryId = 15
+    },
+    new Product
+    {
+        NameEn = "Women's Sports Leggings",
+        NameAr = "ليجن رياضي للنساء",
+        Description = "Flexible and comfortable leggings ideal for workouts.",
+        Price = 120.00m,
+        MainImageUrl = "/images/products/sports_leggings.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "1a7d6b32-c634-4cb4-a9a7-e0b1d67b2086",
+        SubCategoryId = 15
+    },
+    new Product
+    {
+        NameEn = "Moisture-Wicking T-Shirt",
+        NameAr = "تيشيرت طارد للرطوبة",
+        Description = "Keeps you dry and cool during intense workouts.",
+        Price = 95.00m,
+        MainImageUrl = "/images/products/sports_tshirt.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "1a7d6b32-c634-4cb4-a9a7-e0b1d67b2086",
+        SubCategoryId = 15
+    },
+
+    // Accessories (16)
+    new Product
+    {
+        NameEn = "Fitness Tracker Watch",
+        NameAr = "ساعة تتبع اللياقة",
+        Description = "Monitor your heart rate and steps throughout the day.",
+        Price = 250.00m,
+        MainImageUrl = "/images/products/fitness_tracker.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "1a7d6b32-c634-4cb4-a9a7-e0b1d67b2086",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "Sweatband Set",
+        NameAr = "طقم رباط عرق",
+        Description = "Includes wristbands and a headband for workouts.",
+        Price = 45.00m,
+        MainImageUrl = "/images/products/sweatband_set.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "1a7d6b32-c634-4cb4-a9a7-e0b1d67b2086",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "Water Bottle",
+        NameAr = "زجاجة مياه رياضية",
+        Description = "Durable and BPA-free bottle for hydration on the go.",
+        Price = 60.00m,
+        MainImageUrl = "/images/products/water_bottle.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "1a7d6b32-c634-4cb4-a9a7-e0b1d67b2086",
+        SubCategoryId = 16
+    },
+    new Product
+    {
+        NameEn = "High-Pressure Water Pump",
+        NameAr = "مضخة مياه عالية الضغط",
+        Description = "Ideal for domestic and industrial water supply systems.",
+        Price = 850.00m,
+        MainImageUrl = "/images/products/water_pump.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "6e5668c1-a838-4640-bbe7-d6785fc2b2d8",
+        SubCategoryId = 33
+    },
+    new Product
+    {
+        NameEn = "Water Filtration System",
+        NameAr = "نظام تنقية المياه",
+        Description = "Removes impurities and ensures clean water for all uses.",
+        Price = 1200.00m,
+        MainImageUrl = "/images/products/water_filter.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "6e5668c1-a838-4640-bbe7-d6785fc2b2d8",
+        SubCategoryId = 33
+    },
+    new Product
+    {
+        NameEn = "Automatic Water Level Controller",
+        NameAr = "جهاز تحكم أوتوماتيكي بمستوى المياه",
+        Description = "Maintains optimal water levels in storage tanks.",
+        Price = 310.00m,
+        MainImageUrl = "/images/products/water_regulator.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "6e5668c1-a838-4640-bbe7-d6785fc2b2d8",
+        SubCategoryId = 33
+    },
+    new Product
+    {
+        NameEn = "Submersible Water Pump",
+        NameAr = "مضخة مياه غاطسة",
+        Description = "Durable and efficient for deep wells and drainage.",
+        Price = 980.00m,
+        MainImageUrl = "/images/products/submersible_pump.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "6e5668c1-a838-4640-bbe7-d6785fc2b2d8",
+        SubCategoryId = 33
+    },
+    // Schools (38)
+    new Product
+    {
+        NameEn = "Smart Classroom System",
+        NameAr = "نظام الفصول الذكية",
+        Description = "Comprehensive system for digital learning in schools.",
+        Price = 11000,
+        MainImageUrl = "/images/products/classroom-system.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f250538d-0d5a-4763-8271-96299bdefbc3",
+        SubCategoryId = 38
+    },
+    new Product
+    {
+        NameEn = "Student Attendance App",
+        NameAr = "تطبيق حضور الطلاب",
+        Description = "Mobile and web-based student attendance tracker.",
+        Price = 3500,
+        MainImageUrl = "/images/products/attendance-app.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f250538d-0d5a-4763-8271-96299bdefbc3",
+        SubCategoryId = 38
+    },
+    new Product
+    {
+        NameEn = "Digital Library Access",
+        NameAr = "الوصول إلى المكتبة الرقمية",
+        Description = "Access to a digital library with thousands of educational resources.",
+        Price = 4000,
+        MainImageUrl = "/images/products/digital-library.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f250538d-0d5a-4763-8271-96299bdefbc3",
+        SubCategoryId = 38
+    },
+
+    // Universities (39)
+    new Product
+    {
+        NameEn = "Online Learning Platform",
+        NameAr = "منصة التعليم الإلكتروني",
+        Description = "Full-featured LMS for universities.",
+        Price = 18000,
+        MainImageUrl = "/images/products/online-platform.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f250538d-0d5a-4763-8271-96299bdefbc3",
+        SubCategoryId = 39
+    },
+    new Product
+    {
+        NameEn = "University ERP System",
+        NameAr = "نظام ERP للجامعات",
+        Description = "Comprehensive university management software.",
+        Price = 25000,
+        MainImageUrl = "/images/products/university-erp.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f250538d-0d5a-4763-8271-96299bdefbc3",
+        SubCategoryId = 39
+    },
+    new Product
+    {
+        NameEn = "Research Management Tools",
+        NameAr = "أدوات إدارة الأبحاث",
+        Description = "Tools to streamline research project tracking and reporting.",
+        Price = 9500,
+        MainImageUrl = "/images/products/research-tools.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "f250538d-0d5a-4763-8271-96299bdefbc3",
+        SubCategoryId = 39
+    },
+    // Hair Salons (27)
+    new Product
+    {
+        NameEn = "Haircut & Styling Package",
+        NameAr = "حزمة قص وتصفيف الشعر",
+        Description = "Complete haircut and styling service by professionals.",
+        Price = 120.00m,
+        MainImageUrl = "/images/products/haircut_styling.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 27
+    },
+    new Product
+    {
+        NameEn = "Hair Coloring Session",
+        NameAr = "جلسة تلوين شعر",
+        Description = "Full hair coloring with premium dye and aftercare.",
+        Price = 250.00m,
+        MainImageUrl = "/images/products/hair_coloring.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 27
+    },
+    new Product
+    {
+        NameEn = "Keratin Treatment",
+        NameAr = "علاج الكيراتين",
+        Description = "Smoothing keratin treatment for frizz-free hair.",
+        Price = 300.00m,
+        MainImageUrl = "/images/products/keratin.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 27
+    },
+
+    // Clinics (29)
+    new Product
+    {
+        NameEn = "Dental Checkup",
+        NameAr = "فحص الأسنان",
+        Description = "Comprehensive dental checkup including cleaning.",
+        Price = 200.00m,
+        MainImageUrl = "/images/products/dental_checkup.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 29
+    },
+    new Product
+    {
+        NameEn = "Skin Consultation",
+        NameAr = "استشارة بشرة",
+        Description = "Professional skin analysis and skincare plan.",
+        Price = 150.00m,
+        MainImageUrl = "/images/products/skin_consult.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 29
+    },
+    new Product
+    {
+        NameEn = "Eye Exam",
+        NameAr = "فحص العيون",
+        Description = "Comprehensive eye examination by a certified ophthalmologist.",
+        Price = 180.00m,
+        MainImageUrl = "/images/products/eye_exam.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 29
+    },
+
+    // Spas (31)
+    new Product
+    {
+        NameEn = "Full Body Massage",
+        NameAr = "تدليك الجسم الكامل",
+        Description = "Relaxing massage with aromatic oils.",
+        Price = 220.00m,
+        MainImageUrl = "/images/products/full_body_massage.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 31
+    },
+    new Product
+    {
+        NameEn = "Facial Treatment",
+        NameAr = "علاج الوجه",
+        Description = "Rejuvenating facial with deep cleansing and hydration.",
+        Price = 180.00m,
+        MainImageUrl = "/images/products/facial.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 31
+    },
+    new Product
+    {
+        NameEn = "Moroccan Bath",
+        NameAr = "حمام مغربي",
+        Description = "Traditional Moroccan bath with scrub and steam.",
+        Price = 250.00m,
+        MainImageUrl = "/images/products/moroccan_bath.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "18d986cc-4892-4871-8095-21f85df87433",
+        SubCategoryId = 31
+    },
+    new Product
+    {
+        NameEn = "Residential Waste Pickup",
+        NameAr = "جمع النفايات السكنية",
+        Description = "Scheduled waste collection service for residential areas.",
+        Price = 200,
+        MainImageUrl = "/images/products/residential-waste.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "d98c458c-4dec-4b40-9d0b-ca5effd508cd",
+        SubCategoryId = 34
+    },
+    new Product
+    {
+        NameEn = "Commercial Waste Management",
+        NameAr = "إدارة النفايات التجارية",
+        Description = "Custom waste solutions for businesses and commercial zones.",
+        Price = 750,
+        MainImageUrl = "/images/products/commercial-waste.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "d98c458c-4dec-4b40-9d0b-ca5effd508cd",
+        SubCategoryId = 34
+    },
+    new Product
+    {
+        NameEn = "Recyclable Material Collection",
+        NameAr = "جمع المواد القابلة لإعادة التدوير",
+        Description = "Pickup service for sorted recyclable materials.",
+        Price = 150,
+        MainImageUrl = "/images/products/recyclable-pickup.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "d98c458c-4dec-4b40-9d0b-ca5effd508cd",
+        SubCategoryId = 34
+    },
+    new Product
+    {
+        NameEn = "Industrial Waste Disposal",
+        NameAr = "التخلص من النفايات الصناعية",
+        Description = "Safe and compliant disposal of hazardous and industrial waste.",
+        Price = 1200,
+        MainImageUrl = "/images/products/industrial-waste.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "d98c458c-4dec-4b40-9d0b-ca5effd508cd",
+        SubCategoryId = 34
+    },
+     new Product
+     {
+         NameEn = "Wedding Stage Decoration",
+         NameAr = "ديكور منصة الزفاف",
+         Description = "Elegant stage decoration with floral and lighting elements for weddings.",
+         Price = 3000,
+         MainImageUrl = "/images/products/wedding-stage.jpg",
+         CreatedAt = DateTime.UtcNow,
+         UpdatedAt = DateTime.UtcNow,
+         VendorId = "ff4522dc-351a-4667-989f-1df6ae658e1f",
+         SubCategoryId = 52
+     },
+    new Product
+    {
+        NameEn = "Birthday Party Decor",
+        NameAr = "ديكور حفلة عيد الميلاد",
+        Description = "Custom themed decorations for birthday parties of all ages.",
+        Price = 1000,
+        MainImageUrl = "/images/products/birthday-decor.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ff4522dc-351a-4667-989f-1df6ae658e1f",
+        SubCategoryId = 52
+    },
+    new Product
+    {
+        NameEn = "Corporate Event Setup",
+        NameAr = "ترتيب فعاليات الشركات",
+        Description = "Professional decor services for conferences, launches, and meetings.",
+        Price = 2500,
+        MainImageUrl = "/images/products/corporate-decor.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ff4522dc-351a-4667-989f-1df6ae658e1f",
+        SubCategoryId = 52
+    },
+    new Product
+    {
+        NameEn = "Baby Shower Decoration",
+        NameAr = "ديكور استقبال المولود",
+        Description = "Delightful decorations tailored for baby showers with balloons and banners.",
+        Price = 1200,
+        MainImageUrl = "/images/products/baby-shower.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "ff4522dc-351a-4667-989f-1df6ae658e1f",
+        SubCategoryId = 52
+    },
+    // Fast Food (1)
+    new Product
+    {
+        NameEn = "Cheeseburger",
+        NameAr = "تشيز برجر",
+        Description = "Grilled beef patty with cheese, lettuce, tomato, and sauce.",
+        Price = 35,
+        MainImageUrl = "/images/products/cheeseburger.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 1
+    },
+    new Product
+    {
+        NameEn = "Fried Chicken Bucket",
+        NameAr = "دلو دجاج مقلي",
+        Description = "Crispy fried chicken pieces served with sauces.",
+        Price = 70,
+        MainImageUrl = "/images/products/fried-chicken.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 1
+    },
+    new Product
+    {
+        NameEn = "Beef Shawarma",
+        NameAr = "شاورما لحم",
+        Description = "Classic Middle Eastern beef shawarma wrap.",
+        Price = 30,
+        MainImageUrl = "/images/products/shawarma.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 1
+    },
+
+    // Snacks (4)
+    new Product
+    {
+        NameEn = "Nachos with Cheese",
+        NameAr = "ناتشوز بالجبن",
+        Description = "Crispy nachos topped with melted cheese and jalapenos.",
+        Price = 25,
+        MainImageUrl = "/images/products/nachos.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 4
+    },
+    new Product
+    {
+        NameEn = "French Fries",
+        NameAr = "بطاطس مقلية",
+        Description = "Golden fries served with ketchup and mayo.",
+        Price = 15,
+        MainImageUrl = "/images/products/fries.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 4
+    },
+    new Product
+    {
+        NameEn = "Onion Rings",
+        NameAr = "حلقات بصل",
+        Description = "Crispy battered onion rings fried to perfection.",
+        Price = 20,
+        MainImageUrl = "/images/products/onion-rings.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 4
+    },
+
+    // Organic Food (5)
+    new Product
+    {
+        NameEn = "Organic Quinoa Salad",
+        NameAr = "سلطة الكينوا العضوية",
+        Description = "Healthy salad with quinoa, vegetables, and vinaigrette.",
+        Price = 40,
+        MainImageUrl = "/images/products/quinoa-salad.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 5
+    },
+    new Product
+    {
+        NameEn = "Organic Chicken Breast",
+        NameAr = "صدر دجاج عضوي",
+        Description = "Grilled organic chicken served with vegetables.",
+        Price = 65,
+        MainImageUrl = "/images/products/organic-chicken.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 5
+    },
+    new Product
+    {
+        NameEn = "Organic Lentil Soup",
+        NameAr = "شوربة العدس العضوية",
+        Description = "Warm and hearty lentil soup made from organic ingredients.",
+        Price = 30,
+        MainImageUrl = "/images/products/lentil-soup.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 5
+    },
+
+    // Juices (7)
+    new Product
+    {
+        NameEn = "Fresh Orange Juice",
+        NameAr = "عصير برتقال طازج",
+        Description = "Cold-pressed orange juice with no added sugar.",
+        Price = 18,
+        MainImageUrl = "/images/products/orange-juice.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 7
+    },
+    new Product
+    {
+        NameEn = "Carrot and Apple Juice",
+        NameAr = "عصير جزر وتفاح",
+        Description = "Refreshing blend of carrot and apple juices.",
+        Price = 22,
+        MainImageUrl = "/images/products/carrot-apple.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 7
+    },
+    new Product
+    {
+        NameEn = "Mixed Berry Juice",
+        NameAr = "عصير التوت المشكل",
+        Description = "A rich juice mix of strawberries, blueberries, and raspberries.",
+        Price = 25,
+        MainImageUrl = "/images/products/berry-juice.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 7
+    },
+
+    // Soft Drinks (8)
+    new Product
+    {
+        NameEn = "Cola",
+        NameAr = "كولا",
+        Description = "Chilled classic cola beverage.",
+        Price = 10,
+        MainImageUrl = "/images/products/cola.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 8
+    },
+    new Product
+    {
+        NameEn = "Lemon Soda",
+        NameAr = "صودا الليمون",
+        Description = "Sparkling lemon soda for a refreshing taste.",
+        Price = 12,
+        MainImageUrl = "/images/products/lemon-soda.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 8
+    },
+
+
+    // Tea (9)
+    new Product
+    {
+        NameEn = "Green Tea",
+        NameAr = "شاي أخضر",
+        Description = "Hot brewed green tea with antioxidants.",
+        Price = 15,
+        MainImageUrl = "/images/products/green-tea.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 9
+    },
+    new Product
+    {
+        NameEn = "Chai Latte",
+        NameAr = "تشاي لاتيه",
+        Description = "Spiced milk tea served hot or iced.",
+        Price = 18,
+        MainImageUrl = "/images/products/chai-latte.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 9
+    },
+    new Product
+    {
+        NameEn = "Mint Tea",
+        NameAr = "شاي بالنعناع",
+        Description = "Traditional mint tea served hot.",
+        Price = 12,
+        MainImageUrl = "/images/products/mint-tea.jpg",
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        VendorId = "nasserelbrens",
+        SubCategoryId = 9
+    }
+ };
+                await context.Products.AddRangeAsync(products);
                 await context.SaveChangesAsync();
             }
            

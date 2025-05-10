@@ -4,6 +4,7 @@ using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,6 @@ namespace ServiceProvider_DAL.Data.Configurations
         public void Configure(EntityTypeBuilder<Product> builder)
         {
             builder.HasKey(p => p.Id);
-
             builder.Property(p => p.NameEn)
                 .IsRequired()
                 .HasMaxLength(100);
@@ -61,6 +61,7 @@ namespace ServiceProvider_DAL.Data.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
 
 
+           
         }
     }
 }

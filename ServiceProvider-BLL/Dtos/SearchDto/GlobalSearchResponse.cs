@@ -16,6 +16,7 @@ namespace ServiceProvider_BLL.Dtos.SearchDto
       string? BusinessType = null,
       string? CategoryNameEn = null,
       string? CategoryNameAr = null,
+      int? CategoryId = null,
       string? ImageUrl = null
     );
 }

@@ -17,6 +17,7 @@ using ServiceProvider_DAL.Entities;
 using Stripe;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
@@ -101,6 +102,29 @@ namespace ServiceProvider_BLL.Reposatories
             if (!string.IsNullOrEmpty(request.SortColumn))
             {
                 query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            if (request.BusinessTypes != null && request.BusinessTypes.Any())
+            {
+                query = query.Where(x =>
+                request.BusinessTypes.Any(bt =>
+                    x.OrderProducts.First().Product.Vendor.BusinessType != null &&
+                    x.OrderProducts.First().Product.Vendor.BusinessType.ToLower().Contains(bt.ToLower())
+                ));
+            }
+
+            if (request.Statuses != null && request.Statuses.Any())
+            {
+                var statusEnums = request.Statuses
+                 .Select(s => Enum.Parse<OrderStatus>(s, ignoreCase: true))
+                 .ToList();
+
+                query = query.Where(x => statusEnums.Contains(x.Status));
+            }
+
+            if (request.DateFilter != null && request.DateFilter.HasValue)
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.OrderDate) == request.DateFilter.Value);
             }
 
             var source =  query.Select(o => new OrderResponse(

@@ -19,6 +19,7 @@ namespace ServiceProvider_BLL.Dtos.Common
         public int? MinRating { get; init; }
         public int? MaxRating { get; init; }
 
+        public DateOnly? DateFilter { get; init; }
         public bool? Status { get; init; }
 
         public List<string>? Statuses { get; init; }

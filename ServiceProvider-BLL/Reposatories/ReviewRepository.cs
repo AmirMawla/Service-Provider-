@@ -77,6 +77,16 @@ namespace ServiceProvider_BLL.Reposatories
                 query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
+            if (request.MinRating.HasValue)
+            {
+                query = query.Where(x => x.Rating >= request.MinRating.Value);
+            }
+
+            if (request.MaxRating.HasValue)
+            {
+                query = query.Where(x => x.Rating <= request.MaxRating.Value);
+            }
+
             var source = query.Select(r => new ReviewResponse(
                 r.Id,
                 r.Product.NameEn,

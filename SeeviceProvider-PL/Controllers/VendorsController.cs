@@ -104,6 +104,20 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+        [HttpGet("BusinessTypes")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
+        [ProducesResponseType(typeof(VendorBusinessTypeRespons), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProvidersBusinessTypes(CancellationToken cancellationToken)
+        {
+            var result = await _vendorRepositry.Vendors.GetAllVendorsBusinessTypes(cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
+
         [HttpGet("vendor-dashboard")]
         [Authorize(Policy = "ApprovedVendor")]
         [ProducesResponseType(typeof(VendorDashboardResponse), StatusCodes.Status200OK)]

@@ -258,6 +258,22 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(vendors.AsEnumerable());
         }
 
+        public async Task<Result<VendorBusinessTypeRespons>> GetAllVendorsBusinessTypes(CancellationToken cancellationToken = default) 
+        {
+            var vendors = await _context.Users
+                .Where(x => x.IsApproved && x.UserName != "amirmawlaa")
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+                
+
+            var businessTypes = vendors.Select(x => x.BusinessType).Distinct().ToList();
+
+            var response = new VendorBusinessTypeRespons(
+                businessTypes
+            );
+
+            return Result.Success(response);
+        }
         public async Task<VendorDashboardResponse> GetVendorDashboard(CancellationToken cancellationToken = default)
         {
             var ordersResult = await GetOrderCounts(cancellationToken);

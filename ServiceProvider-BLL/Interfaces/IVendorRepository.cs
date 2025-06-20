@@ -20,6 +20,7 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<PaginatedList<VendorRatingResponse>>> GetVendorsRatings(string vendorId, RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<ProductsOfVendorDto>>> GetProviderMenuAsync(string providerId , CancellationToken cancellationToken);
         Task<Result<IEnumerable<TopVendorResponse>>> GetTopVendorsByOrders(CancellationToken cancellationToken = default);
+        Task<Result<VendorBusinessTypeRespons>> GetAllVendorsBusinessTypes(CancellationToken cancellationToken = default);
         Task<VendorDashboardResponse> GetVendorDashboard(CancellationToken cancellationToken = default);
         Task<Result> UpdateVendorAsync(string id,UpdateVendorResponse vendorDto, CancellationToken cancellationToken = default);
         Task<Result> ChangeVendorPasswordAsync(string id, ChangeVendorPasswordRequest request);

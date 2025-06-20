@@ -452,6 +452,42 @@ namespace ServiceProvider_BLL.Reposatories
 
         }
 
+
+        public async Task<Result<List<ProductRequestCount>>> Gettop5MostCommonProductAsync(CancellationToken cancellationToken = default)
+        {
+            var query = _context.OrderProducts!
+               .GroupBy(op => op.ProductId)
+               .Select(g => new
+               {
+                   ProductId = g.Key,
+                   OrderCount = g.Sum(op => op.Quantity)
+               })
+               .OrderByDescending(x => x.OrderCount).Take(5);
+
+            var productIds = await query.Select(x => x.ProductId).ToListAsync(cancellationToken: cancellationToken);
+
+            var productsWithDetails = await _context.Products!
+                .Where(p => productIds.Contains(p.Id))
+                .Select(p => new
+                {
+                    p.Id,
+                    p.NameEn,
+                    p.Description,
+                    p.MainImageUrl,
+                    p.Price,
+                    RequestCount = _context.OrderProducts!
+                            .Where(op => op.ProductId == p.Id)
+                            .Sum(op => op.Quantity)
+                }).OrderByDescending(p => p.RequestCount).ToListAsync(cancellationToken: cancellationToken);
+
+
+            return Result.Success(productsWithDetails.Adapt<List<ProductRequestCount>>());
+
+
+        }
+
+
+
         public async Task<Result<IEnumerable<ProductResponse>>> GetNewProductsAsync(CancellationToken cancellationToken = default) 
         {
             var products = await _context.Products!

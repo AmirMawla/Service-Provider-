@@ -59,5 +59,34 @@ namespace SeeviceProvider_PL.Controllers
                 ? Ok(result.Value)
                 : result.ToProblem();
         }
+
+
+        [HttpDelete("{ProductId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteSpecificProduct( [FromRoute]int ProductId,CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _cartRepositry.Carts.DeleteSpecificProduct(userId!, ProductId, cancellationToken);
+            return result.IsSuccess
+                  ? NoContent()
+                  : result.ToProblem();
+        }
+
+
+        [HttpDelete("All")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteAllProducts( CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _cartRepositry.Carts.DeleteallProducts(userId!, cancellationToken);
+
+            return result.IsSuccess
+                  ? NoContent()
+                  : result.ToProblem();
+        }
     }
 }

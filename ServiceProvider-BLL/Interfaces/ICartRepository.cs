@@ -14,5 +14,8 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<CartResponse>> GetCart(string userId, CancellationToken cancellationToken = default);
         Task<Result<CartProductResponse>> AddToCartAsync(string userId, CartProductRequest request , CancellationToken cancellationToken);
         Task<Result<CartProductResponse>> UpdateCartItemAsync(string userId,UpdateCartItemRequest request , CancellationToken cancellationToken);
+        Task<Result> DeleteSpecificProduct(string userId,int ProductId , CancellationToken cancellationToken);
+        Task<Result> DeleteallProducts(string userId, CancellationToken cancellationToken);
+        
     }
 }

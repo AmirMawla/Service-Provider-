@@ -58,6 +58,20 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+
+        [HttpGet("top5-most-requested")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(List<ProductRequestCount>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Gettop5MostRequested(CancellationToken cancellationToken)
+        {
+            var result = await _productRepositry.Products.Gettop5MostCommonProductAsync(cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
         [HttpGet("most-vendor-requested-product")]
         [Authorize(Policy ="ApprovedVendor")]
         [ProducesResponseType(typeof(IEnumerable<MostRequestedProductResponse>), StatusCodes.Status200OK)]

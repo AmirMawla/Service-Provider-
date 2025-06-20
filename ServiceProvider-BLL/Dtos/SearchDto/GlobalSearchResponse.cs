@@ -11,6 +11,7 @@ namespace ServiceProvider_BLL.Dtos.SearchDto
       string? Id = null,
       string? NameEn = null,
       string? NameAr = null,
+      decimal? Price = null,
       string? FullName = null,
       string? BusinessName = null,
       string? BusinessType = null,

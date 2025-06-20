@@ -212,6 +212,7 @@ namespace ServiceProvider_BLL.Reposatories
                         u.Id,
                         null,
                         null,
+                        null,
                         u.FullName,
                         u.BusinessName,
                         u.BusinessType,
@@ -236,8 +237,9 @@ namespace ServiceProvider_BLL.Reposatories
                         p.Id.ToString(),
                         p.NameEn,
                         p.NameAr,
+                        p.Price,
                         null,
-                        null,
+                        p.Vendor.BusinessName,
                         null,
                         p.SubCategory.Category.NameEn,
                         p.SubCategory.Category.NameAr,
@@ -265,6 +267,7 @@ namespace ServiceProvider_BLL.Reposatories
                         null,
                         null,
                         null,
+                        null,
                         c.ImageUrl))
                     .Take(limit)
                     .AsNoTracking()
@@ -282,6 +285,7 @@ namespace ServiceProvider_BLL.Reposatories
                         sc.Id.ToString(),
                         sc.NameEn,
                         sc.NameAr,
+                        null,
                         null,
                         null,
                         null,

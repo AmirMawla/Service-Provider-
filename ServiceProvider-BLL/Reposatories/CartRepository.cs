@@ -11,6 +11,7 @@ using ServiceProvider_DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -118,6 +119,40 @@ namespace ServiceProvider_BLL.Reposatories
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success(cartProduct.Adapt<CartProductResponse>());
+        }
+
+        public async Task<Result> DeleteSpecificProduct(string userId, int ProductId, CancellationToken cancellationToken)
+        {
+            var cartproduct = await _context.CartProducts.FirstOrDefaultAsync(cp=>cp.Cart.ApplicationUserId==userId &&
+                                                  cp.ProductId == ProductId,
+                                                  cancellationToken: cancellationToken);
+
+
+            if (cartproduct == null)
+                return Result.Failure(CartProductErrors.NotFound);
+
+
+          _context.CartProducts.Remove(cartproduct);
+            await _context.SaveChangesAsync(cancellationToken);
+
+
+
+            return Result.Success();
+        }
+
+        public async Task<Result> DeleteallProducts(string userId, CancellationToken cancellationToken)
+        {
+            var cartProducts = await _context.CartProducts
+                                     .Where(cp => cp.Cart.ApplicationUserId == userId)
+                                     .ToListAsync(cancellationToken);
+
+            if (cartProducts == null || !cartProducts.Any())
+                return Result.Failure(CartProductErrors.NotFound);
+
+            _context.CartProducts.RemoveRange(cartProducts);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

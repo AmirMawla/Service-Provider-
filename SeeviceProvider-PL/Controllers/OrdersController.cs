@@ -30,11 +30,11 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
        
-        [HttpGet("users")]
+        [HttpGet("users/{userId}")]
         [Authorize(Roles = "Admin,MobileUser")]
         [ProducesResponseType(typeof(PaginatedList<OrderResponseV2>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUserOrders([FromQuery] string? userId,[FromQuery] RequestFilter request,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUserOrders([FromRoute] string? userId,[FromQuery] RequestFilter request,CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);

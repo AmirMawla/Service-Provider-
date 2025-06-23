@@ -63,6 +63,20 @@ namespace ServiceProvider_BLL.Reposatories
                      op.Product.Price,
                      op.Quantity
                  )).ToList(),
+                 order.OrderProducts
+                  .GroupBy(op => op.Product.Vendor.BusinessName)
+                  .Select(g => new VendorSummaryResponse(
+                       g.Key ?? "Unknown Vendor",
+                       g.Sum(op => op.Product.Price * op.Quantity),
+                       g.Sum(op => op.Quantity),
+                       g.Select(op => new VendorOrderItemResponse(
+                           op.ProductId,
+                           op.Product.NameEn,
+                           op.Product.NameAr,
+                           op.Product.Price,
+                           op.Quantity
+                       )).ToList()
+                  )).ToList(),
                  new PaymentResponse(
                      order.Payment.TotalAmount,
                      order.Payment.Status.ToString(),
@@ -152,6 +166,7 @@ namespace ServiceProvider_BLL.Reposatories
                 .Where(o => o.ApplicationUserId == userId)
                 .Include(o => o.OrderProducts)
                 .ThenInclude(op => op.Product)
+                .ThenInclude(p => p.Vendor)
                 .Include(o => o.Payment)
                 .Include(o => o.Shipping)
                 .OrderByDescending(o => o.OrderDate)
@@ -175,6 +190,20 @@ namespace ServiceProvider_BLL.Reposatories
                     op.Product.Price,
                     op.Quantity
                 )).ToList(),
+                o.OrderProducts
+                  .GroupBy(op => op.Product.Vendor.BusinessName)
+                  .Select(g => new VendorSummaryResponse(
+                       g.Key ?? "Unknown Vendor",
+                       g.Sum(op => op.Product.Price * op.Quantity),
+                       g.Sum(op => op.Quantity),
+                       g.Select(op => new VendorOrderItemResponse(
+                           op.ProductId,
+                           op.Product.NameEn,
+                           op.Product.NameAr,
+                           op.Product.Price,
+                           op.Quantity
+                       )).ToList()
+                  )).ToList(),
                 new PaymentResponse(
                     o.Payment.TotalAmount,
                     o.Payment.Status.ToString(),
@@ -472,6 +501,20 @@ namespace ServiceProvider_BLL.Reposatories
                      op.Product.Price,
                      op.Quantity
                  )).ToList(),
+                 order.OrderProducts
+                  .GroupBy(op => op.Product.Vendor.BusinessName)
+                  .Select(g => new VendorSummaryResponse(
+                       g.Key ?? "Unknown Vendor",
+                       g.Sum(op => op.Product.Price * op.Quantity),
+                       g.Sum(op => op.Quantity),
+                       g.Select(op =>new VendorOrderItemResponse(
+                           op.ProductId,
+                           op.Product.NameEn,
+                           op.Product.NameAr,
+                           op.Product.Price,
+                           op.Quantity
+                       )).ToList()
+                  )).ToList(),
                  new PaymentResponse(
                      order.Payment.TotalAmount,
                      order.Payment.Status.ToString(),

@@ -96,6 +96,16 @@ namespace SeeviceProvider_PL.Controllers
             return Ok(result.Value);
         }
 
+        [HttpGet("transaction-stats")]
+        [ProducesResponseType(typeof(PaymentStatsResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTransactionStats()
+        {
+            var result = await _generalRepository.Payments.GetPaymentStatsAsync();
+
+            return Ok(result.Value);
+        }
+
+
 
 
         //[Authorize]

@@ -59,6 +59,11 @@ namespace ServiceProvider_BLL.Reposatories
                 query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
+            if (request.DateFilter.HasValue && request.DateFilter != null) 
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.TransactionDate) == request.DateFilter.Value);
+            }
+
             var source = query.Select(x => new TransactionResponse(
                     x.Id,
                     x.TotalAmount,
@@ -108,6 +113,38 @@ namespace ServiceProvider_BLL.Reposatories
             catch (Exception ex)
             {
                 return Result.Failure<int>(new Error("Error", "Failed to retrieve transactions count.", StatusCodes.Status400BadRequest));
+            }
+        }
+
+        public async Task<Result<PaymentStatsResponse>> GetPaymentStatsAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var totalTransactions = await _context.Payments!.CountAsync(cancellationToken);
+
+                var completedTransactions = await _context.Payments!
+                    .Where(x => x.Status == PaymentStatus.Completed)
+                    .CountAsync(cancellationToken);
+
+                var pendingTransactions = await _context.Payments!
+                    .Where(x => x.Status == PaymentStatus.Pending)
+                    .CountAsync(cancellationToken);
+
+                var totalRevenue = await _context.Payments!
+                    .SumAsync(x => x.TotalAmount, cancellationToken: cancellationToken);
+
+                var response = new PaymentStatsResponse(
+                    totalTransactions,
+                    completedTransactions,
+                    pendingTransactions,
+                    totalRevenue
+                );
+
+                return Result.Success(response);
+            }
+            catch
+            {
+                return Result.Failure<PaymentStatsResponse>(new Error("Error", "Failed to retrieve required data.", StatusCodes.Status400BadRequest));
             }
         }
     }

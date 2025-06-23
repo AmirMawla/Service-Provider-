@@ -16,5 +16,6 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<PaginatedList<TransactionResponse>>> GetAllTransactions(RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<PaginatedList<TransactionResponse>>> GetUserTransactions(string userId, RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<int>> GetTotalTransactionsCountAsync(CancellationToken cancellationToken = default);
+        Task<Result<PaymentStatsResponse>> GetPaymentStatsAsync(CancellationToken cancellationToken = default);
     }
 }

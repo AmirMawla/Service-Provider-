@@ -606,7 +606,8 @@ namespace ServiceProvider_BLL.Reposatories
                )).ToList(),
                order.User?.Address ?? "Not available",
                vendor.PhoneNumber!,
-               shipping?.EstimatedDeliveryDate
+               shipping?.EstimatedDeliveryDate,
+               shipping?.Status.ToString()
                );
 
             return Result.Success(dto);

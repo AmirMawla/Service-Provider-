@@ -194,7 +194,28 @@ namespace ServiceProvider_BLL.Reposatories
             if (provider == null)
                 return Result.Failure<VendorResponse>(VendorErrors.NotFound);
 
-            return Result.Success(provider.Adapt<VendorResponse>());
+            var NumOfReviews = _context.Reviews!
+               .Where(r => r.Product.VendorId == providerId)
+               .Count();
+
+            var VendorDetails = new VendorResponse(
+                providerId,
+                provider.FullName,
+                provider.Email!,
+                provider.ProfilePictureUrl,
+                provider.CoverImageUrl,
+                provider.BusinessName,
+                provider.BusinessType,
+                provider.TaxNumber,
+                provider.Rating,
+                provider.IsApproved,
+                NumOfReviews
+                );
+
+
+
+
+            return Result.Success(VendorDetails);
         }
 
         public async Task<Result<IEnumerable<ProductsOfVendorDto>>> GetProviderMenuAsync(string providerId, CancellationToken cancellationToken)

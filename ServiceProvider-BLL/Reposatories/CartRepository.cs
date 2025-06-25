@@ -123,7 +123,7 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result> DeleteSpecificProduct(string userId, int ProductId, CancellationToken cancellationToken)
         {
-            var cartproduct = await _context.CartProducts.FirstOrDefaultAsync(cp=>cp.Cart.ApplicationUserId==userId &&
+            var cartproduct = await _context.CartProducts!.FirstOrDefaultAsync(cp=>cp.Cart.ApplicationUserId==userId &&
                                                   cp.ProductId == ProductId,
                                                   cancellationToken: cancellationToken);
 
@@ -132,7 +132,7 @@ namespace ServiceProvider_BLL.Reposatories
                 return Result.Failure(CartProductErrors.NotFound);
 
 
-          _context.CartProducts.Remove(cartproduct);
+          _context.CartProducts!.Remove(cartproduct);
             await _context.SaveChangesAsync(cancellationToken);
 
 
@@ -142,14 +142,14 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result> DeleteallProducts(string userId, CancellationToken cancellationToken)
         {
-            var cartProducts = await _context.CartProducts
+            var cartProducts = await _context.CartProducts!
                                      .Where(cp => cp.Cart.ApplicationUserId == userId)
                                      .ToListAsync(cancellationToken);
 
             if (cartProducts == null || !cartProducts.Any())
                 return Result.Failure(CartProductErrors.NotFound);
 
-            _context.CartProducts.RemoveRange(cartProducts);
+            _context.CartProducts!.RemoveRange(cartProducts);
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

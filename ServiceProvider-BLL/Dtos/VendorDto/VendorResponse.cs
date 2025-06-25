@@ -16,7 +16,8 @@ namespace ServiceProvider_BLL.Dtos.VendorDto
         string BusinessType,
         string? TaxNumber,
         float? Rating,
-        bool IsApproved
+        bool IsApproved,
+        int? NumOfReviews
     );
 
 }

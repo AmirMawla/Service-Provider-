@@ -11,6 +11,7 @@ public record VendorOrderDetailDto
     List<VendorOrderItemResponse> VendorOrderItemResponse,
     string UserAddress ,
     string VendorPhone ,
-    DateTime? EstimatedDeliveryDate
+    DateTime? EstimatedDeliveryDate,
+    string? ShipementStatus
 
     );

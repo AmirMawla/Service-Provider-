@@ -22,6 +22,7 @@ namespace ServiceProvider_DAL.Entities
         public virtual ICollection<Banners>? Banners { get; set; } = new List<Banners>();
         public virtual ICollection<Message>? Messages {  get; set; } = new List<Message>();
         public virtual ICollection<Product>? Products { get; set; } = new List<Product>();
+        public virtual ICollection<Shipping>? Shippings { get; set; } = new List<Shipping>();
         public virtual ICollection<VendorSubCategory>? VendorSubCategories { get; set; } = new List<VendorSubCategory>();
     }
 }

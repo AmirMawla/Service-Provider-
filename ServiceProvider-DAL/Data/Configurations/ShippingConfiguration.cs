@@ -13,17 +13,24 @@ namespace ServiceProvider_DAL.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Shipping> builder)
         {
-            builder.HasKey(x => x.Id);
+            builder.HasKey(s =>new {s.OrderId,s.VendorId});
 
-            builder.Property(x => x.Status)
-                .HasMaxLength(200)
+            builder.Property(s => s.Status)
+                .HasConversion(
+                c => c.ToString(),
+                c => (ShippingStatus)Enum.Parse(typeof(ShippingStatus), c)
+                );
+
+
+            builder.HasOne(s => s.Order)
+                .WithMany(o => o.Shippings)
+                .HasForeignKey(s => s.OrderId)
                 .IsRequired();
 
-
-            builder.HasOne(x => x.Order)
-                .WithOne(o => o.Shipping)
-                .HasForeignKey<Shipping>(x => x.OrderId)
-                .IsRequired();
+            builder.HasOne(s => s.Vendor)
+               .WithMany(v => v.Shippings)
+               .HasForeignKey(s => s.VendorId)
+               .IsRequired();
 
         }
     }

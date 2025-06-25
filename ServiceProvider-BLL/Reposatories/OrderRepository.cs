@@ -40,7 +40,7 @@ namespace ServiceProvider_BLL.Reposatories
                      .Include(o => o.OrderProducts)
                      .ThenInclude(op => op.Product)
                      .Include(o => o.Payment)
-                     .Include(o => o.Shipping)
+                     .Include(o => o.Shippings)
                      .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken: cancellationToken);
 
             if (order == null)
@@ -71,6 +71,7 @@ namespace ServiceProvider_BLL.Reposatories
                        g.Sum(op => op.Quantity),
                        g.Select(op => new VendorOrderItemResponse(
                            op.ProductId,
+                           op.Product.MainImageUrl!,
                            op.Product.NameEn,
                            op.Product.NameAr,
                            op.Product.Price,
@@ -81,11 +82,7 @@ namespace ServiceProvider_BLL.Reposatories
                      order.Payment.TotalAmount,
                      order.Payment.Status.ToString(),
                      order.Payment.TransactionDate
-                 ),
-                 order.Shipping != null ? new ShippingResponse(
-                     order.Shipping.Status,
-                     order.Shipping.EstimatedDeliveryDate
-                 ) : null
+                 )
             );
 
             return Result.Success(response);
@@ -160,7 +157,7 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(orders);
         }
 
-        public async Task<Result<PaginatedList<OrderResponseV2>>> GetUserOrdersAsync(string userId,RequestFilter request , CancellationToken cancellationToken = default)
+        public async Task<Result<PaginatedList<VendorOrderDto>>> GetUserOrdersAsync(string userId,RequestFilter request , CancellationToken cancellationToken = default)
         {
             var query = _context.Orders!
                 .Where(o => o.ApplicationUserId == userId)
@@ -168,9 +165,10 @@ namespace ServiceProvider_BLL.Reposatories
                 .ThenInclude(op => op.Product)
                 .ThenInclude(p => p.Vendor)
                 .Include(o => o.Payment)
-                .Include(o => o.Shipping)
                 .OrderByDescending(o => o.OrderDate)
                 .AsNoTracking();
+
+
 
             // Apply sorting if specified
             if (!string.IsNullOrEmpty(request.SortColumn))
@@ -178,45 +176,73 @@ namespace ServiceProvider_BLL.Reposatories
                 query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
-            var projectedQuery = query.Select(o => new OrderResponseV2(
-                o.Id,
-                o.TotalAmount,
-                o.OrderDate,
-                o.Status.ToString(),
-                o.OrderProducts.Select(op => new OrderProductResponse(
-                    op.ProductId,
-                    op.Product.NameEn,
-                    op.Product.NameAr,
-                    op.Product.Price,
-                    op.Quantity
-                )).ToList(),
-                o.OrderProducts
-                  .GroupBy(op => op.Product.Vendor.BusinessName)
-                  .Select(g => new VendorSummaryResponse(
-                       g.Key ?? "Unknown Vendor",
-                       g.Sum(op => op.Product.Price * op.Quantity),
-                       g.Sum(op => op.Quantity),
-                       g.Select(op => new VendorOrderItemResponse(
-                           op.ProductId,
-                           op.Product.NameEn,
-                           op.Product.NameAr,
-                           op.Product.Price,
-                           op.Quantity
-                       )).ToList()
-                  )).ToList(),
-                new PaymentResponse(
-                    o.Payment.TotalAmount,
-                    o.Payment.Status.ToString(),
-                    o.Payment.TransactionDate
-                    //o.Payment.PaymentMethodType
-                ),
-                o.Shipping != null ? new ShippingResponse(
-                    o.Shipping.Status,
-                    o.Shipping.EstimatedDeliveryDate
-                ) : null
-            ));
 
-            var orders = await PaginatedList<OrderResponseV2>.CreateAsync(
+
+            if (request.Statuses != null && request.Statuses.Any())
+            {
+                var statusEnums = request.Statuses
+                 .Select(s => Enum.Parse<OrderStatus>(s, ignoreCase: true))
+                 .ToList();
+
+                query = query.Where(x => statusEnums.Contains(x.Status));
+            }
+
+
+            var projectedQuery = query
+                .SelectMany(order => order.OrderProducts
+                    .GroupBy(op => op.Product!.VendorId)
+                    .Select(g => new VendorOrderDto
+                    (
+                       order.Id,
+                       g.First().Product!.Vendor!.Id,
+                       g.First().Product!.Vendor!.BusinessName!,
+                       g.First().Product!.Vendor!.ProfilePictureUrl!,
+                       order.Status.ToString(),
+                       order.OrderDate,
+                       g.Sum(op => op.Quantity),
+                       g.Sum(op => op.Product!.Price * op.Quantity)
+                    )));
+                
+
+            //var projectedQuery = query.Select(o => new OrderResponseV2(
+            //    o.Id,
+            //    //o.TotalAmount,
+            //    o.OrderDate,
+            //    o.Status.ToString(),
+            //    //o.OrderProducts.Select(op => new OrderProductResponse(
+            //    //    op.ProductId,
+            //    //    op.Product.NameEn,
+            //    //    op.Product.NameAr,
+            //    //    op.Product.Price,
+            //    //    op.Quantity
+            //    //)).ToList(),
+            //    o.OrderProducts
+            //      .GroupBy(op => op.Product.Vendor.BusinessName)
+            //      .Select(g => new VendorSummaryResponse(
+            //           g.Key ?? "Unknown Vendor",
+            //           g.Sum(op => op.Product.Price * op.Quantity),
+            //           g.Sum(op => op.Quantity),
+            //           g.Select(op => new VendorOrderItemResponse(
+            //               op.ProductId,
+            //               op.Product.NameEn,
+            //               op.Product.NameAr,
+            //               op.Product.Price,
+            //               op.Quantity
+            //           )).ToList()
+            //      )).ToList(),
+            //    new PaymentResponse(
+            //        o.Payment.TotalAmount,
+            //        o.Payment.Status.ToString(),
+            //        o.Payment.TransactionDate
+            //        //o.Payment.PaymentMethodType
+            //    ),
+            //    o.Shipping != null ? new ShippingResponse(
+            //        o.Shipping.Status,
+            //        o.Shipping.EstimatedDeliveryDate
+            //    ) : null
+            //));
+
+            var orders = await PaginatedList<VendorOrderDto>.CreateAsync(
             projectedQuery,
                 request.PageNumer,
                 request.PageSize,
@@ -225,7 +251,7 @@ namespace ServiceProvider_BLL.Reposatories
 
             return orders.Items.Any()
                 ? Result.Success(orders)
-                : Result.Failure<PaginatedList<OrderResponseV2>>(OrderErrors.OrderNotFound);
+                : Result.Failure<PaginatedList<VendorOrderDto>>(OrderErrors.OrderNotFound);
         }
 
         public async Task<Result<IEnumerable<RecentOrderResponse>>> GetTopFiveRecentOrdersAsync( string vendorId, int count = 5,CancellationToken cancellationToken = default)
@@ -482,7 +508,7 @@ namespace ServiceProvider_BLL.Reposatories
                      .Include(o => o.OrderProducts)
                      .ThenInclude(op => op.Product)
                      .Include(o => o.Payment)
-                     .Include(o => o.Shipping)
+                     .Include(o => o.Shippings)
                      .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken: cancellationToken);
 
             if (order == null)
@@ -509,6 +535,7 @@ namespace ServiceProvider_BLL.Reposatories
                        g.Sum(op => op.Quantity),
                        g.Select(op =>new VendorOrderItemResponse(
                            op.ProductId,
+                           op.Product.MainImageUrl!,
                            op.Product.NameEn,
                            op.Product.NameAr,
                            op.Product.Price,
@@ -519,15 +546,72 @@ namespace ServiceProvider_BLL.Reposatories
                      order.Payment.TotalAmount,
                      order.Payment.Status.ToString(),
                      order.Payment.TransactionDate
-                 ),
-                 order.Shipping != null ? new ShippingResponse(
-                     order.Shipping.Status,
-                     order.Shipping.EstimatedDeliveryDate
-                 ) : null
+                 )
             );
 
             return Result.Success(response);
         }
 
+        public async Task<Result<VendorOrderDetailDto>> GetOrderForSpecificVendorAsync(int OrderId, string VendorId, string currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
+        {
+            var order = await _context.Orders!
+                    .Include(o => o.OrderProducts)!
+                    .ThenInclude(op => op.Product)!
+                    .ThenInclude(p => p.Vendor)
+                    .Include(o => o.User)
+                    .FirstOrDefaultAsync(o => o.Id == OrderId, cancellationToken);
+
+            if (order == null)
+                return Result.Failure<VendorOrderDetailDto>(OrderErrors.OrderNotFound);
+
+
+            if (!isAdmin && order.ApplicationUserId != currentUserId)
+            {
+                return Result.Failure<VendorOrderDetailDto>(new Error("Order.AccessDenied", "You don't have permission to access this order", StatusCodes.Status403Forbidden));
+            }
+
+
+            var vendorProducts = order.OrderProducts
+                .Where(op => op.Product!.VendorId == VendorId)
+                .ToList();
+
+            if (!vendorProducts.Any())
+                return Result.Failure<VendorOrderDetailDto>(OrderErrors.OrderNotFound);
+
+
+            var vendor = vendorProducts.First().Product!.Vendor!;
+            var shipping = await _context.Shippings!
+                .FirstOrDefaultAsync(s => s.OrderId == OrderId && s.VendorId == VendorId, cancellationToken);
+
+            var dto = new VendorOrderDetailDto
+            (
+                new VendorOrderDto(
+                    order.Id,
+                    vendor.Id,
+                    vendor.BusinessName!,
+                    vendor.ProfilePictureUrl!,
+                    order.Status.ToString(),
+                    order.OrderDate,
+                    vendorProducts.Sum(p => p.Quantity),
+                    vendorProducts.Sum(p => p.Product!.Price * p.Quantity)),
+
+                vendorProducts.Select(p => new VendorOrderItemResponse
+               (
+                   p.Product!.Id,
+                   p.Product!.MainImageUrl!,
+                   p.Product!.NameEn,
+                   p.Product!.NameAr,
+                   p.Product!.Price,
+                   p.Quantity
+               )).ToList(),
+               order.User?.Address ?? "Not available",
+               vendor.PhoneNumber!,
+               shipping?.EstimatedDeliveryDate
+               );
+
+            return Result.Success(dto);
+        }
+
     }
+    
 }

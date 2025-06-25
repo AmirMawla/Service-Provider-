@@ -2080,9 +2080,9 @@ namespace ServiceProvider_DAL.Data
 
             //await SeedApplicationUsers(context);
             await SeedCarts(context);
-            await SeedOrders(context);
+            //await SeedOrders(context);
             await SeedReviews(context);
-            await SeedShipping(context);
+            //await SeedShipping(context);
             await SeedBanners(context);
         }
 
@@ -2326,157 +2326,157 @@ namespace ServiceProvider_DAL.Data
 
 
 
-        public static async Task SeedOrders(AppDbContext context)
-        {
-            if (context.Orders.Count() > 5) return;
+        //public static async Task SeedOrders(AppDbContext context)
+        //{
+        //    if (context.Orders.Count() > 5) return;
 
-            var users = context.ApplicationUsers.ToList();
-            var products = context.Products.ToList();
+        //    var users = context.ApplicationUsers.ToList();
+        //    var products = context.Products.ToList();
 
-            await context.Orders.AddRangeAsync(new Order
-            {
-                TotalAmount = 1099.99m,
-                OrderDate = DateTime.UtcNow,
-                Status = OrderStatus.Pending,
-                ApplicationUserId = users.First().Id,
-                OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.First().Id, Quantity = 2 },
-                new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 }
-            },
-                Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(5), Status = "Pending" },
-                Payment = new Payment { TotalAmount = 1099.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Pending, PaymentMethod = "Credit Card" }
-            },
-        new Order
-        {
-            TotalAmount = 1300.99m,
-            OrderDate = DateTime.UtcNow,
-            Status = OrderStatus.Processing,
-            ApplicationUserId = users.Skip(1).First().Id,
-            OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 2 },
-                new OrderProduct { ProductId = products.Skip(3).First().Id, Quantity = 2 }
-            },
-            Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-            Payment = new Payment { TotalAmount = 1300.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-        },
-             new Order
-             {
-                 TotalAmount = 1599.99m,
-                 OrderDate = DateTime.UtcNow,
-                 Status = OrderStatus.Processing,
-                 ApplicationUserId = users.Skip(2).First().Id,
-                 OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(4).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(5).First().Id, Quantity = 1 }
-            },
-                 Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                 Payment = new Payment { TotalAmount = 1599.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-             },
-                  new Order
-                  {
-                      TotalAmount = 1800.99m,
-                      OrderDate = DateTime.UtcNow,
-                      Status = OrderStatus.Processing,
-                      ApplicationUserId = users.Skip(3).First().Id,
-                      OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(7).First().Id, Quantity = 1 }
-            },
-                      Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                      Payment = new Payment { TotalAmount = 1800.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                  },
-                       new Order
-                       {
-                           TotalAmount = 899.99m,
-                           OrderDate = DateTime.UtcNow,
-                           Status = OrderStatus.Processing,
-                           ApplicationUserId = users.Skip(4).First().Id,
-                           OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 }
-            },
-                           Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                           Payment = new Payment { TotalAmount = 899.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                       },
-                        new Order
-                        {
-                            TotalAmount = 2300.99m,
-                            OrderDate = DateTime.UtcNow,
-                            Status = OrderStatus.Delivered,
-                            ApplicationUserId = users.Skip(5).First().Id,
-                            OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 5 }
-            },
-                            Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                            Payment = new Payment { TotalAmount = 2300.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                        },
-                         new Order
-                         {
-                             TotalAmount = 1500.99m,
-                             OrderDate = DateTime.UtcNow,
-                             Status = OrderStatus.Processing,
-                             ApplicationUserId = users.Skip(6).First().Id,
-                             OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(3).First().Id, Quantity = 2 }
-            },
-                             Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                             Payment = new Payment { TotalAmount = 1500.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                         },
-                          new Order
-                          {
-                              TotalAmount = 3700.99m,
-                              OrderDate = DateTime.UtcNow,
-                              Status = OrderStatus.Delivered,
-                              ApplicationUserId = users.Skip(7).First().Id,
-                              OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(5).First().Id, Quantity = 4 },
-                new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 3 }
-            },
-                              Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                              Payment = new Payment { TotalAmount = 3700.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                          },
-                           new Order
-                           {
-                               TotalAmount = 899.99m,
-                               OrderDate = DateTime.UtcNow,
-                               Status = OrderStatus.Processing,
-                               ApplicationUserId = users.Skip(8).First().Id,
-                               OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 },
-                new OrderProduct { ProductId = products.Skip(3).First().Id, Quantity = 1 }
-            },
-                               Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                               Payment = new Payment { TotalAmount = 899.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                           },
-                                    new Order
-                                    {
-                                        TotalAmount = 799.99m,
-                                        OrderDate = DateTime.UtcNow,
-                                        Status = OrderStatus.Processing,
-                                        ApplicationUserId = users.Skip(9).First().Id,
-                                        OrderProducts = new List<OrderProduct>
-            {
-                new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 3 },
-                new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 },
-                new OrderProduct { ProductId = products.Skip(4).First().Id, Quantity = 1 }
-            },
-                                        Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
-                                        Payment = new Payment { TotalAmount = 799.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
-                                    });
-            await context.SaveChangesAsync();
-        }
+        //    await context.Orders.AddRangeAsync(new Order
+        //    {
+        //        TotalAmount = 1099.99m,
+        //        OrderDate = DateTime.UtcNow,
+        //        Status = OrderStatus.Pending,
+        //        ApplicationUserId = users.First().Id,
+        //        OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.First().Id, Quantity = 2 },
+        //        new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 }
+        //    },
+        //        Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(5), Status = "Pending" },
+        //        Payment = new Payment { TotalAmount = 1099.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Pending, PaymentMethod = "Credit Card" }
+        //    },
+        //new Order
+        //{
+        //    TotalAmount = 1300.99m,
+        //    OrderDate = DateTime.UtcNow,
+        //    Status = OrderStatus.Processing,
+        //    ApplicationUserId = users.Skip(1).First().Id,
+        //    OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 2 },
+        //        new OrderProduct { ProductId = products.Skip(3).First().Id, Quantity = 2 }
+        //    },
+        //    Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //    Payment = new Payment { TotalAmount = 1300.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //},
+        //     new Order
+        //     {
+        //         TotalAmount = 1599.99m,
+        //         OrderDate = DateTime.UtcNow,
+        //         Status = OrderStatus.Processing,
+        //         ApplicationUserId = users.Skip(2).First().Id,
+        //         OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(4).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(5).First().Id, Quantity = 1 }
+        //    },
+        //         Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //         Payment = new Payment { TotalAmount = 1599.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //     },
+        //          new Order
+        //          {
+        //              TotalAmount = 1800.99m,
+        //              OrderDate = DateTime.UtcNow,
+        //              Status = OrderStatus.Processing,
+        //              ApplicationUserId = users.Skip(3).First().Id,
+        //              OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(7).First().Id, Quantity = 1 }
+        //    },
+        //              Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //              Payment = new Payment { TotalAmount = 1800.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //          },
+        //               new Order
+        //               {
+        //                   TotalAmount = 899.99m,
+        //                   OrderDate = DateTime.UtcNow,
+        //                   Status = OrderStatus.Processing,
+        //                   ApplicationUserId = users.Skip(4).First().Id,
+        //                   OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 }
+        //    },
+        //                   Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //                   Payment = new Payment { TotalAmount = 899.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //               },
+        //                new Order
+        //                {
+        //                    TotalAmount = 2300.99m,
+        //                    OrderDate = DateTime.UtcNow,
+        //                    Status = OrderStatus.Delivered,
+        //                    ApplicationUserId = users.Skip(5).First().Id,
+        //                    OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 5 }
+        //    },
+        //                    Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //                    Payment = new Payment { TotalAmount = 2300.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //                },
+        //                 new Order
+        //                 {
+        //                     TotalAmount = 1500.99m,
+        //                     OrderDate = DateTime.UtcNow,
+        //                     Status = OrderStatus.Processing,
+        //                     ApplicationUserId = users.Skip(6).First().Id,
+        //                     OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(6).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(3).First().Id, Quantity = 2 }
+        //    },
+        //                     Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //                     Payment = new Payment { TotalAmount = 1500.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //                 },
+        //                  new Order
+        //                  {
+        //                      TotalAmount = 3700.99m,
+        //                      OrderDate = DateTime.UtcNow,
+        //                      Status = OrderStatus.Delivered,
+        //                      ApplicationUserId = users.Skip(7).First().Id,
+        //                      OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(5).First().Id, Quantity = 4 },
+        //        new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 3 }
+        //    },
+        //                      Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //                      Payment = new Payment { TotalAmount = 3700.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //                  },
+        //                   new Order
+        //                   {
+        //                       TotalAmount = 899.99m,
+        //                       OrderDate = DateTime.UtcNow,
+        //                       Status = OrderStatus.Processing,
+        //                       ApplicationUserId = users.Skip(8).First().Id,
+        //                       OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 },
+        //        new OrderProduct { ProductId = products.Skip(3).First().Id, Quantity = 1 }
+        //    },
+        //                       Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //                       Payment = new Payment { TotalAmount = 899.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //                   },
+        //                            new Order
+        //                            {
+        //                                TotalAmount = 799.99m,
+        //                                OrderDate = DateTime.UtcNow,
+        //                                Status = OrderStatus.Processing,
+        //                                ApplicationUserId = users.Skip(9).First().Id,
+        //                                OrderProducts = new List<OrderProduct>
+        //    {
+        //        new OrderProduct { ProductId = products.Skip(2).First().Id, Quantity = 3 },
+        //        new OrderProduct { ProductId = products.Skip(1).First().Id, Quantity = 1 },
+        //        new OrderProduct { ProductId = products.Skip(4).First().Id, Quantity = 1 }
+        //    },
+        //                                Shipping = new Shipping { EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7), Status = "Shipped" },
+        //                                Payment = new Payment { TotalAmount = 799.99m, TransactionDate = DateTime.UtcNow, Status = PaymentStatus.Completed, PaymentMethod = "PayPal" }
+        //                            });
+        //    await context.SaveChangesAsync();
+        //}
 
 
 
@@ -2514,32 +2514,32 @@ namespace ServiceProvider_DAL.Data
         }
 
 
-        public static async Task SeedShipping(AppDbContext context)
-        {
-            if (context.Shippings.Count() > 1) return;
+    //    public static async Task SeedShipping(AppDbContext context)
+    //    {
+    //        if (context.Shippings.Count() > 1) return;
 
-            var orders = context.Orders.ToList();
+    //        var orders = context.Orders.ToList();
 
-            var shippings = new List<Shipping>
-    {
-        new Shipping
-        {
-            OrderId = orders.First().Id,
-            EstimatedDeliveryDate = DateTime.UtcNow.AddDays(5),
-            Status = "Shipped"
-        },
-        new Shipping
-        {
-            OrderId = orders.Skip(1).First().Id,
-            EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7),
-            Status = "Pending"
-        },
+    //        var shippings = new List<Shipping>
+    //{
+    //    new Shipping
+    //    {
+    //        OrderId = orders.First().Id,
+    //        EstimatedDeliveryDate = DateTime.UtcNow.AddDays(5),
+    //        Status = "Shipped"
+    //    },
+    //    new Shipping
+    //    {
+    //        OrderId = orders.Skip(1).First().Id,
+    //        EstimatedDeliveryDate = DateTime.UtcNow.AddDays(7),
+    //        Status = "Pending"
+    //    },
 
-    };
+    //};
 
-            await context.Shippings.AddRangeAsync(shippings);
-            await context.SaveChangesAsync();
-        }
+    //        await context.Shippings.AddRangeAsync(shippings);
+    //        await context.SaveChangesAsync();
+    //    }
 
 
         public static async Task SeedBanners(AppDbContext context)

@@ -16,8 +16,8 @@ namespace ServiceProvider_BLL.Dtos.OrderDto
         string Status,
         List<OrderProductResponse> Products,
         List<VendorSummaryResponse> VendorGroups,
-        PaymentResponse Payment,
-        ShippingResponse? Shipping
+        PaymentResponse Payment
+        //ShippingResponse? Shipping
     );
 
     public record VendorSummaryResponse(
@@ -29,6 +29,7 @@ namespace ServiceProvider_BLL.Dtos.OrderDto
 
     public record VendorOrderItemResponse(
         int ProductId,
+        string ProductImageUrl,
         string NameEn,
         string NameAr,
         decimal Price,

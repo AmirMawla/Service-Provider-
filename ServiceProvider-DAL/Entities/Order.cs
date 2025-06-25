@@ -25,7 +25,7 @@ namespace ServiceProvider_DAL.Entities
         public virtual ApplicationUser User { get; set; } = default!;
         public virtual ICollection<Message>? Messages { get; set; } = new List<Message>();
         public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
-        public virtual Shipping? Shipping { get; set; } = default!;
+        public virtual ICollection<Shipping>? Shippings { get; set; } = new List<Shipping>();
         public virtual Payment Payment { get; set; } = default!;
 
     }

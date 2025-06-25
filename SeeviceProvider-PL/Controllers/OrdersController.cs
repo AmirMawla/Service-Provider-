@@ -29,10 +29,28 @@ namespace SeeviceProvider_PL.Controllers
             var result = await _orderRepositry.Orders.GetOrderAsync(id,currentUserId!,isAdmin, cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
-       
+
+
+
+        [HttpGet("orders/{OrderId}/vendors/{VendorId}")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(VendorOrderDetailDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetSpecificOrder([FromRoute] int OrderId, [FromRoute]  string VendorId , CancellationToken cancellationToken)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
+            var result = await _orderRepositry.Orders.GetOrderForSpecificVendorAsync(OrderId, VendorId , currentUserId!, isAdmin, cancellationToken);
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
+
+
         [HttpGet("users/{userId}")]
         [Authorize(Roles = "Admin,MobileUser")]
-        [ProducesResponseType(typeof(PaginatedList<OrderResponseV2>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedList<VendorOrderDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserOrders([FromRoute] string? userId,[FromQuery] RequestFilter request,CancellationToken cancellationToken)
         {

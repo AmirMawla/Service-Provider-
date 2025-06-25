@@ -64,7 +64,18 @@ namespace ServiceProvider_BLL.Reposatories
                 query = query.Where(x => DateOnly.FromDateTime(x.TransactionDate) == request.DateFilter.Value);
             }
 
-            var source = query.Select(x => new TransactionResponse(
+            if (request.PaymentMethods != null && request.PaymentMethods.Any()) 
+            {
+                var paymentMethods = request.PaymentMethods;
+
+                foreach (var paymentMethod in paymentMethods) 
+                {
+                    var pattern = $"%{paymentMethod.ToLower()}%";
+                    query = query.Where(x => EF.Functions.Like(x.PaymentMethod.ToLower(), pattern));
+                }
+            }
+
+                var source = query.Select(x => new TransactionResponse(
                     x.Id,
                     x.TotalAmount,
                     x.TransactionDate,
@@ -146,6 +157,31 @@ namespace ServiceProvider_BLL.Reposatories
             {
                 return Result.Failure<PaymentStatsResponse>(new Error("Error", "Failed to retrieve required data.", StatusCodes.Status400BadRequest));
             }
+        }
+
+        public async Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetVendorRevenueByPaymentMethod(string vendorId,CancellationToken cancellationToken = default)
+        {
+            var payments = await _context.Payments
+                .Include(p => p.Order)
+                    .ThenInclude(o => o.OrderProducts)
+                        .ThenInclude(op => op.Product)
+                .Where(p => p.Status == PaymentStatus.Completed)
+                .ToListAsync(cancellationToken);
+
+            var revenueByPayment = payments
+                .Where(p => p.Order.OrderProducts.Any(op => op.Product.VendorId == vendorId))
+                .GroupBy(p => p.PaymentMethod)
+                .Select(g => new VendorRevenueByPaymentMethod(
+                    g.Key,
+                    g.Sum(p => p.TotalAmount)
+                ))
+                .OrderByDescending(x => x.Revenue)
+                .ToList();
+
+            return revenueByPayment.Any()
+                ? Result.Success(revenueByPayment.Adapt<IEnumerable<VendorRevenueByPaymentMethod>>())
+                : Result.Failure<IEnumerable<VendorRevenueByPaymentMethod>>(
+                    new Error("Not Found", "No revenue data found", StatusCodes.Status404NotFound));
         }
     }
 }

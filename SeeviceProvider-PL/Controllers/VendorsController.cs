@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.CategoryDto;
 using ServiceProvider_BLL.Dtos.Common;
+using ServiceProvider_BLL.Dtos.PaymentDto;
 using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.VendorDto;
 using ServiceProvider_BLL.Interfaces;
@@ -48,11 +49,11 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
-        [HttpGet("vendors-rating")]
+        [HttpGet("{vendorId}/vendors-rating")]
         [Authorize(Policy ="AdminOrApprovedVendor")]
         [ProducesResponseType(typeof(PaginatedList<VendorRatingResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProvidersRatings(string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProvidersRatings([FromRoute]string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
@@ -71,6 +72,35 @@ namespace SeeviceProvider_PL.Controllers
             }
 
             var result = await _vendorRepositry.Vendors.GetVendorsRatings(vendorId!,request, cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
+        [HttpGet("vendors-top-selling-products")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
+        [ProducesResponseType(typeof(IEnumerable<TopFiveProductsWithVendorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTopFiveProductsWithVendor(string? vendorId, CancellationToken cancellationToken)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (currentUserRole == "Vendor")
+            {
+                // Vendors can only access their own reviews
+                if (!string.IsNullOrEmpty(vendorId) && vendorId != currentUserId)
+                    return Forbid();
+
+                vendorId = currentUserId;
+            }
+            else if (string.IsNullOrEmpty(vendorId))
+            {
+                return BadRequest("Vendor ID is required for admin users");
+            }
+
+            var result = await _vendorRepositry.Vendors.GetTopFiveProductsWithVendor(vendorId!, cancellationToken);
 
             return result.IsSuccess
                 ? Ok(result.Value)
@@ -127,6 +157,17 @@ namespace SeeviceProvider_PL.Controllers
             return Ok(result);
         }
 
+        [HttpGet("vendor-Revenue-ByPaymentMethod")]
+        [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(VendorRevenueByPaymentMethod), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetVendorRevenueByPaymentMethod(CancellationToken cancellationToken = default)
+        {
+            var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _vendorRepositry.Payments.GetVendorRevenueByPaymentMethod(vendorId,cancellationToken);
+            return Ok(result.Value);
+        }
 
         [HttpGet("{providerId}/menu")]
         [Authorize]

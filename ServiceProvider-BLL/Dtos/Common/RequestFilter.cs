@@ -22,6 +22,8 @@ namespace ServiceProvider_BLL.Dtos.Common
         public DateOnly? DateFilter { get; init; }
         public bool? Status { get; init; }
 
+        public List<string>? PaymentMethods { get; init; }
+
         public List<string>? Statuses { get; init; }
     }
 }

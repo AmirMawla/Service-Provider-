@@ -258,6 +258,48 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(vendors.AsEnumerable());
         }
 
+        public async Task<Result<IEnumerable<TopFiveProductsWithVendorResponse>>> GetTopFiveProductsWithVendor(string vendorId, CancellationToken cancellationToken = default)
+        {
+            // Step 1: Get aggregated sales data
+            var salesData = await _context.OrderProducts!
+                .Where(op => op.Product.VendorId == vendorId)
+                .GroupBy(op => op.ProductId)
+                .Select(g => new {
+                    ProductId = g.Key,
+                    Sold = g.Sum(op => op.Quantity)
+                })
+                .OrderByDescending(x => x.Sold)
+                .Take(5)
+                .ToListAsync(cancellationToken);
+
+            if (!salesData.Any())
+                return Result.Failure<IEnumerable<TopFiveProductsWithVendorResponse>>(
+                    new Error("Not Found", "No items Found", StatusCodes.Status404NotFound));
+
+            // Step 2: Get product details
+            var productIds = salesData.Select(s => s.ProductId).ToList();
+            var products = await _context.Products!
+                .Where(p => productIds.Contains(p.Id))
+                .ToListAsync(cancellationToken);
+
+            // Step 3: Combine results
+            var result = salesData.Select(s =>
+            {
+                var product = products.First(p => p.Id == s.ProductId);
+                return new TopFiveProductsWithVendorResponse(
+                    product.Id,
+                    product.NameEn,
+                    product.NameAr,
+                    s.Sold,
+                    product.Price * s.Sold
+                );
+            })
+            .OrderByDescending(r => r.Sold)
+            .ToList();
+
+            return Result.Success(result.AsEnumerable());
+        }
+
         public async Task<Result<VendorBusinessTypeRespons>> GetAllVendorsBusinessTypes(CancellationToken cancellationToken = default) 
         {
             var vendors = await _context.Users

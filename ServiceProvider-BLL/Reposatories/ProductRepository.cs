@@ -366,16 +366,32 @@ namespace ServiceProvider_BLL.Reposatories
             if (!productExisit)
                 return Result.Failure<ReviewResponse>(ProductErrors.ProductNotFound);
 
-            var hasOrderdProduct = await _context.OrderProducts!
-                                    .AnyAsync(x =>
-                                      x.ProductId == productId &&
-                                      x.Order.ApplicationUserId == userId &&
-                                      x.Order.Status == OrderStatus.Delivered
-                                      , cancellationToken
-                                    );
+            bool hasOrdered = await _context.OrderProducts!
+                 .AnyAsync(op =>
+                     op.ProductId == productId &&
+                     op.Order.ApplicationUserId == userId,
+                     cancellationToken
+                 );
 
-            if (!hasOrderdProduct)
+            if (!hasOrdered)
                 return Result.Failure<ReviewResponse>(ReviewErrors.HasNotOrdered);
+
+            // 2. Check if there's a DELIVERED shipment for this product
+            bool hasDeliveredShipment = await _context.OrderProducts!
+                .Where(op =>
+                    op.ProductId == productId &&
+                    op.Order.ApplicationUserId == userId)
+                .AnyAsync(op =>
+                    _context.Shippings!.Any(s =>
+                        s.OrderId == op.OrderId &&
+                        s.VendorId == op.Product.VendorId &&
+                        s.Status == ShippingStatus.Delivered
+                    ),
+                    cancellationToken
+                );
+
+            if (!hasDeliveredShipment)
+                return Result.Failure<ReviewResponse>(ReviewErrors.ShipmentNotDelivered);
 
 
             var existingReview = await _context.Reviews!

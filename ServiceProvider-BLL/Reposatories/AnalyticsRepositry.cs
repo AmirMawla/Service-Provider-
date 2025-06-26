@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
@@ -55,62 +56,43 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<IEnumerable<VendorRevenueResponse>>> GetTopVendorsAsync(CancellationToken cancellationToken = default)
         {
-
-            var vendorsQuery = _context.Users
+            var topVendors = await _context.Users
                 .Where(u => u.IsApproved)
                 .Select(v => new
                 {
-                    v.Id,
-                    v.FullName,
-                    v.BusinessName,
-                    v.BusinessType,
-                    v.ProfilePictureUrl,
-                    v.CoverImageUrl
-                });
+                    Vendor = v,
+                    Revenue = _context.Products
+                        .Where(p => p.VendorId == v.Id)
+                        .SelectMany(p => p.OrderProducts)
+                        .Where(op => op.Order.Payment.Status == PaymentStatus.Completed)
+                        .Sum(op => (decimal?)op.Quantity * op.Product.Price) ?? 0m,
+                    OrderCount = _context.Products
+                        .Where(p => p.VendorId == v.Id)
+                        .SelectMany(p => p.OrderProducts)
+                        .Where(op => op.Order.Payment.Status == PaymentStatus.Completed)
+                        .Select(op => op.OrderId)
+                        .Distinct()
+                        .Count()
+                })
+                .OrderByDescending(x => x.Revenue)
+                .Take(15)
+                .Select(x => new VendorRevenueResponse(
+                    x.Vendor.Id,
+                    x.Vendor.FullName,
+                    x.Vendor.BusinessName,
+                    x.Vendor.BusinessType,
+                    x.Vendor.ProfilePictureUrl,
+                    x.Vendor.CoverImageUrl,
+                    x.Revenue,
+                    x.OrderCount
+                ))
+                .ToListAsync(cancellationToken);
 
-            var vendorList = await vendorsQuery.ToListAsync(cancellationToken); // Execute query in the database
-
-            var vendorsRevenue = vendorList.Select(vendor => new VendorRevenueResponse
-            (
-                vendor.Id,
-                vendor.FullName,
-                vendor.BusinessName,
-                vendor.BusinessType,
-                vendor.ProfilePictureUrl,
-                vendor.CoverImageUrl,
-                _context.Products!
-                    .Where(p => p.VendorId == vendor.Id)
-                    .Join(_context.OrderProducts!,
-                        product => product.Id,
-                        orderProduct => orderProduct.ProductId,
-                        (product, orderProduct) => new { product, orderProduct })
-                    .Join(_context.Orders!,
-                        po => po.orderProduct.OrderId,
-                        order => order.Id,
-                        (po, order) => new { po.product, po.orderProduct, order })
-                    .Join(_context.Payments!,
-                        poo => poo.order.Id,
-                        payment => payment.OrderId,
-                        (poo, payment) => payment.TotalAmount)
-                    .Sum(),  // Now done in-memory
-
-                _context.Products!
-                    .Where(p => p.VendorId == vendor.Id)
-                    .Join(_context.OrderProducts!,
-                        product => product.Id,
-                        orderProduct => orderProduct.ProductId,
-                        (product, orderProduct) => orderProduct.OrderId)
-                    .Distinct()
-                    .Count()  // Now done in-memory
-            ))
-            .OrderByDescending(v => v.TotalRevenue)
-            .Take(15)
-            .ToList(); // Execute calculation in-memory
-
-            
-
-            return Result.Success(vendorsRevenue.Adapt<IEnumerable<VendorRevenueResponse>>());
-        } 
+            return topVendors.Any()
+                ? Result.Success(topVendors.AsEnumerable())
+                : Result.Failure<IEnumerable<VendorRevenueResponse>>(
+                    new Error("Not Found", "No vendors found", StatusCodes.Status404NotFound));
+        }
 
         public async Task<Result<OverAllStatisticsResponse>> GetOverallStatisticsAsync()
         {
@@ -122,7 +104,7 @@ namespace ServiceProvider_BLL.Reposatories
                 .Where(x => x.IsApproved)
                 .Count();
 
-            var OverAllRevenue = await _context.Payments!.SumAsync(x => x.TotalAmount);
+            var OverAllRevenue = await _context.Payments!.Where(x => x.Status == PaymentStatus.Completed).SumAsync(x => x.TotalAmount);
 
             var response = new OverAllStatisticsResponse(
                 totalUsersCount,

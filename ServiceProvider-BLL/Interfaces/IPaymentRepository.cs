@@ -18,5 +18,6 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<int>> GetTotalTransactionsCountAsync(CancellationToken cancellationToken = default);
         Task<Result<PaymentStatsResponse>> GetPaymentStatsAsync(CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetVendorRevenueByPaymentMethod(string vendorId, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetAllRevenueByPaymentMethod(CancellationToken cancellationToken = default);
     }
 }

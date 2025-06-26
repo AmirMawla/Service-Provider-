@@ -105,6 +105,18 @@ namespace SeeviceProvider_PL.Controllers
             return Ok(result.Value);
         }
 
+        [HttpGet("all-revenue-byPaymentMethod")]
+        [ProducesResponseType(typeof(VendorRevenueByPaymentMethod), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAllRevenueByPaumentMehtod(CancellationToken cancellationToken)
+        {
+            var result = await _generalRepository.Payments.GetAllRevenueByPaymentMethod(cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                :result.ToProblem();
+        }
+
 
 
 

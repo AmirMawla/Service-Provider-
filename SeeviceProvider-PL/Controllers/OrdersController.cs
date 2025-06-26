@@ -48,11 +48,11 @@ namespace SeeviceProvider_PL.Controllers
 
 
 
-        [HttpGet("users/{userId}")]
+        [HttpGet("users")]
         [Authorize(Roles = "Admin,MobileUser")]
         [ProducesResponseType(typeof(PaginatedList<VendorOrderDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUserOrders([FromRoute] string? userId,[FromQuery] RequestFilter request,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUserOrders(string? userId,[FromQuery] RequestFilter request,CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
@@ -87,12 +87,12 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
-        [HttpGet("vendors/{vendorId}")]
+        [HttpGet("vendors")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
         [ProducesResponseType(typeof(PaginatedList<OrdersOfVendorResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> GetVendorOrders([FromRoute]string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetVendorOrders(string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);

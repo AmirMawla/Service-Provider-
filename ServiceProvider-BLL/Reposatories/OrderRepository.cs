@@ -418,11 +418,11 @@ namespace ServiceProvider_BLL.Reposatories
                 return Result.Failure<PaginatedList<OrdersOfVendorResponse>>(VendorErrors.NotFound);
             }
 
-            var baseQuery = _context.Orders!
-                .Include(o => o.OrderProducts)
-                .ThenInclude(op => op.Product)
-                .Where(o => o.OrderProducts.Any(op => op.Product.VendorId == vendorId))
-                .OrderByDescending(o => o.OrderDate);
+            var baseQuery = _context.OrderProducts!
+                .Include(op => op.Order)
+                .Include(op => op.Product)
+                .Where(op => op.Product.VendorId == vendorId)
+                .OrderByDescending(op => op.Order.OrderDate);
 
           
             if (!string.IsNullOrEmpty(request.SortColumn))
@@ -430,18 +430,19 @@ namespace ServiceProvider_BLL.Reposatories
                 baseQuery = baseQuery.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
-            var query = baseQuery.Select(o => new OrdersOfVendorResponse(
-                o.Id,
-                o.TotalAmount,
-                o.OrderDate,
-                o.Status.ToString(),
-                o.OrderProducts.Select(op => new OrderProductResponse(
-                    op.ProductId,
+            var query = baseQuery.Select(op => new OrdersOfVendorResponse(
+                op.Order.Id,
+                op.Quantity*op.Product.Price,
+                op.Order.OrderDate,
+                op.Order.Status.ToString(),
+                op.Order.OrderProducts.Where(o => o.Product.VendorId == vendorId).Select(op => new OrderProductResponse(
+                    op.Product.Id,
                     op.Product.NameEn,
                     op.Product.NameAr,
                     op.Product.Price,
                     op.Quantity
-                )).ToList()
+                ))
+                .ToList()
             ));
 
             var orders = await PaginatedList<OrdersOfVendorResponse>.CreateAsync(

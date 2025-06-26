@@ -283,7 +283,7 @@ namespace ServiceProvider_BLL.Reposatories
         {
             // Step 1: Get aggregated sales data
             var salesData = await _context.OrderProducts!
-                .Where(op => op.Product.VendorId == vendorId)
+                .Where(op => op.Product.VendorId == vendorId && op.Order.Payment.Status == PaymentStatus.Completed)
                 .GroupBy(op => op.ProductId)
                 .Select(g => new {
                     ProductId = g.Key,
@@ -374,24 +374,26 @@ namespace ServiceProvider_BLL.Reposatories
         {
 
 
-            var paymentsQuery = _context.Payments!
-                .Where(p => p.Order.OrderProducts.Any(op =>
-                    op.Product.VendorId == _vendorId));
+            var paymentsQuery = _context.OrderProducts
+                .Where(op => op.Product.VendorId == _vendorId);
 
             // Last 4 months revenue trend
             var trend = await paymentsQuery
-                .GroupBy(p => new { p.TransactionDate.Year, p.TransactionDate.Month })
+                .Where(op => op.Order.Payment.Status == PaymentStatus.Completed)
+                .GroupBy(op => new { op.Order.Payment.TransactionDate.Year, op.Order.Payment.TransactionDate.Month })
                 .OrderByDescending(g => g.Key.Year)
                 .ThenByDescending(g => g.Key.Month)
                 .Take(4)
                 .Select(g => new MonthlyRevenue(
                      CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key.Month),
-                      g.Sum(p => p.TotalAmount)
+                      g.Sum(op => op.Quantity * op.Product.Price )
                 ))
                 .ToListAsync(cancellationToken);
 
             // Current total revenue
-            var current = await paymentsQuery.SumAsync(p => p.TotalAmount,cancellationToken);
+            var current = await paymentsQuery
+                .Where(op => op.Order.Payment.Status == PaymentStatus.Completed)
+                .SumAsync(op => op.Quantity * op.Product.Price, cancellationToken);
 
             return (trend, current);
         }

@@ -161,6 +161,28 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetVendorRevenueByPaymentMethod(string vendorId,CancellationToken cancellationToken = default)
         {
+            var orderProducts = await _context.OrderProducts!
+                .Include(op => op.Product)
+                .Where(op => op.Product.VendorId == vendorId && op.Order.Payment.Status == PaymentStatus.Completed)
+                .ToListAsync(cancellationToken);
+
+            var revenueByPayment = orderProducts
+                .GroupBy(op => op.Order.Payment.PaymentMethod)
+                .Select(g => new VendorRevenueByPaymentMethod(
+                    g.Key,
+                    g.Sum(op => op.Quantity*op.Product.Price)
+                ))
+                .OrderByDescending(x => x.Revenue)
+                .ToList();
+
+            return revenueByPayment.Any()
+                ? Result.Success(revenueByPayment.Adapt<IEnumerable<VendorRevenueByPaymentMethod>>())
+                : Result.Failure<IEnumerable<VendorRevenueByPaymentMethod>>(
+                    new Error("Not Found", "No revenue data found", StatusCodes.Status404NotFound));
+        }
+
+        public async Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetAllRevenueByPaymentMethod(CancellationToken cancellationToken = default)
+        {
             var payments = await _context.Payments
                 .Include(p => p.Order)
                     .ThenInclude(o => o.OrderProducts)
@@ -169,7 +191,6 @@ namespace ServiceProvider_BLL.Reposatories
                 .ToListAsync(cancellationToken);
 
             var revenueByPayment = payments
-                .Where(p => p.Order.OrderProducts.Any(op => op.Product.VendorId == vendorId))
                 .GroupBy(p => p.PaymentMethod)
                 .Select(g => new VendorRevenueByPaymentMethod(
                     g.Key,

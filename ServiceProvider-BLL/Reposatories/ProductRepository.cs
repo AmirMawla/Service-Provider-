@@ -418,18 +418,27 @@ namespace ServiceProvider_BLL.Reposatories
 
             await UpdateProductAverageRating(productId);
 
+            var savedReview = await _context.Reviews!
+                .Include(r => r.Product)
+                    .ThenInclude(p => p.Vendor)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == review.Id, cancellationToken);
+
+            if (savedReview == null)
+                return Result.Failure<ReviewResponse>(ReviewErrors.ReviewNotFound);
+
+            // 8. Create response
             var response = new ReviewResponse(
-                review.Id,
-                review.Product.NameEn,
-                review.Product.NameAr,
-                review.User.FullName,
-                review.User.Email,
-                review.Product.Vendor.FullName,
-                review.Rating,
-                review.Comment,
-                review.CreatedAt
+                savedReview.Id,
+                savedReview.Product.NameEn,
+                savedReview.Product.NameAr,
+                savedReview.User?.FullName ?? "Unknown",
+                savedReview.User?.Email ?? "Unknown",
+                savedReview.Product.Vendor?.FullName ?? "Unknown",
+                savedReview.Rating,
+                savedReview.Comment,
+                savedReview.CreatedAt
             );
-            
 
             return Result.Success(response);
         }

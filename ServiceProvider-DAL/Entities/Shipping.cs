@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 namespace ServiceProvider_DAL.Entities
 {
     public enum ShippingStatus{
-      Preparing ,
+       Preparing ,
        OutForDelivery,
-       Delivered
+       Delivered,
+       Pending
     }
     public class Shipping
     {

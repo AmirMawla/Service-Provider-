@@ -144,16 +144,14 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpPut("{id}/status")]
-        [Authorize(Policy = "AdminOrApprovedVendor")]
+        [Authorize(Policy = "ApprovedVendor")]
         [ProducesResponseType(typeof(OrderResponseV2), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] int id, [FromBody] UpdateOrderStatusRequest request , CancellationToken cancellationToken)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isAdmin = User.IsInRole("Admin");
-
-            var result = await _orderRepositry.Orders.UpdateOrderStatusAsync(id,currentUserId!,isAdmin, request , cancellationToken);
+            var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _orderRepositry.Orders.UpdateShipmentStatusAsync(id,vendorId!, request , cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 

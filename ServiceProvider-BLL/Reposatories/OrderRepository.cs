@@ -35,7 +35,7 @@ namespace ServiceProvider_BLL.Reposatories
             _context = context;
         }
 
-        public async Task<Result<OrderResponseV2>> GetOrderAsync(int orderId,string currentUserId,bool isAdmin, CancellationToken cancellationToken = default)
+        public async Task<Result<OrderResponseV2>> GetOrderAsync(int orderId, CancellationToken cancellationToken = default)
         {
             var order = await _context.Orders!
                      .Include(o => o.OrderProducts)
@@ -47,10 +47,6 @@ namespace ServiceProvider_BLL.Reposatories
             if (order == null)
                 return Result.Failure<OrderResponseV2>(OrderErrors.OrderNotFound);
 
-            if (!isAdmin && order.ApplicationUserId != currentUserId)
-            {
-                return Result.Failure<OrderResponseV2>(new Error("Order.AccessDenied", "You don't have permission to access this order",StatusCodes.Status403Forbidden));
-            }
 
             var response = new OrderResponseV2(
                  order.Id,
@@ -390,7 +386,7 @@ namespace ServiceProvider_BLL.Reposatories
 
                 await transaction.CommitAsync(cancellationToken);
 
-                return await GetOrderDetailsAsync(order.Id);
+                return await GetOrderAsync(order.Id);
             }
             catch
             {
@@ -429,7 +425,7 @@ namespace ServiceProvider_BLL.Reposatories
             UpdateOrderStatus(shipping.Order);
 
             await _context.SaveChangesAsync(cancellationToken);
-            return await GetOrderDetailsAsync(orderId);
+            return await GetOrderAsync(orderId);
         }
 
         public async Task<Result<PaginatedList<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId,RequestFilter request,CancellationToken cancellationToken = default)
@@ -526,51 +522,53 @@ namespace ServiceProvider_BLL.Reposatories
             }
         }
 
-        private async Task<Result<OrderResponseV2>> GetOrderDetailsAsync(int orderId,CancellationToken cancellationToken = default)
+        public async Task<Result<OrderResponseVersion3>> GetOrderDetailsAsync(int orderId , string currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
         {
             var order = await _context.Orders!
-                     .Include(o => o.OrderProducts)
-                     .ThenInclude(op => op.Product)
+                     .Include(o => o.OrderProducts)!
+                         .ThenInclude(op => op.Product)!
+                             .ThenInclude(p => p.Vendor)
                      .Include(o => o.Payment)
                      .Include(o => o.Shippings)
                      .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken: cancellationToken);
 
             if (order == null)
-                return Result.Failure<OrderResponseV2>(OrderErrors.OrderNotFound);
+                return Result.Failure<OrderResponseVersion3>(OrderErrors.OrderNotFound);
 
+            if (!isAdmin && order.ApplicationUserId != currentUserId)
+            {
+                return Result.Failure<OrderResponseVersion3>(new Error("Order.AccessDenied", "You don't have permission to access this order", StatusCodes.Status403Forbidden));
+            }
 
-            var response = new OrderResponseV2(
-                 order.Id,
-                 order.TotalAmount,
-                 order.OrderDate,
-                 order.Status.ToString(),
-                 order.OrderProducts.Select(op => new OrderProductResponse(
-                     op.ProductId,
-                     op.Product.NameEn,
-                     op.Product.NameAr,
-                     op.Product.Price,
-                     op.Quantity
-                 )).ToList(),
-                 order.OrderProducts
-                  .GroupBy(op => op.Product.Vendor.BusinessName)
-                  .Select(g => new VendorSummaryResponse(
-                       g.Key ?? "Unknown Vendor",
-                       g.Sum(op => op.Product.Price * op.Quantity),
-                       g.Sum(op => op.Quantity),
-                       g.Select(op =>new VendorOrderItemResponse(
-                           op.ProductId,
-                           op.Product.MainImageUrl!,
-                           op.Product.NameEn,
-                           op.Product.NameAr,
-                           op.Product.Price,
-                           op.Quantity
-                       )).ToList()
-                  )).ToList(),
-                 new PaymentResponse(
-                     order.Payment.TotalAmount,
-                     order.Payment.Status.ToString(),
-                     order.Payment.TransactionDate
-                 )
+            var vendorGroups = order.OrderProducts
+                .GroupBy(op => op.Product!.Vendor!)
+                .Select(group =>
+                {
+                    var vendor = group.Key;
+                    var shipping = order.Shippings!
+                        .FirstOrDefault(s => s.VendorId == vendor.Id);
+
+                    return new VendorSummaryResponse2(
+                        vendor.BusinessName ?? "Unknown Vendor",
+                        group.Sum(op => op.Product!.Price * op.Quantity),
+                        group.Sum(op => op.Quantity),
+                        group.Select(op => new VendorOrderItemResponse(
+                            op.ProductId,
+                            op.Product!.MainImageUrl!,
+                            op.Product.NameEn,
+                            op.Product.NameAr,
+                            op.Product.Price,
+                            op.Quantity
+                        )).ToList(),
+                        shipping?.EstimatedDeliveryDate,
+                        shipping?.Status.ToString(),
+                        vendor.PhoneNumber ?? "Not Available"
+                    );
+                }).ToList();
+
+            var response = new OrderResponseVersion3(
+                order.Id,
+                vendorGroups
             );
 
             return Result.Success(response);

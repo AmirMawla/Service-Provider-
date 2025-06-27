@@ -13,10 +13,13 @@ namespace ServiceProvider_DAL.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Banners> builder)
         {
-            builder.HasKey(u => u.Id);
+            builder.HasKey(b => new {b.ProductId,b.VendorId,b.DiscountCode});
 
-            builder.Property(p => p.Description)
+            builder.Property(b => b.Description)
                .HasMaxLength(500);
+
+            builder.Property(b => b.DiscountCode)
+              .HasMaxLength(50);
 
             builder.HasOne(b => b.Product)
                    .WithMany(p => p.Banners)

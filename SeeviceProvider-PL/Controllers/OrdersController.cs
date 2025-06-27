@@ -23,12 +23,27 @@ namespace SeeviceProvider_PL.Controllers
         [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetOrder([FromRoute] int id , CancellationToken cancellationToken)
         {
+
+            var result = await _orderRepositry.Orders.GetOrderAsync(id, cancellationToken);
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
+
+
+        [HttpGet("Details/{id}")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        [ProducesResponseType(typeof(OrderResponseVersion3), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetOrderDetailsDividedForVendors([FromRoute] int id, CancellationToken cancellationToken)
+        {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var isAdmin = User.IsInRole("Admin");
 
-            var result = await _orderRepositry.Orders.GetOrderAsync(id,currentUserId!,isAdmin, cancellationToken);
+            var result = await _orderRepositry.Orders.GetOrderDetailsAsync(id , currentUserId!, isAdmin, cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
+
 
 
 
@@ -45,6 +60,8 @@ namespace SeeviceProvider_PL.Controllers
             var result = await _orderRepositry.Orders.GetOrderForSpecificVendorAsync(OrderId, VendorId , currentUserId!, isAdmin, cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
+
+
 
 
 
@@ -115,6 +132,10 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
+
+
+
+
         [HttpGet("vendors/top-five-recent-orders")]
         [Authorize(Policy = "ApprovedVendor")]
         [ProducesResponseType(typeof(IEnumerable<RecentOrderResponse>), StatusCodes.Status200OK)]
@@ -127,6 +148,8 @@ namespace SeeviceProvider_PL.Controllers
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
+
+
 
         [HttpPost("")]
         [Authorize(Roles = "MobileUser")]
@@ -143,6 +166,9 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+
+
+
         [HttpPut("{id}/status")]
         [Authorize(Policy = "ApprovedVendor")]
         [ProducesResponseType(typeof(OrderResponseV2), StatusCodes.Status201Created)]
@@ -156,6 +182,8 @@ namespace SeeviceProvider_PL.Controllers
         }
 
      
+
+
 
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout([FromBody] CheckoutRequest request , CancellationToken cancellationToken)

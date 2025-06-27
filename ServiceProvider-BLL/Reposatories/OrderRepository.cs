@@ -565,12 +565,10 @@ namespace ServiceProvider_BLL.Reposatories
             if (order == null)
                 return Result.Failure<VendorOrderDetailDto>(OrderErrors.OrderNotFound);
 
-
             if (!isAdmin && order.ApplicationUserId != currentUserId)
             {
                 return Result.Failure<VendorOrderDetailDto>(new Error("Order.AccessDenied", "You don't have permission to access this order", StatusCodes.Status403Forbidden));
             }
-
 
             var vendorProducts = order.OrderProducts
                 .Where(op => op.Product!.VendorId == VendorId)
@@ -578,7 +576,6 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (!vendorProducts.Any())
                 return Result.Failure<VendorOrderDetailDto>(OrderErrors.OrderNotFound);
-
 
             var vendor = vendorProducts.First().Product!.Vendor!;
             var shipping = await _context.Shippings!
@@ -593,23 +590,34 @@ namespace ServiceProvider_BLL.Reposatories
                     vendor.ProfilePictureUrl!,
                     order.Status.ToString(),
                     order.OrderDate,
-                    vendorProducts.Sum(p => p.Quantity),
-                    vendorProducts.Sum(p => p.Product!.Price * p.Quantity)),
+                    vendorProducts.Sum(op => op.Quantity),
+                    vendorProducts.Sum(op => op.Product!.Price * op.Quantity)
+                ),
 
-                vendorProducts.Select(p => new VendorOrderItemResponse
-               (
-                   p.Product!.Id,
-                   p.Product!.MainImageUrl!,
-                   p.Product!.NameEn,
-                   p.Product!.NameAr,
-                   p.Product!.Price,
-                   p.Quantity
-               )).ToList(),
-               order.User?.Address ?? "Not available",
-               vendor.PhoneNumber!,
-               shipping?.EstimatedDeliveryDate,
-               shipping?.Status.ToString()
-               );
+               
+                vendorProducts.Select(op =>
+                {
+                    var userReview = op.Product!.Reviews!
+                        .FirstOrDefault(r => r.ApplicationUserId == order.ApplicationUserId && r.ProductId == op.Product.Id);
+
+                    return new VendorProductsInOrderDto
+                    (
+                        op.Product.Id,
+                        op.Product.MainImageUrl!,
+                        op.Product.NameEn,
+                        op.Product.NameAr,
+                        op.Product.Price,
+                        op.Quantity,
+                        userReview != null,
+                        userReview?.Rating?? 0
+                    );
+                }).ToList(),
+
+                order.User?.Address ?? "Not available",
+                vendor.PhoneNumber!,
+                shipping?.EstimatedDeliveryDate,
+                shipping?.Status.ToString()
+            );
 
             return Result.Success(dto);
         }

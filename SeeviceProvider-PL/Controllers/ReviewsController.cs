@@ -27,11 +27,11 @@ namespace SeeviceProvider_PL.Controllers
         //}
 
         
-        [HttpGet("{vendorId}/vendor-reviews")]
+        [HttpGet("vendor-reviews")]
         [Authorize(Policy = "AdminOrApprovedVendor")]
         [ProducesResponseType(typeof(PaginatedList<VendorReviewsResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetVendorRatings([FromRoute] string? vendorId , [FromQuery] RequestFilter request , CancellationToken cancellationToken = default)  
+        public async Task<IActionResult> GetVendorRatings( string? vendorId , [FromQuery] RequestFilter request , CancellationToken cancellationToken = default)  
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);

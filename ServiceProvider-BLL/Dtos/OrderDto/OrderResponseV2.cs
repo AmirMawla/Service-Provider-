@@ -25,6 +25,7 @@ namespace ServiceProvider_BLL.Dtos.OrderDto
         decimal TotalPrice,
         int ItemCount,
         List<VendorOrderItemResponse> Items
+
     );
 
     public record VendorOrderItemResponse(

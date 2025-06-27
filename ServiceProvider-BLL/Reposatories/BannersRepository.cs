@@ -23,6 +23,33 @@ namespace ServiceProvider_BLL.Reposatories
         {
             _appDbContext = _context;
         }
+
+        public async Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode,string UserId,CancellationToken cancellationToken = default)
+        {
+            var totalDiscount = await _appDbContext.CartProducts!
+                .Include(cp => cp.Product)!
+                .ThenInclude(p => p.Banners)
+        .Where(cp => cp.Cart.ApplicationUserId == UserId)
+        .Select(cp => new
+        {
+            Price = cp.Product!.Price,
+            Quantity = cp.Quantity,
+            VendorId = cp.Product.VendorId,
+            Banner = cp.Product.Banners!
+                .FirstOrDefault(b =>
+                    b.DiscountCode != null &&
+                    b.DiscountCode.ToLower() == discountCode.ToLower() &&
+                    b.VendorId == cp.Product.VendorId 
+                )
+        })
+        .Where(x => x.Banner != null && x.Banner.DiscountPercentage.HasValue)
+        .SumAsync(x => (x.Price * x.Quantity) * (x.Banner!.DiscountPercentage!.Value / 100), cancellationToken);
+
+
+
+            return Result.Success(totalDiscount);
+        }
+
         public async Task<Result<IEnumerable<BannersResponse>>> GetTopBannersAsync(CancellationToken cancellationToken = default)
         {
 
@@ -33,7 +60,7 @@ namespace ServiceProvider_BLL.Reposatories
                .Take(5)
                .Select(b => new BannersResponse
                (
-                   b.Id,
+                   b.DiscountCode,
                    b.Description,
                    b.ImageUrl,
                    b.DiscountPercentage,

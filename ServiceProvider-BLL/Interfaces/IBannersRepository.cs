@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServiceProvider_BLL.Interfaces
@@ -13,5 +14,6 @@ namespace ServiceProvider_BLL.Interfaces
     public interface IBannersRepository : IBaseRepository<Banners>
     {
         Task<Result<IEnumerable<BannersResponse>>> GetTopBannersAsync(CancellationToken cancellationToken = default);
+        Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode,string UserId,CancellationToken cancellationToken = default);
     }
 }

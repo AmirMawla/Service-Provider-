@@ -22,6 +22,7 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Shipping = ServiceProvider_DAL.Entities.Shipping;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -323,7 +324,7 @@ namespace ServiceProvider_BLL.Reposatories
 
                 // Format payment method description
                 var paymentMethodDescription = paymentMethod?.Card != null
-                    ? $"{paymentMethod.Card.Brand} ending in {paymentMethod.Card.Last4}"
+                    ? $"{paymentMethod.Card.Brand}"
                     : "Card payment";
 
                 if (paymentIntent.Status != "succeeded")
@@ -342,6 +343,25 @@ namespace ServiceProvider_BLL.Reposatories
 
                 _context.Orders!.Add(order);
                 await _context.SaveChangesAsync(cancellationToken);
+
+                // Create shipping records per vendor
+                var vendorGroups = cart.CartProducts
+                    .GroupBy(cp => cp.Product.VendorId)
+                    .ToList();
+
+                foreach (var vendorGroup in vendorGroups)
+                {
+                    _context.Shippings!.Add(new Shipping
+                    {
+                        OrderId = order.Id,
+                        VendorId = vendorGroup.Key,
+                        Status = ShippingStatus.Pending,
+                        EstimatedDeliveryDate = DateTime.UtcNow.AddDays(3)
+                    });
+                }
+
+                // Update order status based on initial shipping statuses
+                UpdateOrderStatus(order);
 
                 var payment = new Payment
                 {
@@ -379,33 +399,36 @@ namespace ServiceProvider_BLL.Reposatories
             }
         }
 
-        public async Task<Result<OrderResponseV2>> UpdateOrderStatusAsync(int orderId, string currentUserId, bool isAdmin, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<OrderResponseV2>> UpdateShipmentStatusAsync(int orderId, string vendorId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default)
         {
-            var order = await _context.Orders!
-                .Include(o => o.OrderProducts)
-                .ThenInclude(op => op.Product)
-                .ThenInclude(p => p.Vendor)
-                .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+            var shipping = await _context.Shippings!
+               .Include(s => s.Order)
+                   .ThenInclude(o => o.Shippings)
+               .Include(s => s.Vendor)
+               .FirstOrDefaultAsync(s =>
+               s.OrderId == orderId &&
+               s.VendorId == vendorId,
+               cancellationToken);
 
-            if (order == null)
-                return Result.Failure<OrderResponseV2>(OrderErrors.OrderNotFound);
+            if (shipping == null)
+                return Result.Failure<OrderResponseV2>(OrderErrors.ShippingNotFound);
 
-            if (!isAdmin)
+            // Permission check
+            if (shipping.VendorId != vendorId)
             {
-                // Check if current user is a vendor associated with the order
-                var isOrderVendor = order.OrderProducts
-                    .Any(op => op.Product.VendorId == currentUserId);
-
-                if (!isOrderVendor)
-                {
-                    return Result.Failure<OrderResponseV2>(new Error("Order.AccessDenied", "You don't have permission to access this order", StatusCodes.Status403Forbidden));
-                }
+                return Result.Failure<OrderResponseV2>(
+                    new Error("Shipping.AccessDenied",
+                    "You don't have permission to update this shipping",
+                StatusCodes.Status403Forbidden));
             }
 
-            order.Status = (OrderStatus)Enum.Parse(typeof(OrderStatus), request.NewStatus, true); 
+            // Parse and update status
+            var newStatus = (ShippingStatus)Enum.Parse(typeof(ShippingStatus), request.NewStatus, true);
+            shipping.Status = newStatus;
+
+            UpdateOrderStatus(shipping.Order);
 
             await _context.SaveChangesAsync(cancellationToken);
-
             return await GetOrderDetailsAsync(orderId);
         }
 
@@ -553,6 +576,7 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(response);
         }
 
+
         public async Task<Result<VendorOrderDetailDto>> GetOrderForSpecificVendorAsync(int OrderId, string VendorId, string currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
         {
             var order = await _context.Orders!
@@ -622,6 +646,29 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(dto);
         }
 
+
+        private void UpdateOrderStatus(Order order)
+        {
+            // Get all shipping statuses for this order
+            var shippingStatuses = order.Shippings!.Select(s => s.Status).ToList();
+
+            if (shippingStatuses.All(s => s == ShippingStatus.Delivered))
+            {
+                order.Status = OrderStatus.Delivered;
+            }
+            else if (shippingStatuses.All(s => s == ShippingStatus.OutForDelivery))
+            {
+                order.Status = OrderStatus.Shipped;
+            }
+            else if (shippingStatuses.All(s => s == ShippingStatus.Preparing))
+            {
+                order.Status = OrderStatus.Processing;
+            }
+            else
+            {
+                order.Status = OrderStatus.Pending;
+            }
+        }
     }
     
 }

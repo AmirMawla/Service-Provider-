@@ -16,7 +16,7 @@ namespace ServiceProvider_BLL.Dtos.OrderDto
                 .Must(BeValidStatus).WithMessage("Invalid order status");
 
              bool BeValidStatus(string status) =>
-                new[] { "Pending", "Processing", "Shipped", "Delivered", "Cancelled" }.Contains(status);
+                new[] { "Preparing", "OutForDelivery", "Delivered"}.Contains(status);
         }
     }
    

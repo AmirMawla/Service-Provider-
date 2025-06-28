@@ -20,6 +20,8 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<PaginatedList<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId, RequestFilter request, CancellationToken cancellationToken = default);
         Task<Result<IEnumerable<RecentOrderResponse>>> GetTopFiveRecentOrdersAsync(string vendorId, int count = 5, CancellationToken cancellationToken = default);
         Task<Result<OrderResponseV2>> AddOrderAsync(string userId, OrderRequest request, CancellationToken cancellationToken = default);
+        Task<Result<OrderResponseV2>> AddOrderWithCashPaymentAsync(string userId, CancellationToken cancellationToken = default);
+        Task<Result> CancelOrderAsync(int orderId, string currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
          Task<Result<OrderResponseV2>> UpdateShipmentStatusAsync(int orderId, string vendorId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default);
         Task<Result<OrderResponse>> CheckoutAsync(CheckoutRequest request , CancellationToken cancellationToken);
         Task<Result<OrderResponseVersion3>> GetOrderDetailsAsync(int orderId, string currentUserId, bool isAdmin, CancellationToken cancellationToken = default);

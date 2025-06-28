@@ -49,11 +49,11 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
-        [HttpGet("{vendorId}/vendors-rating")]
+        [HttpGet("vendors-rating")]
         [Authorize(Policy ="AdminOrApprovedVendor")]
         [ProducesResponseType(typeof(PaginatedList<VendorRatingResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProvidersRatings([FromRoute]string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProvidersRatings(string? vendorId,[FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
@@ -121,6 +121,21 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+        [HttpGet("my-profile")]
+        [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(VendorResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProviderDetalis(CancellationToken cancellationToken)
+        {
+            var providerId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _vendorRepositry.Vendors.GetProviderProfile(providerId, cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
         [HttpGet("top-5-vendors")]
         [Authorize(Roles = "MobileUser")]
         [ProducesResponseType(typeof(IEnumerable<TopVendorResponse>), StatusCodes.Status200OK)]
@@ -182,11 +197,13 @@ namespace SeeviceProvider_PL.Controllers
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVendor(string id, [FromForm] UpdateVendorResponse vendorDto, CancellationToken cancellationToken)
+        [HttpPut("update-profile")]
+        [Authorize(Policy = "ApprovedVendor")]
+        public async Task<IActionResult> UpdateVendor( [FromForm] UpdateVendorResponse vendorDto, CancellationToken cancellationToken)
         {
+            string vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-            var result = await _vendorRepositry.Vendors.UpdateVendorAsync(id, vendorDto, cancellationToken);
+            var result = await _vendorRepositry.Vendors.UpdateVendorAsync(vendorId, vendorDto, cancellationToken);
             return result.IsSuccess ?
                 NoContent() :
                 result.ToProblem();

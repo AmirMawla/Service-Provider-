@@ -10,7 +10,8 @@ namespace ServiceProvider_DAL.Entities
        Preparing ,
        OutForDelivery,
        Delivered,
-       Pending
+       Pending,
+       Cancelled
     }
     public class Shipping
     {

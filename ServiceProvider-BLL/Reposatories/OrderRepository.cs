@@ -395,6 +395,150 @@ namespace ServiceProvider_BLL.Reposatories
             }
         }
 
+        public async Task<Result<OrderResponseV2>> AddOrderWithCashPaymentAsync(string userId,  CancellationToken cancellationToken = default)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var cart = await _context.Carts!
+                    .Include(c => c.CartProducts)
+                    .ThenInclude(cp => cp.Product)
+                    .FirstOrDefaultAsync(c => c.ApplicationUserId == userId, cancellationToken: cancellationToken);
+
+
+                if (cart == null || !cart.CartProducts.Any())
+                    return Result.Failure<OrderResponseV2>(CartErrors.CartNotFoundOrEmpty);
+
+
+                var totalAmount = cart.CartProducts.Sum(cp => cp.Quantity * cp.Product.Price);                
+
+                var order = new Order
+                {
+                    ApplicationUserId = userId,
+                    TotalAmount = totalAmount,
+                    OrderDate = DateTime.UtcNow,
+                    Status = OrderStatus.Pending
+                };
+
+                _context.Orders!.Add(order);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                // Create shipping records per vendor
+                var vendorGroups = cart.CartProducts
+                    .GroupBy(cp => cp.Product.VendorId)
+                    .ToList();
+
+                foreach (var vendorGroup in vendorGroups)
+                {
+                    _context.Shippings!.Add(new Shipping
+                    {
+                        OrderId = order.Id,
+                        VendorId = vendorGroup.Key,
+                        Status = ShippingStatus.Pending,
+                        EstimatedDeliveryDate = DateTime.UtcNow.AddDays(3)
+                    });
+                }
+
+                // Update order status based on initial shipping statuses
+                UpdateOrderStatus(order);
+
+                var payment = new Payment
+                {
+                    OrderId = order.Id,
+                    TotalAmount = order.TotalAmount,
+                    Status = PaymentStatus.Pending,
+                    PaymentMethod = "Cash on delivery",
+                    TransactionDate = DateTime.UtcNow
+                };
+
+                _context.Payments!.Add(payment);
+
+                var orderProducts = cart.CartProducts.Select(cp => new OrderProduct
+                {
+                    OrderId = order.Id,
+                    ProductId = cp.ProductId,
+                    Quantity = cp.Quantity
+                }).ToList();
+
+                _context.OrderProducts!.AddRange(orderProducts);
+                _context.CartProducts!.RemoveRange(cart.CartProducts);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                return await GetOrderAsync(order.Id);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return Result.Failure<OrderResponseV2>(OrderErrors.OrderCreationFaild);
+            }
+        }
+
+        public async Task<Result> CancelOrderAsync(int orderId, string currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
+        {
+            var order = await _context.Orders!
+                .Include(o => o.Shippings)
+                .Include(o => o.OrderProducts)
+                .Include(o => o.Payment)
+                .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+
+            if (order == null)
+                return Result.Failure(OrderErrors.OrderNotFound);
+
+            // Check permissions
+            if (!isAdmin && order.ApplicationUserId != currentUserId)
+            {
+                return Result.Failure(
+                    new Error("Order.AccessDenied",
+                    "You don't have permission to cancel this order",
+                    StatusCodes.Status403Forbidden));
+            }
+
+            // Check if order is cancellable
+            if (order.Status == OrderStatus.Delivered )
+            {
+                return Result.Failure(
+                    new Error("Order.Completed",
+                    $"Cannot cancel order in {order.Status} state",
+                    StatusCodes.Status400BadRequest));
+            }
+            else if (order.Status == OrderStatus.Cancelled)
+            {
+                return Result.Failure(
+                    new Error("Order.Cancelled",
+                    $"Order is already cancelled",
+                    StatusCodes.Status400BadRequest));
+            }
+
+            // Update order status
+            order.Status = OrderStatus.Cancelled;
+
+            // Cancel all shippings
+            foreach (var shipping in order.Shippings!)
+            {
+                shipping.Status = ShippingStatus.Cancelled;
+            }
+
+            // Handle payment reversal
+            if (order.Payment.Status == PaymentStatus.Completed)
+            {
+                // Initiate refund process
+                order.Payment.Status = PaymentStatus.Refunded;
+                // BackgroundService would handle actual refund
+            }
+            else
+            {
+                order.Payment.Status = PaymentStatus.Cancelled;
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
+        }
+
         public async Task<Result<OrderResponseV2>> UpdateShipmentStatusAsync(int orderId, string vendorId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default)
         {
             var shipping = await _context.Shippings!

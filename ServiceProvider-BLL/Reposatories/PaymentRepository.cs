@@ -161,28 +161,69 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetVendorRevenueByPaymentMethod(string vendorId,CancellationToken cancellationToken = default)
         {
-            var orderProducts = await _context.OrderProducts!
+            // Predefined list of payment methods
+            var allPaymentMethods = new List<string>
+            {
+                "visa",
+                "mastercard",
+                "amex",
+                "jcb",
+                "discover",
+                "union pay"
+            };
+
+            // Get existing revenue data
+            var revenueData = await _context.OrderProducts!
                 .Include(op => op.Product)
-                .Where(op => op.Product.VendorId == vendorId && op.Order.Payment.Status == PaymentStatus.Completed)
+                .Include(op => op.Order)
+                    .ThenInclude(o => o.Payment)
+                .Where(op =>
+                    op.Product.VendorId == vendorId &&
+                    op.Order.Payment.Status == PaymentStatus.Completed)
+                .GroupBy(op => op.Order.Payment.PaymentMethod)
+                .Select(g => new
+                {
+                    PaymentMethod = g.Key,
+                    Revenue = g.Sum(op => op.Quantity * op.Product.Price)
+                })
                 .ToListAsync(cancellationToken);
 
-            var revenueByPayment = orderProducts
-                .GroupBy(op => op.Order.Payment.PaymentMethod)
-                .Select(g => new VendorRevenueByPaymentMethod(
-                    g.Key,
-                    g.Sum(op => op.Quantity*op.Product.Price)
+            // Create dictionary for efficient lookup
+            var revenueDict = revenueData
+                .ToDictionary(
+                    x => x.PaymentMethod.ToLower(),
+                    x => x.Revenue
+                );
+
+            // Create result with all payment methods
+            var result = allPaymentMethods
+                .Select(method => new VendorRevenueByPaymentMethod(
+                    method,
+                    revenueDict.TryGetValue(method.ToLower(), out var revenue)
+                        ? revenue
+                        : 0
                 ))
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
 
-            return revenueByPayment.Any()
-                ? Result.Success(revenueByPayment.Adapt<IEnumerable<VendorRevenueByPaymentMethod>>())
+            return result.Any()
+                ? Result.Success(result.AsEnumerable())
                 : Result.Failure<IEnumerable<VendorRevenueByPaymentMethod>>(
                     new Error("Not Found", "No revenue data found", StatusCodes.Status404NotFound));
         }
 
         public async Task<Result<IEnumerable<VendorRevenueByPaymentMethod>>> GetAllRevenueByPaymentMethod(CancellationToken cancellationToken = default)
         {
+            var allPaymentMethods = new List<string>
+            {
+                "visa",
+                "mastercard",
+                "american express",
+                "jcb",
+                "discover",
+                "union pay"
+            };
+
             var payments = await _context.Payments
                 .Include(p => p.Order)
                     .ThenInclude(o => o.OrderProducts)
@@ -199,8 +240,24 @@ namespace ServiceProvider_BLL.Reposatories
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
 
-            return revenueByPayment.Any()
-                ? Result.Success(revenueByPayment.Adapt<IEnumerable<VendorRevenueByPaymentMethod>>())
+            var revenueDict = revenueByPayment
+                .ToDictionary(
+                    x => x.PaymentMethod.ToLower(),
+                    x => x.Revenue
+                );
+
+            var result = allPaymentMethods
+              .Select(method => new VendorRevenueByPaymentMethod(
+                  method,
+                  revenueDict.TryGetValue(method.ToLower(), out var revenue)
+                      ? revenue
+                      : 0
+              ))
+              .OrderByDescending(x => x.Revenue)
+              .ToList();
+
+            return result.Any()
+                ? Result.Success(result.Adapt<IEnumerable<VendorRevenueByPaymentMethod>>())
                 : Result.Failure<IEnumerable<VendorRevenueByPaymentMethod>>(
                     new Error("Not Found", "No revenue data found", StatusCodes.Status404NotFound));
         }

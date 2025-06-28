@@ -166,7 +166,34 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+        [HttpPost("Cash-payment")]
+        [Authorize(Roles = "MobileUser")]
+        [ProducesResponseType(typeof(OrderResponseV2), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddCashOrder( CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            var result = await _orderRepositry.Orders.AddOrderWithCashPaymentAsync(userId!, cancellationToken);
+
+            return result.IsSuccess
+                ? CreatedAtAction(nameof(GetOrder), new { id = result.Value.Id }, result.Value)
+                : result.ToProblem();
+        }
+
+        [HttpPost("{orderId}")]
+        [Authorize(Roles = "Admin,MobileUser")]
+        public async Task<IActionResult> CancelOrder([FromRoute]int orderId,CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
+            var result = await _orderRepositry.Orders.CancelOrderAsync(orderId, userId!, isAdmin,cancellationToken);
+
+            return result.IsSuccess
+                ? NoContent()
+                : result.ToProblem();
+        }
 
 
         [HttpPut("{id}/status")]
@@ -185,15 +212,15 @@ namespace SeeviceProvider_PL.Controllers
 
 
 
-        [HttpPost("checkout")]
-        public async Task<IActionResult> Checkout([FromBody] CheckoutRequest request , CancellationToken cancellationToken)
-        {
-            var result = await _orderRepositry.Orders.CheckoutAsync(request , cancellationToken);
+        //[HttpPost("checkout")]
+        //public async Task<IActionResult> Checkout([FromBody] CheckoutRequest request , CancellationToken cancellationToken)
+        //{
+        //    var result = await _orderRepositry.Orders.CheckoutAsync(request , cancellationToken);
 
-            return result.IsSuccess
-                ? Ok(result.Value)
-                : result.ToProblem();
-        }
+        //    return result.IsSuccess
+        //        ? Ok(result.Value)
+        //        : result.ToProblem();
+        //}
 
     }
 }

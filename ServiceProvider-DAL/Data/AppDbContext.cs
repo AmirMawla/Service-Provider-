@@ -38,6 +38,7 @@ namespace ServiceProvider_DAL.Data
         public DbSet<VendorSubCategory>? VendorSubCategories { get; set; }
         public DbSet<Banners>? Banners { get; set; }
        
+        public DbSet<OtpEntry> OtpEntries { get; set; }
 
     }
 }

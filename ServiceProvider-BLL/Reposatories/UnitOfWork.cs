@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using MassTransit;
+using MassTransit.Transports;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,7 @@ namespace ServiceProvider_BLL.Reposatories
         private readonly UserManager<Vendor> _usermanager;
         private readonly IPasswordHasher<Vendor> _passwordHasher;
         private readonly IWebHostEnvironment _env;
+        private readonly IPublishEndpoint _publishEndpoint;
         public IApplicationUserRepository ApplicationUsers { get; private set; }
         public IVendorRepository Vendors { get; private set; }
         public IVendorSubCategoryRepository VendorSubCategories { get; private set; }
@@ -39,20 +42,21 @@ namespace ServiceProvider_BLL.Reposatories
         public ISearchRepository Search { get; private set; }
 
 
-        public UnitOfWork(AppDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IWebHostEnvironment env)
+        public UnitOfWork(AppDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IWebHostEnvironment env, IPublishEndpoint publishEndpoint)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _usermanager = userManager;
             _passwordHasher = passwordHasher;
             _env = env;
+            _publishEndpoint = publishEndpoint;
             ApplicationUsers = new ApplicationUserRepository(_context);
-            Vendors = new VendorRepository(_context, _usermanager, _passwordHasher, _httpContextAccessor, _env);
+            Vendors = new VendorRepository(_context, _usermanager, _passwordHasher, _httpContextAccessor, _env,_publishEndpoint);
             Products = new ProductRepository(_context, _env);
             VendorSubCategories = new VendorSubCategoryRepository(_context);
             SubCategories = new SubCategoryRepository(_context);
             Reviews = new ReviewRepository(_context);
-            Orders = new OrderRepository(_context);
+            Orders = new OrderRepository(_context,_publishEndpoint);
             OrderProducts = new OrderProductRepository(_context);
             Carts = new CartRepository(_context, _httpContextAccessor);
             CartProducts = new CartProductRepository(_context);

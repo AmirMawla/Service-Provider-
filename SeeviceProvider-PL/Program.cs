@@ -13,6 +13,10 @@ using System.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
 using SeeviceProvider_PL.Hubs;
 using Stripe;
+using MassTransit;
+using ServiceProvider_BLL.Abstractions;
+using System.Text.Json.Serialization;
+using NotificationService.Models;
 
 namespace SeeviceProvider_PL
 {
@@ -53,12 +57,72 @@ namespace SeeviceProvider_PL
                 }
             }
 
+            //builder.Services.AddMassTransit(x =>
+
+            //{
+
+            //    x.UsingRabbitMq((context, cfg) =>
+
+            //    {
+
+            //        cfg.Host(
+
+            //            builder.Configuration["RabbitMQ:Host"],
+
+            //            builder.Configuration["RabbitMQ:VirtualHost"],
+
+            //            h =>
+
+            //            {
+
+            //                h.Username(builder.Configuration["RabbitMQ:Username"]!);
+
+            //                h.Password(builder.Configuration["RabbitMQ:Password"]!);
+
+            //            });
+
+
+
+
+
+            //        cfg.Message<NotificationMessage>(c =>
+
+            //        {
+
+            //            c.SetEntityName("NotificationMessage");
+
+            //        });
+
+
+
+
+
+            //        cfg.ConfigureJsonSerializerOptions(options =>
+
+            //        {
+
+            //            options.Converters.Add(new JsonStringEnumConverter());
+
+            //            return options;
+
+            //        });
+
+
+
+
+
+            //        cfg.ConfigureEndpoints(context);
+
+            //    });
+
+            //});
+
 
 
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{
-                app.UseSwagger();
+            app.UseSwagger();
                 app.UseSwaggerUI();
             //}
             app.UseStaticFiles();

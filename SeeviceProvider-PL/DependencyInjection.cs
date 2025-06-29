@@ -2,11 +2,13 @@
 using FluentValidation.AspNetCore;
 using Mapster;
 using MapsterMapper;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NotificationService.Models;
 using SeeviceProvider_PL.Swagger;
 using ServiceProvider_BLL.Authentication;
 using ServiceProvider_BLL.Authentication.Filters;
@@ -65,6 +67,34 @@ namespace SeeviceProvider_PL
 
             services.AddExceptionHandler<GlobalExeptionHandler>();
             services.AddProblemDetails();
+
+            services.AddMassTransit(x =>
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(
+                        configuration["RabbitMQ:Host"],
+                        configuration["RabbitMQ:VirtualHost"],
+                        h =>
+                        {
+                            h.Username(configuration["RabbitMQ:Username"]!);
+                            h.Password(configuration["RabbitMQ:Password"]!);
+                        });
+
+                    cfg.Message<NotificationMessage>(c =>
+                    {
+                        c.SetEntityName("NotificationMessage");
+                    });
+
+                    cfg.ConfigureJsonSerializerOptions(options =>
+                    {
+                        options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                        return options;
+                    });
+
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
 
 
 

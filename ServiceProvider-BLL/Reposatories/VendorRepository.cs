@@ -23,6 +23,10 @@ using System.Security.Claims;
 using System.Globalization;
 using Microsoft.AspNetCore.Hosting;
 using ServiceProvider_BLL.Dtos.ReviewDto;
+using Government.Contracts.AccountProfile.cs;
+using NotificationService.Models;
+using System.Security.Cryptography;
+using MassTransit;
 
 
 namespace ServiceProvider_BLL.Reposatories
@@ -34,14 +38,18 @@ namespace ServiceProvider_BLL.Reposatories
         private readonly IPasswordHasher<Vendor> _passwordHasher;
         private readonly string _vendorId;
         private readonly IWebHostEnvironment _env;
+        private readonly IPublishEndpoint _publishEndpoint;
+        private const int OtpLength = 6;                     // طول الرمز
+        private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(10);
 
-        public VendorRepository(AppDbContext context, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment env) : base(context)
+        public VendorRepository(AppDbContext context, UserManager<Vendor> userManager, IPasswordHasher<Vendor> passwordHasher, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment env, IPublishEndpoint publishEndpoint) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _passwordHasher = passwordHasher;
             _vendorId = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             _env = env;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<PaginatedList<VendorResponse>>> GetAllProviders(RequestFilter request,CancellationToken cancellationToken = default)
@@ -384,7 +392,7 @@ namespace ServiceProvider_BLL.Reposatories
 
 
             var now = DateTime.UtcNow;
-            var startOfWeek = now.AddDays(-(int)now.DayOfWeek);
+            var startOfWeek = now.Date.AddDays(-(int)now.DayOfWeek);
             var startOfMonth = new DateTime(now.Year, now.Month, 1);
 
             var query = _context.Orders!
@@ -477,15 +485,19 @@ namespace ServiceProvider_BLL.Reposatories
                 vendor.CoverImageUrl = CoverimagePath;
             }
 
-
-
-            vendor.UserName = vendorDto.UserName;
-            if (vendor.FullName == null)
-                vendor.FullName = vendorDto.UserName;
+            
+           
+                vendor.UserName = vendorDto.UserName;
+                if (vendor.FullName == null)
+                    vendor.FullName = vendorDto.UserName;
+            
 
             vendor.BusinessName = vendorDto.BusinessName;
+
             var result = await _userManager.UpdateAsync(vendor);
+
             await _context.SaveChangesAsync();
+
             return Result.Success();
         }
 
@@ -584,6 +596,122 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 
         }
+
+        public async Task<Result> GenerateAndSendAsync(string email, CancellationToken ct = default)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+                return Result.Success();
+
+            // 1) إنشاء رمز عشوائي
+            var otp = RandomNumberGenerator
+                        .GetInt32((int)Math.Pow(10, OtpLength - 1),
+                                  (int)Math.Pow(10, OtpLength))
+                        .ToString();
+
+            // logger.LogInformation("OTP for {Email} is {Otp}", email, otp); // 🔐 لا تنس حذفه لاحقًا!
+            Console.WriteLine($"[DEBUG] OTP for {email} is: {otp}");
+
+            // 2) تشفيره
+            var hash = BCrypt.Net.BCrypt.HashPassword(otp);
+
+
+            // 3) احذف أية رموز قديمة لهذا الإيميل
+            await _context.OtpEntries
+                     .Where(e => e.Email == email)
+                     .ExecuteDeleteAsync(ct);
+
+            // 4) خزّن السطر الجديد
+            await _context.OtpEntries.AddAsync(new OtpEntry
+            {
+                Email = email,
+                HashedOtp = hash,
+                Expiry = DateTime.UtcNow.Add(OtpTtl)
+            }, ct);
+            await _context.SaveChangesAsync(ct);
+
+
+
+            // 5) ✉ نشر إشعار «إيميل» عبر MassTransit → RabbitMQ
+            //var notification = new NotificationMessage
+            //{
+            //    Title = "رمز التحقق لاستعادة كلمة المرور",
+            //    Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
+            //    Type = NotificationType.UserSpecific,
+            //    Channels = new() { ChannelType.Email },
+            //    TargetUsers = new() { user.Id! },             
+            //    Category = NotificationCategory.Alert
+            //};
+
+            //var evt = new NotificationMessage
+            //{
+            //    Title = "رمز التحقق لاستعادة كلمة المرور",
+            //    Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
+            //    Type = NotificationType.Group,
+            //    Channels = new List<ChannelType> { ChannelType.Email },
+            //    TargetUsers = new List<string> { "g1623g6-12g31g-123g-123g-123g123g", "g1623g6-12g31g-123g-123g-123g123g" },
+            //    Category = NotificationCategory.Update
+            //};
+
+            //await _publishEndpoint.Publish(evt, ctx =>
+            //{
+            //    ctx.SetRoutingKey("user.notification.created");
+            //});
+
+
+            return Result.Success();
+        }
+
+
+        public async Task<Result<VerifyResponse>> VerifyAsync(string email, string otp, CancellationToken ct = default)
+        {
+            // 1) جلب آخر رمز لم ينتهِ بعد
+            var entry = await _context.OtpEntries
+                .Where(e => e.Email == email && e.Expiry > DateTime.UtcNow)
+                .OrderByDescending(e => e.Expiry)
+                .FirstOrDefaultAsync(ct);
+
+            // 2) تحقق من التوافق
+            if (entry is null || !(BCrypt.Net.BCrypt.Verify(otp, entry.HashedOtp)))
+                return Result.Failure<VerifyResponse>(new Error("Invalid Otp","this otp is invalid",StatusCodes.Status400BadRequest));
+
+            // 3) حذف السطر (One-time use)
+            _context.OtpEntries.Remove(entry);
+            await _context.SaveChangesAsync(ct);
+
+            // 4) توليد ResetPasswordToken رسمي من Identity
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+                return Result.Failure<VerifyResponse>(VendorErrors.NotFound);
+
+            var PasswordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return Result.Success(new VerifyResponse(PasswordResetToken));
+        }
+
+
+        public async Task<Result> ResetUserPassword(string Email, string ResetToken, string NewPassword, CancellationToken ct = default)
+        {
+
+            var user = await _userManager.FindByEmailAsync(Email);
+
+            if (user is null)
+                return Result.Failure(VendorErrors.NotFound);
+
+            var result = await _userManager.ResetPasswordAsync(user, ResetToken, NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var error = result.Errors.First();
+                return Result.Failure(new Error(error.Code, error.Description,StatusCodes.Status400BadRequest));
+
+            }
+
+            return Result.Success();
+
+
+        }
+
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Government.Contracts.AccountProfile.cs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.PaymentDto;
 using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.VendorDto;
+using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_BLL.Reposatories;
 using ServiceProvider_DAL.Data;
@@ -296,6 +298,44 @@ namespace SeeviceProvider_PL.Controllers
             var result = await _vendorRepositry.Vendors.DeactivateVendorAsync(vendorId);
 
             return result.IsSuccess ? Ok() : result.ToProblem();
+        }
+
+        
+        [HttpPost("forgot-password")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto, CancellationToken ct)
+        {
+            await _vendorRepositry.Vendors.GenerateAndSendAsync(dto.Email, ct);
+            return NoContent();
+        }
+
+
+        // 2) يتحقق من OTP
+        [HttpPost("verify-otp")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpDto dto, CancellationToken ct)
+        {
+
+            var result = await _vendorRepositry.Vendors.VerifyAsync(dto.Email, dto.Otp, ct);
+
+            if (result.IsSuccess)
+                return Ok(result.Value);
+
+
+            return result.ToProblem();// for user not found
+
+        }
+
+        // 3) يغيّر كلمة المرور
+        [HttpPost("reset-password")]
+        [Authorize(Policy = "AdminOrApprovedVendor")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto, CancellationToken ct)
+        {
+            var result = await _vendorRepositry.Vendors.ResetUserPassword(dto.Email, dto.ResetToken, dto.NewPassword, ct);
+
+            return (result.IsSuccess)
+                   ? NoContent()
+                   : result.ToProblem();
         }
 
 

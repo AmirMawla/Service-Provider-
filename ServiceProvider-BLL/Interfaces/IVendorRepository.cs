@@ -1,4 +1,5 @@
-﻿using SeeviceProvider_BLL.Abstractions;
+﻿using Government.Contracts.AccountProfile.cs;
+using SeeviceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.PaymentDto;
@@ -31,5 +32,9 @@ namespace ServiceProvider_BLL.Interfaces
         Task<Result<IEnumerable<VendorResponse>>> GetPendingVendorsAsync(CancellationToken cancellationToken = default);
         Task<Result> ApproveVendorAsync(string vendorId, CancellationToken cancellationToken = default);
         Task<Result> DeactivateVendorAsync(string vendorId, CancellationToken cancellationToken = default);
+
+        Task<Result> GenerateAndSendAsync(string email, CancellationToken ct = default); // Forget Password
+        Task<Result<VerifyResponse>> VerifyAsync(string email, string otp, CancellationToken ct = default);
+        Task<Result> ResetUserPassword(string Email, string ResetToken, string NewPassword, CancellationToken ct = default);
     }
 }

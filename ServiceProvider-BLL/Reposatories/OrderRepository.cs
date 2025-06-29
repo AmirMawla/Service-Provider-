@@ -1,7 +1,9 @@
 ﻿using Azure.Core;
 using Mapster;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using NotificationService.Models;
 using SeeviceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
@@ -22,6 +24,7 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Net.WebRequestMethods;
 using Shipping = ServiceProvider_DAL.Entities.Shipping;
 
 namespace ServiceProvider_BLL.Reposatories
@@ -29,10 +32,14 @@ namespace ServiceProvider_BLL.Reposatories
     public class OrderRepository : BaseRepository<Order> , IOrderRepository
     {
         private readonly AppDbContext _context;
+        private readonly IPublishEndpoint _publishEndpoint;
+        private const int OtpLength = 6;                     // طول الرمز
+        private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(10); // مدة 
 
-        public OrderRepository(AppDbContext context) : base(context)
+        public OrderRepository(AppDbContext context , IPublishEndpoint publishEndpoint) : base(context)
         {
             _context = context;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<OrderResponseV2>> GetOrderAsync(int orderId, CancellationToken cancellationToken = default)
@@ -569,6 +576,22 @@ namespace ServiceProvider_BLL.Reposatories
             UpdateOrderStatus(shipping.Order);
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            var evt = new NotificationMessage
+            {
+                Title = $"order status updated to {newStatus}",
+                Body = $"your order updatd",
+                Type = NotificationType.Group,
+                Channels = new List<ChannelType> { ChannelType.Email },
+                TargetUsers = new List<string> { "g1623g6-12g31g-123g-123g-123g123g", "g1623g6-12g31g-123g-123g-123g123g" },
+                Category = NotificationCategory.Update
+            };
+
+            await _publishEndpoint.Publish(evt, ctx =>
+            {
+                ctx.SetRoutingKey("user.notification.created");
+            });
+
             return await GetOrderAsync(orderId);
         }
 

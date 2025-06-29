@@ -184,12 +184,29 @@ namespace SeeviceProvider_PL.Controllers
             return Ok(result.Value);
         }
 
+        [HttpGet("menu")]
         [HttpGet("{providerId}/menu")]
         [Authorize]
         [ProducesResponseType(typeof(IEnumerable<ProductsOfVendorDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProviderMenu([FromRoute] string providerId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProviderMenu(string? providerId, CancellationToken cancellationToken)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (currentUserRole == "Vendor")
+            {
+                // Vendors can only access their own reviews
+                if (!string.IsNullOrEmpty(providerId) && providerId != currentUserId)
+                    return Forbid();
+
+                providerId = currentUserId;
+            }
+            else if (string.IsNullOrEmpty(providerId))
+            {
+                return BadRequest("Vendor ID is required for admin and mobile users");
+            }
+
             var result = await _vendorRepositry.Vendors.GetProviderMenuAsync(providerId, cancellationToken);
             return result.IsSuccess
                 ? Ok(result.Value)

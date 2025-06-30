@@ -618,7 +618,7 @@ namespace ServiceProvider_BLL.Reposatories
                 return Result.Failure<PaginatedList<OrdersOfVendorResponse>>(VendorErrors.NotFound);
             }
 
-            var baseQuery = _context.OrderProducts!
+            var baseQuery = (IQueryable<OrderProduct>)_context.OrderProducts!
                 .Include(op => op.Order)
                 .Include(op => op.Product)
                 .Where(op => op.Product.VendorId == vendorId)
@@ -628,6 +628,21 @@ namespace ServiceProvider_BLL.Reposatories
             if (!string.IsNullOrEmpty(request.SortColumn))
             {
                 baseQuery = baseQuery.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+
+            if (request.Statuses != null && request.Statuses.Any())
+            {
+                var statusEnums = request.Statuses
+                 .Select(s => Enum.Parse<OrderStatus>(s, ignoreCase: true))
+                 .ToList();
+
+                baseQuery = baseQuery.Where(x => statusEnums.Contains(x.Order.Status));
+            }
+
+            if (request.DateFilter != null && request.DateFilter.HasValue)
+            {
+                baseQuery = baseQuery.Where(x => DateOnly.FromDateTime(x.Order.OrderDate) == request.DateFilter.Value);
             }
 
             var query = baseQuery.Select(op => new OrdersOfVendorResponse(
@@ -655,7 +670,46 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(orders);
         }
 
+        public async Task<Result<OrdersOfVendorResponse>> GetVendorOrderAsync(int orderId,string vendorId,CancellationToken cancellationToken = default)
+        {
+            // Fetch order with related data
+            var order = await _context.Orders
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
+                .Where(o => o.Id == orderId)
+                .FirstOrDefaultAsync(cancellationToken);
 
+            if (order == null)
+                return Result.Failure<OrdersOfVendorResponse>(OrderErrors.OrderNotFound);
+
+            // Filter products belonging to this vendor
+            var vendorProducts = order.OrderProducts
+                .Where(op => op.Product.VendorId == vendorId)
+                .ToList();
+
+            if (!vendorProducts.Any())
+                return Result.Failure<OrdersOfVendorResponse>(OrderErrors.NoProductsForVendor);
+
+            // Map to response DTO
+            var productsResponse = vendorProducts.Select(op => new OrderProductResponse(
+                op.ProductId,
+                op.Product.NameEn,
+                op.Product.NameAr,
+                op.Product.Price,
+                op.Quantity
+                //op.Product.ImageUrl
+            )).ToList();
+
+            var respone =  new OrdersOfVendorResponse(
+                order.Id,
+                order.TotalAmount,
+                order.OrderDate,
+                order.Status.ToString(),
+                productsResponse
+            );
+
+            return Result.Success(respone);
+        }
         public async Task<Result<OrderResponse>> CheckoutAsync(CheckoutRequest request, CancellationToken cancellationToken)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();

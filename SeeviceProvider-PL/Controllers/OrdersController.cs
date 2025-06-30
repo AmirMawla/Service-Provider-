@@ -5,6 +5,7 @@ using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_BLL.Interfaces;
+using ServiceProvider_BLL.Reposatories;
 using ServiceProvider_DAL.Entities;
 using System.Security.Claims;
 
@@ -132,7 +133,21 @@ namespace SeeviceProvider_PL.Controllers
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
 
+        [HttpGet("vendor/{orderId}")]
+        [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(VendorOrderResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetVendorOrder([FromRoute] int orderId,CancellationToken cancellationToken)
+        {
+            // Get current vendor ID
+            var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            var result = await _orderRepositry.Orders.GetVendorOrderAsync(orderId, vendorId!, cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
 
 
 

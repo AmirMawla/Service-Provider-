@@ -6,7 +6,9 @@ using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
 using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.ReviewDto;
+using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
+using ServiceProvider_DAL.Data;
 using ServiceProvider_DAL.Entities;
 using System.Security.Claims;
 using System.Threading;
@@ -15,9 +17,10 @@ namespace SeeviceProvider_PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IUnitOfWork productRepositry) : ControllerBase
+    public class ProductsController(IUnitOfWork productRepositry,AppDbContext context) : ControllerBase
     {
         private readonly IUnitOfWork _productRepositry = productRepositry;
+        private readonly AppDbContext _context = context;
 
         [HttpGet("")]
         [Authorize(Roles = "Admin,MobileUser")]
@@ -100,11 +103,23 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{productId}/reviews")]
-        [Authorize(Roles ="Admin,MobileUser")]
+        [Authorize/*(Roles ="Admin,MobileUser")*/]
         [ProducesResponseType(typeof(PaginatedList<ReviewResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetServiceReviews([FromRoute] int productId, [FromQuery] RequestFilter request, CancellationToken cancellationToken)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (User.IsInRole("Vendor"))
+            {
+                var vendorOwnsProduct = await _context.Products!
+                    .AnyAsync(p => p.Id == productId && p.VendorId == currentUserId, cancellationToken);
+
+                if (!vendorOwnsProduct)
+                    return NotFound(ProductErrors.ProductNotFound);
+            }
+
             var result = await productRepositry.Products.GetReviewsForSpecificServiceAsync(productId, request,cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();

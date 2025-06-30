@@ -18,5 +18,8 @@ namespace ServiceProvider_BLL.Errors
         public static readonly Error VendorNotAssociatedWithThisOrder = new("NotAuthorized", "Vendor is not associated with this order.", StatusCodes.Status403Forbidden);
         public static readonly Error PaymentProcessingFailed = new("Failure", "This payment hasn't been successeded.", StatusCodes.Status400BadRequest);
         public static readonly Error ShippingNotFound = new("Shipping Not Found", "No shippings were found for this order .", StatusCodes.Status404NotFound);
+       // public static readonly Error OrderNotFound = new( "Order.NotFound","Order not found with specified ID",StatusCodes.Status404NotFound);
+
+        public static readonly Error NoProductsForVendor = new( "Order.NoVendorProducts", "No products in this order belong to your vendor account", StatusCodes.Status404NotFound);
     }
 }

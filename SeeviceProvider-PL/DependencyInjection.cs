@@ -189,6 +189,14 @@ namespace SeeviceProvider_PL
                         context.User.HasClaim(c => c.Type == "IsApproved" && c.Value.Equals("true", StringComparison.OrdinalIgnoreCase))));
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOrMobileUserOrApprovedVendor", policy =>
+                    policy.RequireRole("Admin", "MobileUser", "ApprovedVendor").RequireAssertion(context =>
+                        context.User.Identity!.IsAuthenticated &&
+                        context.User.HasClaim(c => c.Type == "IsApproved" && c.Value.Equals("true", StringComparison.OrdinalIgnoreCase))));
+
+            });
 
             services.AddScoped<IUserClaimsPrincipalFactory<Vendor>, CustomUserClaimsPrincipalFactory>();
 

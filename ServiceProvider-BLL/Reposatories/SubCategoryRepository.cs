@@ -1,7 +1,9 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using SeeviceProvider_BLL.Abstractions;
+using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.CategoryDto;
+using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_BLL.Dtos.VendorDto;
 using ServiceProvider_BLL.Errors;
 using ServiceProvider_BLL.Interfaces;
@@ -39,17 +41,25 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<IEnumerable<SubCategoryResponse>>> GetSubCategoriesUnderVendorAsync(string ProviderId, CancellationToken cancellationToken = default)
         {
+
+
+            var vendorExists = await _context.Users.AnyAsync(u => u.Id == ProviderId && u.IsApproved, cancellationToken: cancellationToken);
+            if (!vendorExists)
+            {
+                return Result.Failure<IEnumerable<SubCategoryResponse>>(VendorErrors.NotFound);
+            }
+
             var subCategories = await _context.VendorSubCategories!
-    .Where(vc => vc.VendorId == ProviderId)
-    .Include(vc => vc.SubCategory)
-    .Select(vc => new {
-        vc.SubCategory.Id,
-        vc.SubCategory.NameEn,
-        vc.SubCategory.NameAr,
-        vc.SubCategory.ImageUrl
-    })
-    .AsNoTracking()
-    .ToListAsync(cancellationToken);
+                            .Where(vc => vc.VendorId == ProviderId)
+                            .Include(vc => vc.SubCategory)
+                            .Select(vc => new {
+                               vc.SubCategory.Id,
+                               vc.SubCategory.NameEn,
+                               vc.SubCategory.NameAr,
+                               vc.SubCategory.ImageUrl
+                              })
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
 
             if (!subCategories.Any())
                 return Result.Failure<IEnumerable<SubCategoryResponse>>(SubCategoryErrors.SubCategoryNotFound);

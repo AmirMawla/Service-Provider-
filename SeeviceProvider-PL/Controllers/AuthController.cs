@@ -16,6 +16,7 @@ namespace SeeviceProvider_PL.Controllers
     {
         private readonly IAuthRepositry _authRepositry = authRepositry;
         
+
         [HttpPost("")]
         [ProducesResponseType(typeof(AuthResponse),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status400BadRequest)]
@@ -26,6 +27,8 @@ namespace SeeviceProvider_PL.Controllers
 
             return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
+
+
 
         [HttpPost("refresh")]
         [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]

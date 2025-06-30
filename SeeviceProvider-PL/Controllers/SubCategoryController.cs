@@ -8,9 +8,10 @@ using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.ReviewDto;
 using ServiceProvider_BLL.Interfaces;
 using ServiceProvider_BLL.Reposatories;
-using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Errors;
 using Azure.Core;
+using System.Security.Claims;
+using ServiceProvider_DAL.Entities;
 namespace SeeviceProvider_PL.Controllers
 {
     [Route("api/[controller]")]
@@ -33,19 +34,39 @@ namespace SeeviceProvider_PL.Controllers
 
         }
 
+
+
         [HttpGet("{providerId}/SubCategories")]
         [Authorize(Roles = "Admin,MobileUser")]
         [ProducesResponseType(typeof(IEnumerable<SubCategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetSubCategoriesByVendor([FromRoute] string providerId, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetSubCategoriesUnderVendor([FromRoute] string providerId , CancellationToken cancellationToken )
         {
+
             var result = await _subcategoryRepositry.SubCategories.GetSubCategoriesUnderVendorAsync(providerId, cancellationToken);
 
-            return result.IsSuccess ?
-             Ok(result.Value)
-             : result.ToProblem();
-
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
         }
+
+
+        [HttpGet("MySubCategories")]
+        [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(IEnumerable<SubCategoryResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetMySubcategories(CancellationToken cancellationToken)
+        {
+            var providerId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _subcategoryRepositry.SubCategories.GetSubCategoriesUnderVendorAsync(providerId, cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        }
+
+
 
         [HttpGet("{subCategoryId}/products")]
         [Authorize(Roles = "Admin,MobileUser")]

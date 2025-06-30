@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace ServiceProvider_BLL.Dtos.VendorDto
 {
-    public record UpdateVendorResponse
+    public record UpdateVendorRequest
     (
-         string UserName ,
-         string BusinessName ,
+         string? FullName ,
+         string? BusinessName ,
          IFormFile? ProfilePictureUrl,
          IFormFile? CoverImageUrl
     );

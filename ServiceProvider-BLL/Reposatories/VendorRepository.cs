@@ -443,14 +443,19 @@ namespace ServiceProvider_BLL.Reposatories
         }
 
 
-        public async Task<Result> UpdateVendorAsync(string id,UpdateVendorResponse vendorDto, CancellationToken cancellationToken = default)
+
+        public async Task<Result> UpdateVendorAsync(string id,UpdateVendorRequest vendorDto, CancellationToken cancellationToken = default)
         {
 
             var vendor = await _userManager.FindByIdAsync(id);
             if (vendor == null )
-                return Result.Failure<UpdateVendorResponse>(VendorErrors.NotFound);
+                return Result.Failure<UpdateVendorRequest>(VendorErrors.NotFound);
 
+            if (!string.IsNullOrWhiteSpace(vendorDto.FullName))
+                vendor.FullName = vendorDto.FullName;
 
+            if (!string.IsNullOrWhiteSpace(vendorDto.BusinessName))
+                vendor.BusinessName = vendorDto.BusinessName;
 
             string? ProfileimagePath = null;
             string? CoverimagePath = null;
@@ -484,15 +489,7 @@ namespace ServiceProvider_BLL.Reposatories
                 CoverimagePath = $"/images/vendors/{uniqueFileName}";
                 vendor.CoverImageUrl = CoverimagePath;
             }
-
-            
            
-                vendor.UserName = vendorDto.UserName;
-                if (vendor.FullName == null)
-                    vendor.FullName = vendorDto.UserName;
-            
-
-            vendor.BusinessName = vendorDto.BusinessName;
 
             var result = await _userManager.UpdateAsync(vendor);
 
@@ -500,6 +497,8 @@ namespace ServiceProvider_BLL.Reposatories
 
             return Result.Success();
         }
+
+
 
         public async Task<Result> ChangeVendorPasswordAsync(string vendorId, ChangeVendorPasswordRequest request)
         {

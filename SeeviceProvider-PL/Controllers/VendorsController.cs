@@ -218,7 +218,7 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpPut("update-profile")]
         [Authorize(Policy = "ApprovedVendor")]
-        public async Task<IActionResult> UpdateVendor( [FromForm] UpdateVendorResponse vendorDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateVendor( [FromForm] UpdateVendorRequest vendorDto, CancellationToken cancellationToken)
         {
             string vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 

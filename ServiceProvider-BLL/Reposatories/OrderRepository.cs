@@ -577,13 +577,27 @@ namespace ServiceProvider_BLL.Reposatories
 
             await _context.SaveChangesAsync(cancellationToken);
 
+            var bodyMessage = newStatus switch
+            {
+                ShippingStatus.Preparing =>
+                    "طلبك قيد التحضير حاليًا. سنقوم بإبلاغك فور خروجه للتوصيل.",
+
+                ShippingStatus.OutForDelivery =>
+                    "طلبك في طريقه إليك الآن. يُرجى التأكد من توفرك للاستلام.",
+
+                ShippingStatus.Delivered =>
+                    "تم تسليم طلبك بنجاح. نأمل أن تكون تجربتك مرضية.",
+
+                _ => $"تم تحديث حالة طلبك إلى: {newStatus}"
+            };
+
             var evt = new NotificationMessage
             {
-                Title = $"order status updated to {newStatus}",
-                Body = $"your order updatd",
-                Type = NotificationType.Group,
+                Title = "تحديث حالة الطلب",
+                Body = bodyMessage,
+                Type = NotificationType.UserSpecific,
                 Channels = new List<ChannelType> { ChannelType.Email },
-                TargetUsers = new List<string> { "g1623g6-12g31g-123g-123g-123g123g", "g1623g6-12g31g-123g-123g-123g123g" },
+                TargetUsers = new List<string> { shipping.Order.ApplicationUserId },
                 Category = NotificationCategory.Update
             };
 

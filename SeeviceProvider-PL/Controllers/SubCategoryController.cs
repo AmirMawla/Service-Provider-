@@ -11,6 +11,7 @@ using ServiceProvider_BLL.Reposatories;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Errors;
 using Azure.Core;
+using System.Security.Claims;
 namespace SeeviceProvider_PL.Controllers
 {
     [Route("api/[controller]")]
@@ -34,11 +35,29 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{providerId}/SubCategories")]
-        [Authorize(Roles = "Admin,MobileUser")]
+        [HttpGet("SubCategories")]
+        [Authorize]
         [ProducesResponseType(typeof(IEnumerable<SubCategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetSubCategoriesByVendor([FromRoute] string providerId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetSubCategoriesByVendor( string? providerId, CancellationToken cancellationToken)
         {
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+
+            if (currentUserRole == "Vendor")
+            {
+                // Vendors can only access their own reviews
+                if (!string.IsNullOrEmpty(providerId) && providerId != currentUserId)
+                    return Forbid();
+
+                providerId = currentUserId!;
+            }
+            else if (string.IsNullOrEmpty(providerId))
+            {
+                return BadRequest("Vendor ID is required for admin and mobile users");
+            }
+
             var result = await _subcategoryRepositry.SubCategories.GetSubCategoriesUnderVendorAsync(providerId, cancellationToken);
 
             return result.IsSuccess ?

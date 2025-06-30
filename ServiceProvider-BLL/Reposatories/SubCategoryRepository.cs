@@ -40,16 +40,16 @@ namespace ServiceProvider_BLL.Reposatories
         public async Task<Result<IEnumerable<SubCategoryResponse>>> GetSubCategoriesUnderVendorAsync(string ProviderId, CancellationToken cancellationToken = default)
         {
             var subCategories = await _context.VendorSubCategories!
-    .Where(vc => vc.VendorId == ProviderId)
-    .Include(vc => vc.SubCategory)
-    .Select(vc => new {
-        vc.SubCategory.Id,
-        vc.SubCategory.NameEn,
-        vc.SubCategory.NameAr,
-        vc.SubCategory.ImageUrl
-    })
-    .AsNoTracking()
-    .ToListAsync(cancellationToken);
+                 .Where(vc => vc.VendorId == ProviderId)
+                 .Include(vc => vc.SubCategory)
+                 .Select(vc => new {
+                     vc.SubCategory.Id,
+                     vc.SubCategory.NameEn,
+                     vc.SubCategory.NameAr,
+                     vc.SubCategory.ImageUrl
+                 })
+                 .AsNoTracking()
+                 .ToListAsync(cancellationToken);
 
             if (!subCategories.Any())
                 return Result.Failure<IEnumerable<SubCategoryResponse>>(SubCategoryErrors.SubCategoryNotFound);

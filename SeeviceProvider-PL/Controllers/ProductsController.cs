@@ -33,7 +33,7 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,MobileUser")]
+        [Authorize]
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get([FromRoute] int id,CancellationToken cancellationToken)

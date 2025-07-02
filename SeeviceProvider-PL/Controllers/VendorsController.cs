@@ -138,6 +138,21 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+        [HttpGet("vendor-transactions")]
+        [Authorize(Policy = "ApprovedVendor")]
+        [ProducesResponseType(typeof(PaginatedList<VendorTransactionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProviderTransactions([FromQuery]RequestFilter request,CancellationToken cancellationToken)
+        {
+            var providerId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var result = await _vendorRepositry.Payments.GetVendorTransactionsAsync(request,providerId, cancellationToken);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : result.ToProblem();
+        }
+
         [HttpGet("top-5-vendors")]
         [Authorize(Roles = "MobileUser")]
         [ProducesResponseType(typeof(IEnumerable<TopVendorResponse>), StatusCodes.Status200OK)]

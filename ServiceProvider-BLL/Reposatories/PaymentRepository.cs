@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -66,13 +67,9 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (request.PaymentMethods != null && request.PaymentMethods.Any()) 
             {
-                var paymentMethods = request.PaymentMethods;
+                var paymentMethods = request.PaymentMethods.ToList();
 
-                foreach (var paymentMethod in paymentMethods) 
-                {
-                    var pattern = $"%{paymentMethod.ToLower()}%";
-                    query = query.Where(x => EF.Functions.Like(x.PaymentMethod.ToLower(), pattern));
-                }
+                query = query.Where(x => paymentMethods.Contains(x.PaymentMethod));
             }
 
                 var source = query.Select(x => new TransactionResponse(
@@ -85,6 +82,76 @@ namespace ServiceProvider_BLL.Reposatories
                     x.Order.User.FullName
                 ));
             var transactions = await PaginatedList<TransactionResponse>.CreateAsync(source, request.PageNumer, request.PageSize, cancellationToken);
+
+            return Result.Success(transactions);
+        }
+
+        public async Task<Result<PaginatedList<VendorTransactionResponse>>> GetVendorTransactionsAsync(RequestFilter request,string vendorId, CancellationToken cancellationToken = default)
+        {
+            var query = (IQueryable<Payment>)_context.Payments!
+                .Where(p => p.Order.OrderProducts.Any(op => op.Product.VendorId == vendorId))
+                .OrderByDescending(p => p.TransactionDate);
+
+            if (!query.Any())
+                return Result.Failure<PaginatedList<VendorTransactionResponse>>(new Error("Not Found", "No transactions found", StatusCodes.Status404NotFound));
+
+            if (request.Statuses != null && request.Statuses.Any())
+            {
+                // Convert string statuses to the enum type (e.g., "Completed" → PaymentStatus.Completed)
+                var statusEnums = request.Statuses
+                    .Select(s => Enum.Parse<PaymentStatus>(s, ignoreCase: true))
+                    .ToList();
+
+                query = query.Where(x => statusEnums.Contains(x.Status));
+            }
+
+
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Order.User.FullName.ToLower(), searchTerm) ||
+                    EF.Functions.Like(x.OrderId.ToString(), searchTerm)
+                );
+            }
+
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            if (request.DateFilter.HasValue && request.DateFilter != null)
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.TransactionDate) == request.DateFilter.Value);
+            }
+
+            if (request.PaymentMethods != null && request.PaymentMethods.Any())
+            {
+                var paymentMethods = request.PaymentMethods.ToList();
+
+                query = query.Where(x => paymentMethods.Contains(x.PaymentMethod));
+                
+            }
+
+            var source = query.Select(x => new VendorTransactionResponse(
+              x.OrderId,
+              x.Order.User.FullName,
+              x.Order.User.Email,
+              x.Order.OrderProducts.Where(op => op.Product.VendorId == vendorId)
+              .Sum(op => op.Quantity*op.Product.Price),
+              x.PaymentMethod,
+              x.Status.ToString(),
+              x.TransactionDate,
+              x.Order.OrderProducts.Select(op => new VendorProductTransactionResponse(
+                op.ProductId,
+                op.Product.NameEn,
+                op.Product.NameAr,
+                op.Product.Price,
+                op.Quantity
+              )).ToList()
+            ));
+
+            var transactions = await PaginatedList<VendorTransactionResponse>.CreateAsync(source, request.PageNumer, request.PageSize, cancellationToken);
 
             return Result.Success(transactions);
         }

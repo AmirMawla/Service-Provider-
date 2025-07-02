@@ -35,6 +35,10 @@ namespace SeeviceProvider_PL.Controllers
                 : result.ToProblem();
         }
 
+
+
+
+
         [HttpGet("{id}")]
         [Authorize]
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
@@ -47,6 +51,9 @@ namespace SeeviceProvider_PL.Controllers
                 ? Ok(result.Value)
                 : result.ToProblem();
         }
+
+
+
 
         [HttpGet("most-requested")]
         [Authorize(Roles = "Admin,MobileUser")]
@@ -62,6 +69,9 @@ namespace SeeviceProvider_PL.Controllers
         }
 
 
+
+
+
         [HttpGet("top5-most-requested")]
         [Authorize(Roles = "Admin,MobileUser")]
         [ProducesResponseType(typeof(List<ProductRequestCount>), StatusCodes.Status200OK)]
@@ -74,6 +84,8 @@ namespace SeeviceProvider_PL.Controllers
                 ? Ok(result.Value)
                 : result.ToProblem();
         }
+
+
 
         [HttpGet("most-vendor-requested-product")]
         [Authorize(Policy ="ApprovedVendor")]

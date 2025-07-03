@@ -54,7 +54,7 @@ namespace ServiceProvider_BLL.Reposatories
                     EF.Functions.Like(x.OrderId.ToString(), searchTerm)
                 );
             }
-
+             
             if (!string.IsNullOrEmpty(request.SortColumn))
             {
                 query = query.OrderBy($"{request.SortColumn} {request.SortDirection}");
@@ -88,9 +88,10 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<PaginatedList<VendorTransactionResponse>>> GetVendorTransactionsAsync(RequestFilter request,string vendorId, CancellationToken cancellationToken = default)
         {
-            var query = (IQueryable<Payment>)_context.Payments!
+            var query = _context.Payments!
                 .Where(p => p.Order.OrderProducts.Any(op => op.Product.VendorId == vendorId))
-                .OrderByDescending(p => p.TransactionDate);
+                .OrderByDescending(p => p.TransactionDate)
+                .AsNoTracking();
 
             if (!query.Any())
                 return Result.Failure<PaginatedList<VendorTransactionResponse>>(new Error("Not Found", "No transactions found", StatusCodes.Status404NotFound));

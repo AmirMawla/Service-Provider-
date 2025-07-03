@@ -167,7 +167,7 @@ namespace SeeviceProvider_PL.Controllers
         }
 
         [HttpGet("BusinessTypes")]
-        [Authorize(Policy = "AdminOrApprovedVendor")]
+        //[Authorize(Policy = "AdminOrApprovedVendor")]
         [ProducesResponseType(typeof(VendorBusinessTypeRespons), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProvidersBusinessTypes(CancellationToken cancellationToken)

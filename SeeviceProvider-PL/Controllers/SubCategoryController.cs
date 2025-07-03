@@ -24,7 +24,7 @@ namespace SeeviceProvider_PL.Controllers
         private readonly IUnitOfWork _subcategoryRepositry = SubCategoryRepositry;
 
         [HttpGet("")]
-        [Authorize(Roles = "Admin,MobileUser")]
+        //[Authorize(Roles = "Admin,MobileUser")]
         [ProducesResponseType(typeof(IEnumerable<SubCategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllSubCategories(CancellationToken cancellationToken)

@@ -68,7 +68,7 @@ namespace ServiceProvider_BLL.Reposatories
                 p.Vendor.FullName,
                 p.Vendor.BusinessName!,
                 p.Price,
-                p.Reviews!.Any() ?p.Reviews!.Average(r => r.Rating) : 0
+                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
             ));
 
             var products = await PaginatedList<ProductResponse>.CreateAsync(
@@ -95,7 +95,7 @@ namespace ServiceProvider_BLL.Reposatories
                      p.Vendor.FullName,
                      p.Vendor.BusinessName!,
                      p.Price,
-                     p.Reviews!.Any() ? (double) p.Reviews!.Average(r => r.Rating) : 0.0
+                     p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
                 ))
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -195,7 +195,7 @@ namespace ServiceProvider_BLL.Reposatories
                 p.Vendor.FullName,
                 p.Vendor.BusinessName!,
                 p.Price,
-                p.Reviews!.Any() ? (double)p.Reviews!.Average(r => r.Rating) : 0.0
+                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
             ));
 
             var products = await PaginatedList<ProductResponse>.CreateAsync(

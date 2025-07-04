@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SeeviceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Dtos.Common;
@@ -68,7 +69,12 @@ namespace ServiceProvider_BLL.Reposatories
                 p.Vendor.FullName,
                 p.Vendor.BusinessName!,
                 p.Price,
-                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
+
+                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0,
+                p.Banners!
+                           .Where(b => b.DiscountCode == null || b.DiscountCode == "")
+                           .Select(b => b.DiscountPercentage)
+                           .FirstOrDefault()
             ));
 
             var products = await PaginatedList<ProductResponse>.CreateAsync(
@@ -95,11 +101,17 @@ namespace ServiceProvider_BLL.Reposatories
                      p.Vendor.FullName,
                      p.Vendor.BusinessName!,
                      p.Price,
-                     p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
+                     p.Reviews!.Any() ? (double) Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0,
+                     p.Banners!
+                           .Where(b => b.DiscountCode == null || b.DiscountCode == "")
+                           .Select(b => b.DiscountPercentage)
+                           .FirstOrDefault()
                 ))
                 .FirstOrDefaultAsync(cancellationToken);
 
-                    if (productResponse == null)
+
+
+            if (productResponse == null)
                     {
                         return Result.Failure<ProductResponse>(ProductErrors.ProductNotFound);
                     }
@@ -195,7 +207,11 @@ namespace ServiceProvider_BLL.Reposatories
                 p.Vendor.FullName,
                 p.Vendor.BusinessName!,
                 p.Price,
-                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
+                p.Reviews!.Any() ? (double)p.Reviews!.Average(r => r.Rating) : 0.0,
+                p.Banners!
+                           .Where(b => b.DiscountCode == null || b.DiscountCode == "")
+                           .Select(b => b.DiscountPercentage)
+                           .FirstOrDefault()
             ));
 
             var products = await PaginatedList<ProductResponse>.CreateAsync(
@@ -591,7 +607,7 @@ namespace ServiceProvider_BLL.Reposatories
 
         public async Task<Result<IEnumerable<ProductDto>>> GetAllProductsUnderSubcategoryandVendorAsync(string providerId, int subCategoryId, CancellationToken cancellationToken = default)
         {
-            var products = await _context.Products
+            var products = await _context.Products!
        .Where(p => p.VendorId == providerId && p.SubCategoryId == subCategoryId)
        .Select(p => new ProductDto(
            p.Id,
@@ -608,6 +624,7 @@ namespace ServiceProvider_BLL.Reposatories
 
             if (!products.Any())
                 return Result.Failure<IEnumerable<ProductDto>>(ProductErrors.ProductsNotFound);
+
 
             return Result.Success(products.AsEnumerable());
         }

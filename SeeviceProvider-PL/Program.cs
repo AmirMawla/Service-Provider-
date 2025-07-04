@@ -38,24 +38,24 @@ namespace SeeviceProvider_PL
             var app = builder.Build();
 
             // Seed the database with initial data
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<AppDbContext>();
-                    var userManager = services.GetRequiredService<UserManager<Vendor>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var services = scope.ServiceProvider;
+            //    try
+            //    {
+            //        var context = services.GetRequiredService<AppDbContext>();
+            //        var userManager = services.GetRequiredService<UserManager<Vendor>>();
+            //        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-                    // Await the Initialize method to ensure it completes before moving on
-                    await SeedData.Initialize(context, userManager, roleManager);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while seeding the database.");
-                }
-            }
+            //        // Await the Initialize method to ensure it completes before moving on
+            //        await SeedData.Initialize(context, userManager, roleManager);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        var logger = services.GetRequiredService<ILogger<Program>>();
+            //        logger.LogError(ex, "An error occurred while seeding the database.");
+            //    }
+            //}
 
             //builder.Services.AddMassTransit(x =>
 

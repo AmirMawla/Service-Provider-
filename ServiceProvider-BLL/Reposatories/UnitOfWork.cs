@@ -64,7 +64,7 @@ namespace ServiceProvider_BLL.Reposatories
             Shippings = new ShippingRepository(_context);
             Payments = new PaymentRepository(_context);
             Messages = new MessageRepository(_context);
-            Banners = new BannersRepository(_context);
+            Banners = new BannersRepository(_context , _env);
             Search = new SearchRepository(_context);
             _env = env;
         }

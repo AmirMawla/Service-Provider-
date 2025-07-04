@@ -455,7 +455,7 @@ namespace ServiceProvider_BLL.Reposatories
                     OrderId = order.Id,
                     TotalAmount = order.TotalAmount,
                     Status = PaymentStatus.Pending,
-                    PaymentMethod = "Cash on delivery",
+                    PaymentMethod = "CashOnDelivery",
                     TransactionDate = DateTime.UtcNow
                 };
 

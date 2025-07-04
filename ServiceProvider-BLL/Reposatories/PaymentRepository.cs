@@ -309,10 +309,11 @@ namespace ServiceProvider_BLL.Reposatories
                 .ToList();
 
             var revenueDict = revenueByPayment
-                .ToDictionary(
-                    x => x.PaymentMethod.ToLower(),
-                    x => x.Revenue
-                );
+            .GroupBy(x => x.PaymentMethod.ToLower())
+            .ToDictionary(
+                g => g.Key,
+                g => g.Sum(x => x.Revenue)
+            );
 
             var result = allPaymentMethods
               .Select(method => new VendorRevenueByPaymentMethod(

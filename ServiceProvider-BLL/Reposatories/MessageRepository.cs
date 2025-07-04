@@ -158,31 +158,36 @@ namespace ServiceProvider_BLL.Reposatories
         public async Task<Result<IEnumerable<MessageResponse>>> GetUserConversationsAsync(string userId, string userRole, CancellationToken cancellationToken = default)
         {
             var isUser = userRole.ToLower() == "user";
-            var messages = await _context.Messages!
+
+            var groupedMessages = await _context.Messages!
                 .Where(m => (isUser && m.ApplicationUserId == userId) || (!isUser && m.VendorId == userId))
                 .AsNoTracking()
+                .ToListAsync(cancellationToken); // ⬅️ هنا نحمل البيانات في الذاكرة
+
+            var latestMessages = groupedMessages
                 .GroupBy(m => new { m.OrderId, m.VendorId, m.ApplicationUserId })
                 .Select(g => g.OrderByDescending(m => m.MessageDate).First())
-                .Select(m => new MessageResponse(
-                    m.Id,
-                    m.MessageText,
-                    m.MessageDate,
-                    m.IsRead ,
-                    m.SenderType == SenderType.User ? m.ApplicationUserId : m.VendorId,
-                    m.SenderType == SenderType.User ? m.User.FullName : m.Vendor.FullName,
-                    m.SenderType.ToString(),
-                    m.SenderType == SenderType.User ? m.VendorId : m.ApplicationUserId,
-                    m.SenderType == SenderType.User ? m.Vendor.FullName! : m.User.FullName,
-                    m.OrderId
-                ))
-                .ToListAsync(cancellationToken);
+                .ToList();
 
-            if (!messages.Any())
+            var response = latestMessages.Select(m => new MessageResponse(
+                m.Id,
+                m.MessageText,
+                m.MessageDate,
+                m.IsRead,
+                m.SenderType == SenderType.User ? m.ApplicationUserId : m.VendorId,
+                m.SenderType == SenderType.User ? m.User.FullName : m.Vendor.FullName!,
+                m.SenderType.ToString(),
+                m.SenderType == SenderType.User ? m.VendorId : m.ApplicationUserId,
+                m.SenderType == SenderType.User ? m.Vendor.FullName! : m.User.FullName,
+                m.OrderId
+            )).ToList();
+
+            if (!response.Any())
                 return Result.Failure<IEnumerable<MessageResponse>>(MessageErrors.NoMessagesFound);
 
-
-            return Result.Success<IEnumerable<MessageResponse>>(messages);
+            return Result.Success<IEnumerable<MessageResponse>>(response);
         }
+
 
         public async Task<Result> MarkMessageAsReadAsync(int messageId, string userId, CancellationToken cancellationToken = default)
         {

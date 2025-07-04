@@ -8,20 +8,48 @@ using System.Security.Claims;
 
 namespace SeeviceProvider_PL.Hubs
 {
-    [Authorize]
-    public class MessageHub(IMessageRepository messageRepository) : Hub
+    [Authorize(Roles = "Admin,Vendor,MobileUser")]
+    public class MessageHub(IMessageRepository messageRepository , ILogger<MessageHub> logger) : Hub
     {
         private static readonly ConcurrentDictionary<string, string> UserConnections = new();
         private readonly IMessageRepository _messageRepository = messageRepository;
+        private readonly ILogger<MessageHub> _logger = logger;
+
+        //public override async Task OnConnectedAsync()
+        //{
+        //    var userId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    if (!string.IsNullOrEmpty(userId))
+        //    {
+        //        UserConnections[userId] = Context.ConnectionId;
+        //        await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+        //    }
+        //    await base.OnConnectedAsync();
+        //}
 
         public override async Task OnConnectedAsync()
         {
-            var userId = Context.User!.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var role = Context.User?.FindFirstValue(ClaimTypes.Role);
+            var connectionId = Context.ConnectionId;
+
+            // Log to server console
+            _logger.LogInformation("✅ User connected. ID: {UserId}, Role: {Role}, ConnectionId: {ConnId}", userId, role, connectionId);
+
             if (!string.IsNullOrEmpty(userId))
             {
-                UserConnections[userId] = Context.ConnectionId;
-                await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+                UserConnections[userId] = connectionId;
+                await Groups.AddToGroupAsync(connectionId, userId);
             }
+
+            // Send confirmation back to the caller (frontend)
+            await Clients.Caller.SendAsync("ConnectionEstablished", new
+            {
+                Message = "✅ Connection established successfully",
+                UserId = userId,
+                Role = role,
+                ConnectionId = connectionId
+            });
+
             await base.OnConnectedAsync();
         }
 

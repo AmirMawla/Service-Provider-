@@ -143,7 +143,7 @@ namespace ServiceProvider_BLL.Reposatories
               x.PaymentMethod,
               x.Status.ToString(),
               x.TransactionDate,
-              x.Order.OrderProducts.Select(op => new VendorProductTransactionResponse(
+              x.Order.OrderProducts.Where(op => op.Product.VendorId == vendorId).Select(op => new VendorProductTransactionResponse(
                 op.ProductId,
                 op.Product.NameEn,
                 op.Product.NameAr,

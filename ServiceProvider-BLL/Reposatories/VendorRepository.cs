@@ -389,20 +389,31 @@ namespace ServiceProvider_BLL.Reposatories
 
         private async Task<(int weekly, int monthly)> GetOrderCounts(CancellationToken cancellationToken = default)
         {
-
-
             var now = DateTime.UtcNow;
-            var startOfWeek = now.Date.AddDays(-(int)now.DayOfWeek);
+
+            // حساب أول يوم في الأسبوع (الإثنين)
+            var startOfWeek = now.Date.AddDays(-(int)(now.DayOfWeek == DayOfWeek.Sunday ? 6 : now.DayOfWeek - DayOfWeek.Monday));
+
+            // حساب أول يوم في الشهر
             var startOfMonth = new DateTime(now.Year, now.Month, 1);
 
-            var query = _context.Orders!
-                .Where(o => o.OrderProducts.Any(op =>
-                    op.Product.VendorId == _vendorId));
+            // جيب الطلبات الخاصة بالبائع
+            var orderIdsOfVendor = await _context.OrderProducts
+                .Where(op => op.Product.VendorId == _vendorId)
+                .Select(op => op.OrderId)
+                .Distinct()
+                .ToListAsync(cancellationToken);
 
-            return (
-                weekly: await query.CountAsync(o => o.OrderDate >= startOfWeek,cancellationToken),
-                monthly: await query.CountAsync(o => o.OrderDate >= startOfMonth,cancellationToken)
-            );
+            // جيب تفاصيل الطلبات دفعة واحدة
+            var vendorOrders = await _context.Orders!
+                .Where(o => orderIdsOfVendor.Contains(o.Id) && o.OrderDate >= startOfMonth)
+                .Select(o => new { o.Id, o.OrderDate })
+                .ToListAsync(cancellationToken);
+
+            var weekly = vendorOrders.Count(o => o.OrderDate >= startOfWeek);
+            var monthly = vendorOrders.Count; // لأننا مصفيينهم من البداية بـ startOfMonth
+
+            return (weekly, monthly);
         }
 
         private async Task<(List<MonthlyRevenue> trend, decimal current)> GetRevenueData(CancellationToken cancellationToken = default)

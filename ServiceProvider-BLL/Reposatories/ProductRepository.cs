@@ -69,15 +69,12 @@ namespace ServiceProvider_BLL.Reposatories
                 p.Vendor.FullName,
                 p.Vendor.BusinessName!,
                 p.Price,
-<<<<<<< HEAD
+
                 p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0,
                 p.Banners!
                            .Where(b => b.DiscountCode == null || b.DiscountCode == "")
                            .Select(b => b.DiscountPercentage)
                            .FirstOrDefault()
-=======
-                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
->>>>>>> f34308241a7319488a96a40a9d45b0c4944de624
             ));
 
             var products = await PaginatedList<ProductResponse>.CreateAsync(
@@ -104,16 +101,11 @@ namespace ServiceProvider_BLL.Reposatories
                      p.Vendor.FullName,
                      p.Vendor.BusinessName!,
                      p.Price,
-<<<<<<< HEAD
                      p.Reviews!.Any() ? (double) Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0,
                      p.Banners!
                            .Where(b => b.DiscountCode == null || b.DiscountCode == "")
                            .Select(b => b.DiscountPercentage)
                            .FirstOrDefault()
-
-=======
-                     p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
->>>>>>> f34308241a7319488a96a40a9d45b0c4944de624
                 ))
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -215,15 +207,11 @@ namespace ServiceProvider_BLL.Reposatories
                 p.Vendor.FullName,
                 p.Vendor.BusinessName!,
                 p.Price,
-<<<<<<< HEAD
                 p.Reviews!.Any() ? (double)p.Reviews!.Average(r => r.Rating) : 0.0,
                 p.Banners!
                            .Where(b => b.DiscountCode == null || b.DiscountCode == "")
                            .Select(b => b.DiscountPercentage)
                            .FirstOrDefault()
-=======
-                p.Reviews!.Any() ? Math.Round(p.Reviews!.Average(r => r.Rating), 1) : 0.0
->>>>>>> f34308241a7319488a96a40a9d45b0c4944de624
             ));
 
             var products = await PaginatedList<ProductResponse>.CreateAsync(

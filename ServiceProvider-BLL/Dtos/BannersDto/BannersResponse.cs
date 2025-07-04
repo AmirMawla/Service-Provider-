@@ -10,10 +10,10 @@ namespace ServiceProvider_BLL.Dtos.BannersDto
 {
     public record BannersResponse
     (
-     string DiscountCode,
+     string? DiscountCode,
      string? Description,
-     string ImageUrl,
-     decimal? DiscountPercentage,
+     string? ImageUrl,
+     decimal DiscountPercentage,
      VendorBannersResponse?  Vendor ,
      ProductBannersResponse? Product
 

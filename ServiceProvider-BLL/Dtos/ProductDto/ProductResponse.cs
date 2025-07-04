@@ -15,7 +15,9 @@ namespace ServiceProvider_BLL.Dtos.ProductDto
         string VendorFullName,
         string VendorBusinessName,
         decimal Price,
-        double Rating
+        double Rating,
+        decimal? DiscountPercentag
+
     );
     
 }

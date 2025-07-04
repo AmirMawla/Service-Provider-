@@ -14,6 +14,10 @@ namespace ServiceProvider_BLL.Interfaces
     public interface IBannersRepository : IBaseRepository<Banners>
     {
         Task<Result<IEnumerable<BannersResponse>>> GetTopBannersAsync(CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<BannerResponse2>>> GetVendorBannersAsync(string vendorId , CancellationToken cancellationToken = default);
+        Task<Result<BannerResponse2>> AddBannerAsync(string vendorId ,BannerRequest2 request, CancellationToken cancellationToken = default);
+        Task<Result> DeleteBannerAsync(string vendorId,int productid, decimal DiscountPercentege, CancellationToken cancellationToken = default);
+        Task<Result<BannerResponse2>> UpdateBannerAsync(string vendorId, BannerRequest2 request, CancellationToken cancellationToken = default);
         Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode,string UserId,CancellationToken cancellationToken = default);
     }
 }

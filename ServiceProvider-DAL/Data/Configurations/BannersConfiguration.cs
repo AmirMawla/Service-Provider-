@@ -13,7 +13,7 @@ namespace ServiceProvider_DAL.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Banners> builder)
         {
-            builder.HasKey(b => new {b.ProductId,b.VendorId,b.DiscountCode});
+            builder.HasKey(b => new {b.ProductId,b.VendorId,b.DiscountPercentage});
 
             builder.Property(b => b.Description)
                .HasMaxLength(500);

@@ -61,7 +61,7 @@ namespace ServiceProvider_BLL.Reposatories
                 .Select(v => new
                 {
                     Vendor = v,
-                    Revenue = _context.Products
+                    Revenue = _context.Products!
                         .Where(p => p.VendorId == v.Id)
                         .SelectMany(p => p.OrderProducts)
                         .Where(op => op.Order.Payment.Status == PaymentStatus.Completed)

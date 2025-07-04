@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NotificationService.Models;
 using SeeviceProvider_PL.Swagger;
+using ServiceProvider_BLL.Abstractions;
 using ServiceProvider_BLL.Authentication;
 using ServiceProvider_BLL.Authentication.Filters;
 using ServiceProvider_BLL.Errors;
@@ -54,7 +55,6 @@ namespace SeeviceProvider_PL
             services.AddDbContext<AppDbContext>(options =>
             options.UseLazyLoadingProxies().UseSqlServer(connectionString));
 
-            
 
 
             //services.AddIdentity<Vendor, IdentityRole>()

@@ -10,8 +10,8 @@ namespace ServiceProvider_BLL.Dtos.BannersDto
     (
     
      string? Description,
-     string ImageUrl,
-     decimal? DiscountPercentage,
+     string? ImageUrl,
+     decimal DiscountPercentage,
      int ProductId,
      string VendorId
 

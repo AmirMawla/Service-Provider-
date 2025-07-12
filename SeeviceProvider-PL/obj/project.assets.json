@@ -5775,19 +5775,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\amirm\\.nuget\\packages\\": {}
+    "C:\\Users\\Ahmed tahoon\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\amir\\data\\programing\\my projects\\ServiceProviderProj\\Service-Provider-\\SeeviceProvider-PL\\SeeviceProvider-PL.csproj",
+      "projectUniqueName": "D:\\GraduationProject\\SeeviceProvider-PL\\SeeviceProvider-PL.csproj",
       "projectName": "SeeviceProvider-PL",
-      "projectPath": "D:\\amir\\data\\programing\\my projects\\ServiceProviderProj\\Service-Provider-\\SeeviceProvider-PL\\SeeviceProvider-PL.csproj",
-      "packagesPath": "C:\\Users\\amirm\\.nuget\\packages\\",
-      "outputPath": "D:\\amir\\data\\programing\\my projects\\ServiceProviderProj\\Service-Provider-\\SeeviceProvider-PL\\obj\\",
+      "projectPath": "D:\\GraduationProject\\SeeviceProvider-PL\\SeeviceProvider-PL.csproj",
+      "packagesPath": "C:\\Users\\Ahmed tahoon\\.nuget\\packages\\",
+      "outputPath": "D:\\GraduationProject\\SeeviceProvider-PL\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\amirm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Ahmed tahoon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -5795,15 +5800,14 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\amir\\data\\programing\\my projects\\ServiceProviderProj\\Service-Provider-\\ServiceProvider-BLL\\ServiceProvider-BLL.csproj": {
-              "projectPath": "D:\\amir\\data\\programing\\my projects\\ServiceProviderProj\\Service-Provider-\\ServiceProvider-BLL\\ServiceProvider-BLL.csproj"
+            "D:\\GraduationProject\\ServiceProvider-BLL\\ServiceProvider-BLL.csproj": {
+              "projectPath": "D:\\GraduationProject\\ServiceProvider-BLL\\ServiceProvider-BLL.csproj"
             }
           }
         }
@@ -5816,8 +5820,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
-      }
+        "auditMode": "all"
+      },
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -5903,16 +5908,8 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
-    }
-  ]
+  }
 }

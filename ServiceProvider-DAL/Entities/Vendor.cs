@@ -16,6 +16,8 @@ namespace ServiceProvider_DAL.Entities
         public float? Rating { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public string? CoverImageUrl { get; set; }
+
+        public DateTime? RegisterationDate { get; set; }
         public bool IsApproved { get; set; }
 
         public virtual ICollection<RefreshToken> RefreshTokens {  get; set; } = new List<RefreshToken>();

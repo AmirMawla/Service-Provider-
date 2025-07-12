@@ -168,7 +168,9 @@ namespace ServiceProvider_BLL.Reposatories
                     // Static image paths
                     ProfilePictureUrl = "/images/vendors/OIP.jpg",
                     CoverImageUrl = "/images/vendors/StartCover.jpg",
-                    IsApproved = false // Vendor starts as not approved
+                    RegisterationDate = DateTime.UtcNow,
+                    IsApproved = false // Vendor starts as not approved,
+
                 };
 
                 var result = await _userManager.CreateAsync(vendor, request.Password);

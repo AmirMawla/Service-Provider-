@@ -40,7 +40,7 @@ namespace ServiceProvider_BLL.Reposatories
             var vendors = await _userManager.GetUsersInRoleAsync("Vendor");
 
             var vendorsCount = vendors
-                .Where(x => x.IsApproved)
+                .Where(x => x.RegisterationDate == today)
                 .Count();
 
             var stats = new TodaysStatsResponse(

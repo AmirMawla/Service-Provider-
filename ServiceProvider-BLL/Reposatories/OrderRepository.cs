@@ -596,7 +596,7 @@ namespace ServiceProvider_BLL.Reposatories
                 Title = "تحديث حالة الطلب",
                 Body = bodyMessage,
                 Type = NotificationType.UserSpecific,
-                Channels = new List<ChannelType> { ChannelType.Email },
+                Channels = new List<ChannelType> { ChannelType.Email , ChannelType.Push},
                 TargetUsers = new List<string> { shipping.Order.ApplicationUserId },
                 Category = NotificationCategory.Update
             };

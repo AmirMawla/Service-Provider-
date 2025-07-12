@@ -317,7 +317,7 @@ namespace SeeviceProvider_PL.Controllers
 
         
         [HttpPost("forgot-password")]
-        [Authorize(Policy = "AdminOrApprovedVendor")]
+        //[Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto, CancellationToken ct)
         {
             await _vendorRepositry.Vendors.GenerateAndSendAsync(dto.Email, ct);
@@ -327,7 +327,7 @@ namespace SeeviceProvider_PL.Controllers
 
         // 2) يتحقق من OTP
         [HttpPost("verify-otp")]
-        [Authorize(Policy = "AdminOrApprovedVendor")]
+        //[Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> VerifyOtp(VerifyOtpDto dto, CancellationToken ct)
         {
 
@@ -343,7 +343,7 @@ namespace SeeviceProvider_PL.Controllers
 
         // 3) يغيّر كلمة المرور
         [HttpPost("reset-password")]
-        [Authorize(Policy = "AdminOrApprovedVendor")]
+        //[Authorize(Policy = "AdminOrApprovedVendor")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDto dto, CancellationToken ct)
         {
             var result = await _vendorRepositry.Vendors.ResetUserPassword(dto.Email, dto.ResetToken, dto.NewPassword, ct);

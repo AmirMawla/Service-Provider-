@@ -130,7 +130,7 @@ namespace SeeviceProvider_PL
 
             app.UseCors();
 
-           // app.UseAuthentication();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

@@ -612,52 +612,58 @@ namespace ServiceProvider_BLL.Reposatories
         public async Task<Result<PaginatedList<OrdersOfVendorResponse>>> GetVendorsOrders(string vendorId,RequestFilter request,CancellationToken cancellationToken = default)
         {
 
-            var vendorExists = await _context.Users.AnyAsync(u => u.Id == vendorId && u.IsApproved, cancellationToken: cancellationToken);
+            var vendorExists = await _context.Users
+                .AnyAsync(u => u.Id == vendorId && u.IsApproved, cancellationToken);
+
             if (!vendorExists)
-            {
                 return Result.Failure<PaginatedList<OrdersOfVendorResponse>>(VendorErrors.NotFound);
-            }
 
-            var baseQuery = (IQueryable<OrderProduct>)_context.OrderProducts!
-                .Include(op => op.Order)
-                .Include(op => op.Product)
-                .Where(op => op.Product.VendorId == vendorId)
-                .OrderByDescending(op => op.Order.OrderDate);
+            // Start from Orders instead of OrderProducts
+            var baseQuery = _context.Orders!
+                .Where(o => o.OrderProducts.Any(op => op.Product.VendorId == vendorId))
+                .OrderByDescending(o => o.OrderDate)
+                .AsQueryable();
 
-          
+            // Apply sorting
             if (!string.IsNullOrEmpty(request.SortColumn))
             {
                 baseQuery = baseQuery.OrderBy($"{request.SortColumn} {request.SortDirection}");
             }
 
-
+            // Apply status filter
             if (request.Statuses != null && request.Statuses.Any())
             {
                 var statusEnums = request.Statuses
-                 .Select(s => Enum.Parse<OrderStatus>(s, ignoreCase: true))
-                 .ToList();
-
-                baseQuery = baseQuery.Where(x => statusEnums.Contains(x.Order.Status));
+                    .Select(s => Enum.Parse<OrderStatus>(s, ignoreCase: true))
+                    .ToList();
+                baseQuery = baseQuery.Where(o => statusEnums.Contains(o.Status));
             }
 
+            // Apply date filter
             if (request.DateFilter != null && request.DateFilter.HasValue)
             {
-                baseQuery = baseQuery.Where(x => DateOnly.FromDateTime(x.Order.OrderDate) == request.DateFilter.Value);
+                baseQuery = baseQuery.Where(o =>
+                    DateOnly.FromDateTime(o.OrderDate) == request.DateFilter.Value);
             }
 
-            var query = baseQuery.Select(op => new OrdersOfVendorResponse(
-                op.Order.Id,
-                op.Quantity*op.Product.Price,
-                op.Order.OrderDate,
-                op.Order.Status.ToString(),
-                op.Order.OrderProducts.Where(o => o.Product.VendorId == vendorId).Select(op => new OrderProductResponse(
-                    op.Product.Id,
-                    op.Product.NameEn,
-                    op.Product.NameAr,
-                    op.Product.Price,
-                    op.Quantity
-                ))
-                .ToList()
+            // Project to response with vendor-specific products
+            var query = baseQuery.Select(o => new OrdersOfVendorResponse(
+                o.Id,
+                o.OrderProducts
+                    .Where(op => op.Product.VendorId == vendorId)
+                    .Sum(op => op.Quantity * op.Product.Price),
+                o.OrderDate,
+                o.Status.ToString(),
+                o.OrderProducts
+                    .Where(op => op.Product.VendorId == vendorId)
+                    .Select(op => new OrderProductResponse(
+                        op.Product.Id,
+                        op.Product.NameEn,
+                        op.Product.NameAr,
+                        op.Product.Price,
+                        op.Quantity
+                    ))
+                    .ToList()
             ));
 
             var orders = await PaginatedList<OrdersOfVendorResponse>.CreateAsync(

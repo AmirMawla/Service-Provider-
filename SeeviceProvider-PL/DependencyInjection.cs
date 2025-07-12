@@ -30,16 +30,27 @@ namespace SeeviceProvider_PL
         {
             services.AddControllers();
 
-           // services.AddEndpointsApiExplorer();
+            // services.AddEndpointsApiExplorer();
 
             //services.AddSwaggerGen();
 
-                
+
+            //services.AddCors(options =>
+            //        options.AddDefaultPolicy(builder =>
+            //                builder.AllowAnyOrigin()
+            //                       .AllowAnyMethod()
+            //                       .AllowAnyHeader()
+
+            //        )
+            //);
+
             services.AddCors(options =>
                     options.AddDefaultPolicy(builder =>
-                            builder.AllowAnyOrigin()
-                                   .AllowAnyMethod()
-                                   .AllowAnyHeader()
+                    builder
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .SetIsOriginAllowed(_ => true) // للسماح بكل origins مع credentials
                     )
             );
 
@@ -64,6 +75,7 @@ namespace SeeviceProvider_PL
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped<IAuthRepositry, AuthRepositry>();
             services.AddScoped<IAnalyticsRepositry, AnalyticsRepositry>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
             services.AddExceptionHandler<GlobalExeptionHandler>();
             services.AddProblemDetails();

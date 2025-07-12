@@ -33,7 +33,21 @@ namespace SeeviceProvider_PL
 
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-            builder.Services.AddSignalR();
+            builder.Services.AddSignalR(options =>
+            {
+                
+                options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+
+               
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+
+               
+                options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+
+                
+                options.EnableDetailedErrors = true;
+            }
+            );
 
             var app = builder.Build();
 

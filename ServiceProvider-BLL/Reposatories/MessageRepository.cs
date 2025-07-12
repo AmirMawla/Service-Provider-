@@ -132,8 +132,10 @@ namespace ServiceProvider_BLL.Reposatories
         {
             var messages = await _context.Messages!
                 .Where(m => m.OrderId == orderId &&
-                            ((m.SenderType == SenderType.User && m.ApplicationUserId == userId && m.VendorId == otherUserId) ||
-                             (m.SenderType == SenderType.Vendor && m.VendorId == userId && m.ApplicationUserId == otherUserId)))
+                (
+                    (m.ApplicationUserId == userId && m.VendorId == otherUserId) ||
+                    (m.ApplicationUserId == otherUserId && m.VendorId == userId)
+                ))
                 .AsNoTracking()
                 .Select(m => new MessageResponse(
                     m.Id,

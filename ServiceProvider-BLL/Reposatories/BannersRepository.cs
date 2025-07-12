@@ -89,7 +89,9 @@ namespace ServiceProvider_BLL.Reposatories
         }
 
 
-        public async Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode,string UserId,CancellationToken cancellationToken = default)
+
+
+        public async Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode, string UserId, CancellationToken cancellationToken = default)
         {
             var totalDiscount = await _appDbContext.CartProducts!
                 .Include(cp => cp.Product)!
@@ -104,16 +106,18 @@ namespace ServiceProvider_BLL.Reposatories
                 .FirstOrDefault(b =>
                     b.DiscountCode != null &&
                     b.DiscountCode.ToLower() == discountCode.ToLower() &&
-                    b.VendorId == cp.Product.VendorId 
+                    b.VendorId == cp.Product.VendorId
                 )
         })
-        .Where(x => x.Banner != null )
+        .Where(x => x.Banner != null)
         .SumAsync(x => (x.Price * x.Quantity) * (x.Banner!.DiscountPercentage! / 100), cancellationToken);
 
 
 
             return Result.Success(totalDiscount);
         }
+
+
 
         public async Task<Result<IEnumerable<BannersResponse>>> GetTopBannersAsync(CancellationToken cancellationToken = default)
         {

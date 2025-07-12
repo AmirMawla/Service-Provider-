@@ -15,11 +15,16 @@ using ServiceProvider_BLL.Dtos.ProductDto;
 using ServiceProvider_BLL.Dtos.VendorDto;
 using ServiceProvider_BLL.Dtos.OrderDto;
 using ServiceProvider_BLL.Errors;
+using System.Linq.Dynamic.Core;
 using Stripe.Climate;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using ServiceProvider_BLL.Abstractions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using ServiceProvider_BLL.Dtos.Common;
+using Stripe;
 
 namespace ServiceProvider_BLL.Reposatories
 {
@@ -89,7 +94,9 @@ namespace ServiceProvider_BLL.Reposatories
         }
 
 
-        public async Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode,string UserId,CancellationToken cancellationToken = default)
+
+
+        public async Task<Result<decimal>> GetCartDiscountByCodeAsync(string discountCode, string UserId, CancellationToken cancellationToken = default)
         {
             var totalDiscount = await _appDbContext.CartProducts!
                 .Include(cp => cp.Product)!
@@ -104,16 +111,18 @@ namespace ServiceProvider_BLL.Reposatories
                 .FirstOrDefault(b =>
                     b.DiscountCode != null &&
                     b.DiscountCode.ToLower() == discountCode.ToLower() &&
-                    b.VendorId == cp.Product.VendorId 
+                    b.VendorId == cp.Product.VendorId
                 )
         })
-        .Where(x => x.Banner != null )
+        .Where(x => x.Banner != null)
         .SumAsync(x => (x.Price * x.Quantity) * (x.Banner!.DiscountPercentage! / 100), cancellationToken);
 
 
 
             return Result.Success(totalDiscount);
         }
+
+
 
         public async Task<Result<IEnumerable<BannersResponse>>> GetTopBannersAsync(CancellationToken cancellationToken = default)
         {
@@ -157,23 +166,56 @@ namespace ServiceProvider_BLL.Reposatories
             return Result.Success(topBanners.Adapt<IEnumerable<BannersResponse>>());
         }
 
-        public async Task<Result<IEnumerable<BannerResponse2>>> GetVendorBannersAsync(string vendorId, CancellationToken cancellationToken = default)
+        public async Task<Result<PaginatedList<BannerResponse2>>> GetVendorBannersAsync(string vendorId,RequestFilter request, CancellationToken cancellationToken = default)
         {
 
 
-            var banners = await _appDbContext.Banners!
-                   .Where(b => b.VendorId == vendorId)
-                   .Select(b => new BannerResponse2(
+            var banners =  _appDbContext.Banners!
+                    .Where(b => b.VendorId == vendorId)
+                    .Include(b => b.Product)
+                    .Include(b => b.Vendor)
+                    .OrderByDescending(b => b.DiscountPercentage)
+                    .AsNoTracking();
+       
+
+
+            // Search filter
+            if (!string.IsNullOrEmpty(request.SearchValue))
+            {
+                var searchTerm = $"%{request.SearchValue.ToLower()}%";
+                banners = banners.Where(b =>
+                    EF.Functions.Like(b.Description!.ToLower(), searchTerm) ||
+                    EF.Functions.Like(b.Product!.NameEn!.ToLower(), searchTerm) ||
+                    EF.Functions.Like(b.Product.NameAr!.ToLower(), searchTerm) ||
+                    EF.Functions.Like(b.DiscountCode!.ToLower(), searchTerm));
+            }
+
+            // Sorting
+            if (!string.IsNullOrEmpty(request.SortColumn))
+            {
+                banners = banners.OrderBy($"{request.SortColumn} {request.SortDirection}");
+            }
+
+            var source = banners.Select(b => new BannerResponse2(
                                  b.ProductId,
+                                 b.Product!.NameEn,
+                                 b.Product!.NameAr,
                                  b.Description,
                                  b.ImageUrl,
                                  b.DiscountPercentage,
                                  b.DiscountCode
-                           )).ToListAsync(cancellationToken);
+                           ));
 
-            return banners.Any()
-                ? Result.Success(banners.Adapt<IEnumerable<BannerResponse2>>())
-                : Result.Failure<IEnumerable<BannerResponse2>>(BannerErrors.NoOffersForThisVendor);
+            var Banners = await PaginatedList<BannerResponse2>.CreateAsync(
+                source,
+                request.PageNumer,
+                request.PageSize,
+                cancellationToken
+            );
+
+            return Banners.Items.Any()
+            ? Result.Success(Banners)
+                : Result.Failure<PaginatedList<BannerResponse2>>(BannerErrors.NoOffersForThisVendor);
 
         }
 

@@ -9,6 +9,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using ServiceProvider_DAL.Entities;
 using System.Reflection;
+using ServiceProvider_BLL.Dtos.Common;
+using ServiceProvider_BLL.Dtos.VendorDto;
 
 namespace SeeviceProvider_PL.Controllers
 {
@@ -32,12 +34,13 @@ namespace SeeviceProvider_PL.Controllers
 
         [HttpGet("vendor/banners")]
         [Authorize(Policy = "ApprovedVendor")]
-        [ProducesResponseType(typeof(IEnumerable<BannerResponse2>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetBannersForCurrentVendor(CancellationToken cancellationToken = default)
+        [ProducesResponseType(typeof(PaginatedList<BannerResponse2>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetBannersForCurrentVendor([FromQuery] RequestFilter request,CancellationToken cancellationToken = default)
         {
             var vendorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var banners = await bannersRepository.Banners.GetVendorBannersAsync(vendorId!, cancellationToken);
+            var banners = await bannersRepository.Banners.GetVendorBannersAsync(vendorId!, request, cancellationToken);
 
             return banners.IsSuccess
            ? Ok(banners.Value)

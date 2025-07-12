@@ -8,6 +8,8 @@ namespace ServiceProvider_BLL.Dtos.BannersDto;
 public record BannerResponse2
 (
     int ProductId,
+    string? ProductNameEn,
+    string? ProductNameAr,
     string? Description,
     string? ImageUrl,
     decimal DiscountPercentage,

@@ -198,6 +198,8 @@ namespace ServiceProvider_BLL.Reposatories
 
             var source = banners.Select(b => new BannerResponse2(
                                  b.ProductId,
+                                 b.Product!.NameEn,
+                                 b.Product!.NameAr,
                                  b.Description,
                                  b.ImageUrl,
                                  b.DiscountPercentage,
